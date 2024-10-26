@@ -19,7 +19,7 @@ export default async function RootLayout({ children }) {
       <title>PATHY</title>
       <body className={inter.className}>
         <div className='xl:pt-16 md:pt-18 pt-32'>
-          <Header />
+
         </div>
         <GlobalProvider>
         <div className='xl:pt-16 md:pt-18 pt-32'>
