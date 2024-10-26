@@ -2,7 +2,7 @@ import React from 'react';
 import { options } from '@/app/api/auth/[...nextauth]/options'
 import { getServerSession } from 'next-auth/next'
 import NavBar from './NavBar';
-import Menu from './Menu'
+
 import { GlobalProvider } from 'next-auth/react';
 
 export default async function Header() {
@@ -18,7 +18,7 @@ export default async function Header() {
     <div  className="  w-full flex lg:flex-row shadow-gray-200 shadow-sm bg-red-100 z-50"
         style={{ marginTop: '2.5rem' }}
   >
-    <Menu/>
+
     </div>
     </header></GlobalProvider>
 
