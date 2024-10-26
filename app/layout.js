@@ -1,6 +1,5 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
-import mongodbConnect from '@/backend/lib/mongodb'
 import NavBar from '@/components/layouts/NavBar'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -12,7 +11,6 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  await mongodbConnect()
 
   return (
     
