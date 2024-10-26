@@ -7,6 +7,7 @@ import { FaShoppingCart } from "react-icons/fa";
 import { VscAccount } from "react-icons/vsc";
 import { IoIosLogIn } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
+import SearchBar from './SearchBar';
 
 function Wrapper({ children }) {
   return (
@@ -27,6 +28,8 @@ export default async function NavBar() {
           <h1 className="hidden md:block text-3xl font-bold text-blue-800">PATHY</h1>
           <h1 className='block md:hidden text-3xl font-bold text-gray-800'>PATHY</h1>
         </div>
+
+        <SearchBar/>
         
         {/* เมนูหลัก */}
 

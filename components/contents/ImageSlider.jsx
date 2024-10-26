@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 // Array of images to display in the slider
 const images = [
@@ -15,7 +16,7 @@ export default function ImageSlider() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 4000); // Change every 3 seconds
+    }, 4000); // Change every 4 seconds
 
     return () => clearInterval(interval); // Clean up interval on unmount
   }, []);
@@ -28,10 +29,13 @@ export default function ImageSlider() {
       >
         {images.map((src, index) => (
           <div key={index} className="w-full flex-shrink-0">
-            <img
+            <Image
               src={src}
               alt={`Novel ${index + 1}`}
+              width={800}
+              height={256}
               className="w-full h-64 object-cover rounded-lg shadow-lg"
+              priority={index === 0} // Ensures the first image loads quickly
             />
           </div>
         ))}

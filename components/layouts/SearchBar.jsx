@@ -27,7 +27,7 @@ export default function SearchBar() {
             onSubmit={submitHandler}
         >
             <input
-                className = "flex-grow appearance-none border w-auto text-black border-gray-100 bg-gray-200 rounded-md mr-2 py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400"
+                className = "flex-grow appearance-none border w-auto text-black border-gray-100 bg-white rounded-md mr-2 py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400"
                 type="text"
                 placeholder="ค้าหานิยาย..."
                 value={keyword}
