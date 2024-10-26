@@ -5,8 +5,7 @@ import NavBar from './NavBar';
 
 import { GlobalProvider } from 'next-auth/react';
 
-export default async function Header() {
-  const session = await getServerSession(options)
+export default  function Header() {
 
   return (
     <GlobalProvider>
