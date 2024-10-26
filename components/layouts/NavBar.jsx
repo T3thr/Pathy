@@ -29,8 +29,6 @@ export default async function NavBar() {
           <h1 className='block md:hidden text-3xl font-bold text-gray-800'>PATHY</h1>
         </div>
         
-        <SearchBar/>
-
         {/* เมนูหลัก */}
 
           <div className=" md:flex lg:flex space-x-4">
