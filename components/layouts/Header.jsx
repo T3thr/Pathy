@@ -6,8 +6,7 @@ import NavBar from './NavBar';
 import Menu from './Menu'
 import { SessionProvider } from 'next-auth/react';
 
-export default async function Header() {
-  const session = await getServerSession(options)
+export default function Header() {
 
   return (
     <SessionProvider>
