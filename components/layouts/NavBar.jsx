@@ -26,7 +26,7 @@ export default async function NavBar() {
         {/* โลโก้ทางซ้าย */}
         <div className=" top-0 flex items-center ">
           <h1 className="hidden md:block text-3xl font-bold text-blue-800">PATHY</h1>
-          <h1 className='block md:hidden text-3xl font-bold text-gray-800'>PATHY</h1>
+          <h1 className='block md:hidden text-3xl font-bold text-blue-800'>PATHY</h1>
         </div>
 
 

@@ -2,10 +2,11 @@ import React from 'react';
 import { options } from '@/app/api/auth/[...nextauth]/options'
 import { getServerSession } from 'next-auth/next'
 import NavBar from './NavBar';
+import Menu from './Menu'
+import { GlobalProvider } from "@/app/GlobalProvider";
 
-import { GlobalProvider } from 'next-auth/react';
-
-export default  function Header() {
+export default async function Header() {
+  const session = await getServerSession(options)
 
   return (
     <GlobalProvider>
@@ -14,10 +15,10 @@ export default  function Header() {
     <div className='top-0 flex '>   
     <NavBar />
     </div>
-    <div  className="  w-full flex lg:flex-row shadow-gray-200 shadow-sm bg-red-100 z-50"
+    <div  className="  w-full flex lg:flex-row shadow-gray-200 shadow-sm bg-gray-200 z-50"
         style={{ marginTop: '2.5rem' }}
   >
-
+    <Menu/>
     </div>
     </header></GlobalProvider>
 
