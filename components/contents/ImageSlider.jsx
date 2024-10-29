@@ -70,7 +70,7 @@ export default function ImageSlider() {
 
           return (
             <div key={index} className={`${styles.imageWrapper} ${displayClass}`}>
-              <Image src={image} alt={`Slide ${index}`} width={500} height={600} />
+              <Image src={image} alt={`Slide ${index}`} width={640} height={360} objectFit="cover" />
             </div>
           );
         })}

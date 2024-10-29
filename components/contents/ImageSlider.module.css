@@ -2,7 +2,8 @@
 .relative {
   position: relative;
   width: 100%;
-  max-width: 800px;
+  max-width: 640px;
+  max-height: 360px;
   margin: auto;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   border-radius: 15px;
@@ -17,6 +18,7 @@
   position: relative;
   overflow: hidden;
   height: 450px; /* Adjusted height */
+  border-radius: 15px;
 }
 
 /* Image Wrapper: Creates space for images and animations; sets alignment and transitions */
@@ -25,7 +27,8 @@
   transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease;
   display: flex;
   align-items: center;
-
+  max-width: 640px;
+  max-height: 360px;
   border-radius: 15px; /* Added border radius for each image */
   gap: 20px; /* Gap between each image */
   overflow: hidden; /* Prevents image overflow beyond rounded corners */
@@ -43,7 +46,7 @@
 /* Left Image: Places the left image slightly shrunk and dimmed, to the left of the center */
 .leftImage,
 .rightImage {
-  transform: translateX(-105%) scale(0.8); /* Added small offset for gap */
+  transform: translateX(-105%) scale(0.9); /* Added small offset for gap */
   opacity: 0.5;
   filter: brightness(0.6);
   z-index: 1;
@@ -51,7 +54,7 @@
 
 /* Right Image: Places the right image slightly shrunk and dimmed, to the right of the center */
 .rightImage {
-  transform: translateX(105%) scale(0.8); /* Added small offset for gap */
+  transform: translateX(105%) scale(0.9); /* Added small offset for gap */
   opacity: 0.5;
   filter: brightness(0.6);
   z-index: 1;
