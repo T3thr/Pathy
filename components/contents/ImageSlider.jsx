@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './ImageSlider.module.css';
 
-// Array of images to display in the slider
 const images = [
   '/images/novel1.png',
   '/images/novel2.png',
@@ -13,8 +12,9 @@ const images = [
 
 export default function ImageSlider() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  let touchStartX = 0;
+  let touchEndX = 0;
 
-  // Function to handle image navigation
   const handleNext = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
   };
@@ -31,8 +31,31 @@ export default function ImageSlider() {
     return () => clearInterval(interval);
   }, []);
 
+  // Function to detect swipe direction
+  const handleTouchStart = (e) => {
+    touchStartX = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e) => {
+    touchEndX = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX - touchEndX > 50) {
+      handleNext(); // Swipe left, go to the next image
+    }
+    if (touchEndX - touchStartX > 50) {
+      handlePrevious(); // Swipe right, go to the previous image
+    }
+  };
+
   return (
-    <div className="relative w-full max-w-screen mx-auto my-8 overflow-hidden">
+    <div
+      className="relative w-full max-w-screen mx-auto my-8 overflow-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       <div className={styles.imageContainer}>
         {images.map((image, index) => {
           const offset = index - currentIndex;
