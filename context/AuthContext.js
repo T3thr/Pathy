@@ -133,110 +133,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const loadUser = async () => {
-    try {
-      setLoading(true);
-
-      const { data } = await axios.get("/api/auth/session?update");
-
-      if (data?.user) {
-        setUser(data.user);
-        router.replace("/profile");
-      }
-    } catch (error) {
-      setError(error?.response?.data?.message);
-    }
-  };
-
-  const updateProfile = async (formData) => {
-    try {
-      setLoading(true);
-      const { data } = await axios.post("/api/auth/update-profile", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      setLoading(false);
-
-      if (data.success) {
-        toast.success("Profile updated successfully!");
-        setUser(data.user); // Update user state with new profile data
-      }
-    } catch (error) {
-      setLoading(false);
-      const errorMessage = error.response?.data?.message || "Profile update failed";
-      toast.error(errorMessage);
-    }
-  };
-
-  const updatePassword = async ({ currentPassword, newPassword }) => {
-    try {
-      const { data } = await axios.put(
-        `${process.env.API_URL}/api/auth/me/update_password`,
-        {
-          currentPassword,
-          newPassword,
-        }
-      );
-
-      if (data?.success) {
-        router.replace("/profile");
-      }
-    } catch (error) {
-      console.log(error.response);
-      setError(error?.response?.data?.message);
-    }
-  };
-
-  const addNewAddress = async (newAddress) => {
-    try {
-      const res = await fetch('/api/address', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newAddress),
-      });
-      if (!res.ok) {
-        throw new Error('Failed to add address');
-      }
-      // Handle successful address addition
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const updateAddress = async (id, address) => {
-    try {
-      const { data } = await axios.put(
-        `${process.env.API_URL}/api/address/${id}`,
-        address
-      );
-
-      if (data?.address) {
-        setUpdated(true);
-        router.replace(`/address/${id}`);
-      }
-    } catch (error) {
-      setError(error?.response?.data?.message);
-    }
-  };
-
-  const deleteAddress = async (id) => {
-    try {
-      const { data } = await axios.delete(
-        `${process.env.API_URL}/api/address/${id}`
-      );
-
-      if (data?.success) {
-        router.push("/profile");
-      }
-    } catch (error) {
-      setError(error?.response?.data?.message);
-    }
-  };
-
-
   const clearErrors = () => {
     setError(null);
   };
@@ -250,15 +146,9 @@ export const AuthProvider = ({ children }) => {
         signupUser,
         loginUser,
         adminSignIn,
-        updated,
         setUpdated,
         setUser,
         registerUser,
-        updateProfile,
-        updatePassword,
-        addNewAddress,
-        updateAddress,
-        deleteAddress,
         clearErrors,
       }}
     >

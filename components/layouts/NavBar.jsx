@@ -25,9 +25,10 @@ export default async function NavBar() {
       <div className="container mx-auto flex flex-row items-center justify-center lg:justify-between">
         {/* logo */}
         <div className="top-0 flex items-center">
-          <h1 className="text-3xl font-bold text-blue-800">PATHY</h1>
+            <Link href='/'>
+                <h1 className="text-3xl font-bold text-blue-800">PATHY</h1>
+            </Link>
         </div>
-
 
         
         {/* main */}
@@ -43,7 +44,7 @@ export default async function NavBar() {
           </Link></Wrapper>}
 
           {/* แสดงเมนู Sign In เมื่อยังไม่ได้เข้าสู่ระบบ */}
-          {!session && <Wrapper><Link href='/api/auth/signin' className={` hidden lg:flex items-center`}>
+          {!session && <Wrapper><Link href='/signin' className={` hidden lg:flex items-center`}>
             <IoIosLogIn className='mr-2'/>เข้าสู่ระบบ
             </Link></Wrapper>}
           {!session && <Wrapper><Link href='/signup' className={` hidden lg:flex items-center`}>
