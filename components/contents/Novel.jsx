@@ -1,82 +1,11 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState, useRef } from 'react';
+import styles from './Novel.module.css'; // Importing the CSS module
 import { novels, recommendationText } from './NovelList';
-
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #fdfdfd;
-  border-radius: 15px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-`;
-
-const Header = styled.h1`
-  text-align: center;
-  font-size: 2.5rem;
-  color: #2c3e50;
-  margin-bottom: 30px;
-`;
-
-const TextSection = styled.p`
-  font-size: 1.2rem;
-  color: #34495e;
-  text-align: center;
-  margin-bottom: 40px;
-`;
-
-const GenreSection = styled.div`
-  margin-bottom: 40px;
-`;
-
-const GenreHeader = styled.div`
-  padding: 15px;
-  border-radius: 10px;
-  color: white;
-  font-size: 1.5rem;
-  text-align: left;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-  background: ${({ gradient }) => gradient}; // Dynamic background
-`;
-
-const NovelList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-`;
-
-const NovelCard = styled.a`
-  background-color: #ecf0f1;
-  border-radius: 10px;
-  text-align: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-  width: 200px;
-  text-decoration: none;
-  color: #2c3e50;
-
-  &:hover {
-    transform: scale(1.05);
-    transition: transform 0.3s;
-  }
-`;
-
-const NovelImage = styled.img`
-  width: 100%;
-  height: auto;
-  border-radius: 10px 10px 0 0;
-`;
-
-const NovelTitle = styled.h3`
-  font-size: 1.1rem;
-  margin: 10px 0 0;
-  padding: 10px;
-`;
 
 export default function Novel() {
   const [categorizedNovels, setCategorizedNovels] = useState({});
+  const novelListRefs = useRef({}); // To store refs for each genre's novel list
 
   // Categorize novels by genre
   useEffect(() => {
@@ -103,26 +32,55 @@ export default function Novel() {
     แฟนตาซี: 'linear-gradient(135deg, #a18cd1, #fbc2eb)',
   };
 
+  // Function to handle swipe events for mobile devices
+  const handleTouchStart = (event, genre) => {
+    const touchStartX = event.touches[0].clientX; // Get the initial touch position
+    novelListRefs.current[genre] = { touchStartX }; // Store the initial touch position
+  };
+
+  const handleTouchMove = (event, genre) => {
+    if (novelListRefs.current[genre]) {
+      const touchMoveX = event.touches[0].clientX; // Get the current touch position
+      const difference = touchStartX - touchMoveX; // Calculate the swipe distance
+
+      // If swiping right, scroll the list to the right
+      if (difference > 30) {
+        event.preventDefault(); // Prevent default scrolling
+        novelListRefs.current[genre].scrollLeft += 100; // Scroll right
+      }
+      // If swiping left, scroll the list to the left
+      else if (difference < -30) {
+        event.preventDefault(); // Prevent default scrolling
+        novelListRefs.current[genre].scrollLeft -= 100; // Scroll left
+      }
+    }
+  };
+
   return (
-    <Container>
-      <Header>ยินดีต้อนรับ</Header>
-      <TextSection>{recommendationText}</TextSection>
+    <div className={styles.container}>
+      <h1 className={styles.header}>ยินดีต้อนรับ</h1>
+      <p className={styles.textSection}>{recommendationText}</p>
 
       {Object.entries(categorizedNovels).map(([genre, novels]) => (
-        <GenreSection key={genre}>
-          <GenreHeader gradient={genreGradients[genre]}>
+        <div className={styles.genreSection} key={genre}>
+          <div className={styles.genreHeader} style={{ background: genreGradients[genre] }}>
             {`${genre} `}
-          </GenreHeader>
-          <NovelList>
+          </div>
+          <div
+            className={styles.novelList}
+            ref={(el) => (novelListRefs.current[genre] = el)} // Store ref for the genre list
+            onTouchStart={(event) => handleTouchStart(event, genre)} // Start touch event
+            onTouchMove={(event) => handleTouchMove(event, genre)} // Move touch event
+          >
             {novels.map((novel, index) => (
-              <NovelCard key={index} href={`/novel/${novel.title.replace(/\s+/g, '-').toLowerCase()}`}>
-                <NovelImage src={novel.imageUrl} alt={`Cover of ${novel.title}`} />
-                <NovelTitle>{novel.title}</NovelTitle>
-              </NovelCard>
+              <a key={index} href={`/novel/${novel.title.replace(/\s+/g, '-').toLowerCase()}`} className={styles.novelCard}>
+                <img className={styles.novelImage} src={novel.imageUrl} alt={`Cover of ${novel.title}`} />
+                <h3 className={styles.novelTitle}>{novel.title}</h3>
+              </a>
             ))}
-          </NovelList>
-        </GenreSection>
+          </div>
+        </div>
       ))}
-    </Container>
+    </div>
   );
 }

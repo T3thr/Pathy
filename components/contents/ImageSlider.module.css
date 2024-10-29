@@ -107,11 +107,13 @@
 /* Left Arrow: Positioned on the left side with adjusted spacing */
 .arrowButtonLeft {
   left: 25px; /* Increased spacing from left */
+  opacity: 0.5;
 }
 
 /* Right Arrow: Positioned on the right side with adjusted spacing */
 .arrowButtonRight {
   right: 25px; /* Increased spacing from right */
+  opacity: 0.5;
 }
 
 /* Hover Effect for Arrow Buttons: Adds scaling and color effect */
