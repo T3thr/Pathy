@@ -21,20 +21,19 @@ export default async function NavBar() {
   const session = await getServerSession(options)
 
   return (
-    <nav className=" fixed top-0 w-full flex flex-col lg:flex-row bg-gray-200 p-0 shadow-gray-200 shadow-sm">
-      <div className="container mx-auto flex flex-col lg:flex-row items-center lg:justify-between">
-        {/* โลโก้ทางซ้าย */}
-        <div className=" top-0 flex items-center ">
-          <h1 className="hidden md:block text-3xl font-bold text-blue-800">PATHY</h1>
-          <h1 className='block md:hidden text-3xl font-bold text-blue-800'>PATHY</h1>
+    <nav className="fixed top-0 w-full flex flex-row bg-gray-200 p-0 shadow-gray-200 shadow-sm">
+      <div className="container mx-auto flex flex-row items-center justify-center lg:justify-between">
+        {/* logo */}
+        <div className="top-0 flex items-center">
+          <h1 className="text-3xl font-bold text-blue-800">PATHY</h1>
         </div>
 
 
         
-        {/* เมนูหลัก */}
+        {/* main */}
 
-          <div className=" md:flex lg:flex space-x-4">
-          <div className="top-0 md:flex lg:flex lg:space-x-4 lg:w-full md:w-auto align-top ">
+          <div className=" hidden lg:flex space-x-4">
+          <div className="top-0 md:flex lg:flex lg:space-x-4 lg:w-full md:w-auto align-middle ">
 
           <Wrapper><Link href='/' className={` hidden lg:block`}>Home</Link></Wrapper>
           

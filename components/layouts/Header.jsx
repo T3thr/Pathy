@@ -15,8 +15,7 @@ export default async function Header() {
     <div className='top-0 flex '>   
     <NavBar />
     </div>
-    <div  className="  w-full flex lg:flex-row shadow-gray-200 shadow-sm bg-gray-200 z-50"
-        style={{ marginTop: '2.5rem' }}
+    <div  className="  w-full flex lg:flex-row lg:mt-[3.3rem]  mt-8 shadow-gray-200 shadow-sm bg-gray-200 z-50"
   >
     <Menu/>
     </div>

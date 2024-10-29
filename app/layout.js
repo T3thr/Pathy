@@ -18,10 +18,10 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <title>PATHY</title>
       <body className={inter.className}>
-        <div className='xl:pt-16 md:pt-18 pt-32'>
+        <div className='xl:pt-18 md:pt-16 pt-20'>
           <Header />
         </div>
-        <div className='xl:pt-16 md:pt-18 pt-32'>
+        <div className='xl:pt-3 md:pt-1 pt-1'>
           {children}
         </div>
       </body>
