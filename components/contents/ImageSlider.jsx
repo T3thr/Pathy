@@ -50,12 +50,24 @@ export default function ImageSlider() {
   };
 
   return (
+    
     <div
       className="relative w-full max-w-screen mx-auto my-8 overflow-hidden"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
+        
+      <div className={styles.navigationDots}>
+        {images.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={`${styles.dot} ${index === currentIndex ? styles.activeDot : ''}`}
+          />
+        ))}
+      </div>
+      
       <div className={styles.imageContainer}>
         {images.map((image, index) => {
           const offset = index - currentIndex;
@@ -74,16 +86,6 @@ export default function ImageSlider() {
             </div>
           );
         })}
-      </div>
-
-      <div className={styles.navigationDots}>
-        {images.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentIndex(index)}
-            className={`${styles.dot} ${index === currentIndex ? styles.activeDot : ''}`}
-          />
-        ))}
       </div>
 
       <button onClick={handlePrevious} className={styles.arrowButtonLeft}>&#10094;</button>

@@ -41,6 +41,7 @@
   z-index: 2;
   transform: scale(1); /* Slightly increased scale */
   filter: brightness(1.1);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
 }
 
 /* Left Image: Places the left image slightly shrunk and dimmed, to the left of the center */
@@ -69,10 +70,13 @@
 .navigationDots {
   display: flex;
   justify-content: center;
-  margin-top: 1.5rem;
+  position: absolute; /* Make position absolute */
+  bottom: 50px; /* Distance from the bottom of the image container */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Center the dots */
   gap: 12px; /* Increased gap between dots */
   height: 20px;
-  z-index: 50;
+  z-index: 10;
 }
 
 /* Dot: Styles each dot with size, shape, and smooth color transition */
@@ -94,7 +98,7 @@
 /* Arrow Buttons: Positioned with background gradient, hover effects, and size for clarity */
 .arrowButtonLeft, .arrowButtonRight {
   position: absolute;
-  top: 50%;
+  top: 40%;
   transform: translateY(-50%);
   background: linear-gradient(45deg, #343a40, #495057);
   color: #ffffff;
