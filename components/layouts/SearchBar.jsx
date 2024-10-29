@@ -39,28 +39,34 @@ export default function SearchBar() {
                 <div className="fixed inset-0 bg-black opacity-50 z-40" onClick={toggleSearch}></div>
             )}
 
-            {isSearchVisible && (
-                <form
-                    className={`fixed top-0 left-0 right-0 p-1 bg-white shadow-lg z-50 transition-transform duration-300 ease-in-out transform ${isSearchVisible ? 'translate-y-0' : '-translate-y-full'}`}
-                    onSubmit={submitHandler}
-                >
-                    <div className="flex items-center w-full">
-                        <input
-                            className="flex-grow appearance-none border w-full text-black border-gray-100 bg-white rounded-md mr-2 py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400"
-                            type="text"
-                            placeholder="ค้าหานิยาย..."
-                            value={keyword}
-                            onChange={(e) => setKeyword(e.target.value)}
-                        />
-                        <button
-                            type="submit"
-                            className="px-4 py-2 text-white border border-transparent bg-blue-600 rounded-md hover:bg-blue-700 text-center text-sm"
-                        >
-                            ค้นหา
-                        </button>
-                    </div>
-                </form>
-            )}
+            <form
+                className={`fixed top-0 left-0 right-0 p-1 bg-white shadow-lg z-50 transition-transform duration-300 ease-in-out transform ${
+                    isSearchVisible ? 'translate-y-0' : '-translate-y-full'
+                }`}
+                style={{
+                    transform: isSearchVisible ? 'translateY(0)' : 'translateY(-100%)',
+                    transition: 'transform 0.3s ease-in-out',
+                    height: isSearchVisible ? '50px' : '0px', // Set height for visible and hidden states
+                    overflow: 'hidden', // Hide overflow when not visible
+                }}
+                onSubmit={submitHandler}
+            >
+                <div className="flex items-center w-full">
+                    <input
+                        className="flex-grow appearance-none border w-full text-black border-gray-100 bg-white rounded-md mr-2 py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400"
+                        type="text"
+                        placeholder="ค้าหานิยาย..."
+                        value={keyword}
+                        onChange={(e) => setKeyword(e.target.value)}
+                    />
+                    <button
+                        type="submit"
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 px-6 py-2 text-white border border-transparent bg-blue-600 rounded-md hover:bg-blue-700 text-center text-sm"
+                    >
+                        ค้นหา
+                    </button>
+                </div>
+            </form>
         </div>
     );
 }
