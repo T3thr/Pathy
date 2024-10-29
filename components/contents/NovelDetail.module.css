@@ -1,0 +1,45 @@
+.container {
+    padding: 20px;
+    max-width: 600px;
+    margin: auto;
+    text-align: center;
+  }
+  
+  .title {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+  
+  .coverImage {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .author {
+    font-size: 1.2rem;
+    color: #555;
+  }
+  
+  .description {
+    font-size: 1rem;
+    margin: 20px 0;
+    color: #333;
+  }
+  
+  .readButton {
+    background-color: #ff7e5f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+  }
+  
+  .readButton:hover {
+    background-color: #feb47b;
+  }
+  

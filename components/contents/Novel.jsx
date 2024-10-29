@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
 import styles from './Novel.module.css'; // Importing the CSS module
-import { novels, recommendationText } from './NovelList';
+import { novels, recommendationText } from '@/data/novels';
 
 export default function Novel() {
   const [categorizedNovels, setCategorizedNovels] = useState({});
@@ -73,10 +73,11 @@ export default function Novel() {
             onTouchMove={(event) => handleTouchMove(event, genre)} // Move touch event
           >
             {novels.map((novel, index) => (
-              <a key={index} href={`/novel/${novel.title.replace(/\s+/g, '-').toLowerCase()}`} className={styles.novelCard}>
+                <a key={index} href={`/novel/${novel.title.replace(/\s+/g, '-').toLowerCase()}`} className={styles.novelCard}>
                 <img className={styles.novelImage} src={novel.imageUrl} alt={`Cover of ${novel.title}`} />
                 <h3 className={styles.novelTitle}>{novel.title}</h3>
-              </a>
+                </a>
+
             ))}
           </div>
         </div>
