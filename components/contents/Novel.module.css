@@ -45,6 +45,7 @@
   /* Novel list that allows horizontal scrolling */
   .novelList {
     display: flex; /* Enables flexbox for horizontal layout */
+    flex-wrap: nowrap; /* Prevents wrapping on different screen sizes */
     overflow-x: auto; /* Enables horizontal scrolling */
     padding: 10px 0; /* Adds vertical padding */
     gap: 20px; /* Space between cards */

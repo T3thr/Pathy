@@ -1,11 +1,11 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
-import styles from './Novel.module.css'; // Importing the CSS module
+import styles from './Novel.module.css';
 import { novels, recommendationText } from '@/data/novels';
 
 export default function Novel() {
   const [categorizedNovels, setCategorizedNovels] = useState({});
-  const novelListRefs = useRef({}); // To store refs for each genre's novel list
+  const novelListRefs = useRef({});
 
   // Categorize novels by genre
   useEffect(() => {
@@ -34,24 +34,24 @@ export default function Novel() {
 
   // Function to handle swipe events for mobile devices
   const handleTouchStart = (event, genre) => {
-    const touchStartX = event.touches[0].clientX; // Get the initial touch position
-    novelListRefs.current[genre] = { touchStartX }; // Store the initial touch position
+    const touchStartX = event.touches[0].clientX;
+    novelListRefs.current[genre] = { touchStartX };
   };
 
   const handleTouchMove = (event, genre) => {
     if (novelListRefs.current[genre]) {
-      const touchMoveX = event.touches[0].clientX; // Get the current touch position
-      const difference = touchStartX - touchMoveX; // Calculate the swipe distance
+      const touchMoveX = event.touches[0].clientX;
+      const difference = novelListRefs.current[genre].touchStartX - touchMoveX;
 
       // If swiping right, scroll the list to the right
       if (difference > 30) {
-        event.preventDefault(); // Prevent default scrolling
-        novelListRefs.current[genre].scrollLeft += 100; // Scroll right
+        event.preventDefault();
+        novelListRefs.current[genre].scrollLeft += 100;
       }
       // If swiping left, scroll the list to the left
       else if (difference < -30) {
-        event.preventDefault(); // Prevent default scrolling
-        novelListRefs.current[genre].scrollLeft -= 100; // Scroll left
+        event.preventDefault();
+        novelListRefs.current[genre].scrollLeft -= 100;
       }
     }
   };
@@ -68,16 +68,19 @@ export default function Novel() {
           </div>
           <div
             className={styles.novelList}
-            ref={(el) => (novelListRefs.current[genre] = el)} // Store ref for the genre list
-            onTouchStart={(event) => handleTouchStart(event, genre)} // Start touch event
-            onTouchMove={(event) => handleTouchMove(event, genre)} // Move touch event
+            ref={(el) => (novelListRefs.current[genre] = el)}
+            onTouchStart={(event) => handleTouchStart(event, genre)}
+            onTouchMove={(event) => handleTouchMove(event, genre)}
           >
             {novels.map((novel, index) => (
-                <a key={index} href={`/novel/${novel.title.replace(/\s+/g, '-').toLowerCase()}`} className={styles.novelCard}>
+              <a
+                key={index}
+                href={`/novel/${novel.title.replace(/\s+/g, '-').toLowerCase()}`}
+                className={styles.novelCard}
+              >
                 <img className={styles.novelImage} src={novel.imageUrl} alt={`Cover of ${novel.title}`} />
                 <h3 className={styles.novelTitle}>{novel.title}</h3>
-                </a>
-
+              </a>
             ))}
           </div>
         </div>
