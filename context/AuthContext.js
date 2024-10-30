@@ -34,10 +34,10 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
 
-  const signupUser = async ({ name, email, password }) => {
+  const signupUser = async ({ name, username,email, password }) => {
     try {
       setLoading(true);
-      const { data, status } = await axios.post("/api/auth/signup", { name, email, password });
+      const { data, status } = await axios.post("/api/auth/signup", { name, username,email, password });
       setLoading(false);
   
       console.log('API Response:', data, status); // Debugging line
@@ -57,32 +57,12 @@ export const AuthProvider = ({ children }) => {
   };
   
 
-  const registerUser = async ({ name, email, password }) => {
-    try {
-      const { data } = await axios.post(
-        `${process.env.API_URL}/api/auth/register`,
-        {
-          id: user._id,
-          name,
-          email,
-          password,
-          role: 'user',
-        }
-      );
-
-      if (data?.user) {
-        router.push("/");
-      }
-    } catch (error) {
-      setError(error?.response?.data?.message);
-    }
-  };
-
-  const loginUser = async ({ email, password }) => {
+  const loginUser = async ({ username, email, password }) => {
     try {
         setLoading(true);
         const res = await nextAuthSignIn("credentials", {
             redirect: false,
+            username,
             email,
             password,
         });
@@ -102,12 +82,13 @@ export const AuthProvider = ({ children }) => {
     }
 };
 
-  const adminSignIn = async ({ username, password }) => {
+  const adminSignIn = async ({ username,email, password }) => {
     try {
       setLoading(true);
       const res = await nextAuthSignIn("adminCredentials", {
         redirect: false,
         username,
+        email,
         password,
       });
       setLoading(false);
@@ -148,7 +129,6 @@ export const AuthProvider = ({ children }) => {
         adminSignIn,
         setUpdated,
         setUser,
-        registerUser,
         clearErrors,
       }}
     >

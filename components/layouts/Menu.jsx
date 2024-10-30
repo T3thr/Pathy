@@ -25,10 +25,10 @@ export default function Menu() {
 
                     {/* Show button only when not authenticated */}
                     {!session?.user ? (
-                        <div className='md:hidden sm:flex'>
+                        <div className='flex'>
                             <button
                                 type='button'
-                                onClick={() => window.location.href = '/signin'} 
+                                onClick={() => window.location.href = '/profile'} 
                                 className='bg-white p-3 items-center rounded-full text-black hover:bg-gray-300 hover:text-gray-800'
                             >
                                 <span className='sr-only'>User</span>

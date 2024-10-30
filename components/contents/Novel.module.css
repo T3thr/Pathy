@@ -53,6 +53,7 @@
   
   /* Novel card style */
   .novelCard {
+    flex: 0 0 auto;
     background-color: #ecf0f1; /* Light gray background for cards */
     border-radius: 10px; /* Rounds the corners of cards */
     text-align: center; /* Centers text inside cards */

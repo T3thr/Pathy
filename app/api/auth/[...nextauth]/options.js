@@ -3,8 +3,8 @@ import GoogleProvider from "next-auth/providers/google";
 import User from "@/backend/models/User";
 import mongodbConnect from "@/backend/lib/mongodb";
 import bcrypt from "bcryptjs";
-
-const isUserCredentialsEnabled = process.env.USER_CREDENTIALS_ENABLED === 'true';
+import LoginGActivity from "@/backend/models/LoginGActivity";
+import mongoose from 'mongoose';
 
 export const options = {
     providers: [
@@ -15,72 +15,113 @@ export const options = {
                 email: { label: "Email", type: "text", placeholder: "Enter your email" },
                 password: { label: "Password", type: "password" },
             },
-            async authorize(credentials) {
+            async authorize(credentials, req) {
                 await mongodbConnect();
+            
+                // Check for email sign-in
                 if (credentials.email) {
                     const user = await User.findOne({ email: credentials.email }).select("+password");
-
+            
                     if (!user) {
                         throw new Error("No user found with this email");
                     }
-
+            
                     const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-
+            
                     if (!isPasswordValid) {
                         throw new Error("Incorrect password");
                     }
-
-                    return {
-                        id: user._id,
-                        name: user.name,
+            
+                    // Log login activity
+                    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
+                    await LoginGActivity.create({
+                        userId: user._id,
                         email: user.email,
-                        role: user.role,
-                        avatar: user.avatar,
-                    };
+                        username: user.username,
+                        ipAddress: ipAddress,
+                    });
+            
+                    return { id: user._id, ...user.toObject() };
                 }
-
-                if (!isUserCredentialsEnabled) {
-                    const admin = {
-                        id: 'admin',
-                        username: 'admin',
-                        password: '123456',
-                        name: 'Admin User',
-                        email: 'admin@pathy.com',
-                        role: 'admin',
-                        avatar: 'admin-avatar.jpg'
-                    };
-
-                    if (credentials.username === admin.username && credentials.password === admin.password) {
-                        return admin;
-                    } else {
-                        throw new Error("Invalid username or password");
+            
+                // Check for username sign-in
+                const user = await User.findOne({ username: credentials.username }).select("+password");
+            
+                if (user) {
+                    const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+            
+                    if (!isPasswordValid) {
+                        throw new Error("Incorrect password");
                     }
+            
+                    // Log login activity
+                    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
+                    await LoginGActivity.create({
+                        userId: user._id,
+                        email: user.email,
+                        username: user.username,
+                        ipAddress: ipAddress,
+                    });
+            
+                    return { id: user._id, ...user.toObject() };
                 }
-
-                throw new Error("No credentials provided");
+            
+                // Admin hardcoded credentials check
+                const adminId = new mongoose.Types.ObjectId(); // Use a predefined admin ID from environment variable
+                const adminPassword = 'admin123'; // Keep this secure; ideally, it should be hashed
+            
+                if (credentials.username === 'Admin' && credentials.password === adminPassword) {
+                    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
+                    
+                    await LoginGActivity.create({
+                        userId: adminId, // Use the predefined admin ID
+                        email: 'admin@pathy.com',
+                        name:'admin',
+                        username: 'Admin',
+                        ipAddress: ipAddress,
+                    });
+            
+                    return { id: adminId,name: 'admin', username: 'Admin', email: 'admin@pathy.com', role: 'admin' };
+                }
+            
+                throw new Error("No user found with this username");
             },
         }),
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            async authorize(credentials) {
+            async authorize(credentials, req) {
                 await mongodbConnect();
 
-                    return {
-                        id: user._id,
-                        name: user.name,
-                        email: user.email,
-                        role: 'user',
-                        avatar: user.avatar,
-                    };
-                }
+                // This part is to be adjusted according to your Google auth logic
+                // You should retrieve user info from the Google account and log the activity.
+                
+                // Placeholder for Google user, replace with actual logic
+
+
+                const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+                await LoginGActivity.create({
+                    userId: user._id, // Replace with actual user ID from Google
+                    email: user.email,
+                    username: user.username,
+                    ipAddress: ipAddress,
+                });
+
+                return {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: 'user',
+                    avatar: user.avatar,
+                };
+            }
         }),
     ],
     session: {
         strategy: "jwt",
     },
     callbacks: {
-        async signIn({ user, account, profile }) {
+        async signIn({ user, account }) {
             if (account.provider === 'google') {
                 user.role = 'user';
             }
