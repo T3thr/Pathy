@@ -70,7 +70,7 @@ export const options = {
                         id: user._id,
                         name: user.name,
                         email: user.email,
-                        role: 'admin',
+                        role: 'user',
                         avatar: user.avatar,
                     };
                 }
@@ -82,7 +82,7 @@ export const options = {
     callbacks: {
         async signIn({ user, account, profile }) {
             if (account.provider === 'google') {
-                user.role = 'admin';
+                user.role = 'user';
             }
             return true;
         },
