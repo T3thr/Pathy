@@ -100,46 +100,34 @@ export const options = {
                     access_type: "offline",
                 },
             },
-            async profile(profile, req) {
-                try {
-                    await mongodbConnect();
-                    const existingUser = await GoogleUser.findOne({ email: profile.email });
-            
-                    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-            
-                    if (existingUser) {
-                        existingUser.lastLogin = new Date();
-                        await existingUser.save();
-            
-                        await LoginActivity.create({
-                            googleUserId: existingUser._id,
-                            name: existingUser.name,
-                            email: existingUser.email,
-                            ipAddress,
-                            lastLogin: existingUser.lastLogin
-                        });
-                    } else {
-                        const newUser = await GoogleUser.create({
-                            name: profile.name,
-                            email: profile.email,
-                            avatar: { url: profile.picture },
-                            lastLogin: new Date(),
-                        });
-            
-                        await LoginActivity.create({
-                            googleUserId: newUser._id,
-                            name: newUser.name,
-                            email: newUser.email,
-                            ipAddress,
-                            lastLogin: newUser.lastLogin
-                        });
-                    }
-                    return { id: profile.sub, name: profile.name, email: profile.email, image: profile.picture };
-                } catch (error) {
-                    console.error("Error in Google provider profile method:", error);
-                    throw new Error("Authentication failed");
+            async profile(profile, req) { // Add req to the parameters to access the request object
+                await mongodbConnect();
+                const existingUser = await GoogleUser.findOne({ email: profile.email });
+
+                if (existingUser) {
+                    existingUser.lastLogin = new Date();
+                    await existingUser.save();
+                } else {
+                    await GoogleUser.create({
+                        name: profile.name,
+                        email: profile.email,
+                        avatar: { url: profile.picture },
+                        lastLogin: new Date(),
+                    });
                 }
-            }
+
+                // Log the login activity for Google sign-in
+                await LoginActivity.create({
+                    userId: existingUser ? existingUser._id : mongoose.Types.ObjectId(), // Use existing user ID or create a new one
+                    email: profile.email,
+                    name: profile.name,
+                    username: 'google user',
+
+                    lastLogin: new Date(),
+                });
+
+                return { id: profile.sub, name: profile.name, email: profile.email, image: profile.picture };
+            },
         }),
     ],
     callbacks: {
