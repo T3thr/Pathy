@@ -152,19 +152,12 @@ export const options = {
         strategy: "jwt",
     },
     callbacks: {
-        async signIn({ user, account }) {
-            if (account.provider === 'google') {
-                user.role = 'user';
-            }
-            return true;
-        },
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
                 token.name = user.name;
-                token.username = user.username;
                 token.email = user.email;
-                token.role = user.role;
+                token.username = user.username;
                 token.avatar = user.avatar;
             }
             return token;
@@ -172,9 +165,8 @@ export const options = {
         async session({ session, token }) {
             session.user.id = token.id;
             session.user.name = token.name;
-            session.user.username = token.username;
             session.user.email = token.email;
-            session.user.role = token.role;
+            session.user.username = token.username;
             session.user.avatar = token.avatar;
             return session;
         },
