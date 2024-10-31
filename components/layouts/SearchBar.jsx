@@ -40,12 +40,11 @@ export default function SearchBar() {
             )}
 
             <form
-                className={`fixed top-0 left-0 right-0 p-1 bg-white shadow-lg z-50 transition-transform duration-300 ease-in-out transform ${
-                    isSearchVisible ? 'translate-y-0' : '-translate-y-full'
+                className={`fixed top-0 left-0 right-0 p-1 bg-white shadow-lg z-50 transition-opacity duration-300 ease-in-out transform ${
+                    isSearchVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'
                 }`}
                 style={{
-                    transform: isSearchVisible ? 'translateY(0)' : 'translateY(-100%)',
-                    transition: 'transform 0.3s ease-in-out',
+                    transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
                     height: isSearchVisible ? '50px' : '0px', // Set height for visible and hidden states
                     overflow: 'hidden', // Hide overflow when not visible
                 }}

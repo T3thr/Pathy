@@ -13,25 +13,25 @@ export default function Novel() {
     if (savedNovels) {
       setCategorizedNovels(JSON.parse(savedNovels));
     } else {
-      // Initialize categorized novels object
       const newCategorizedNovels = {
         รักหวานแหวว: [],
         ตลกขบขัน: [],
         สยองขวัญ: [],
         แฟนตาซี: [],
       };
-
-      // Categorize novels
+  
       novels.forEach(novel => {
+        console.log(`Categorizing novel: ${novel.title} under genre: ${novel.genre}`);
         if (novel.genre in newCategorizedNovels) {
           newCategorizedNovels[novel.genre].push(novel);
         }
       });
-
+  
       setCategorizedNovels(newCategorizedNovels);
       localStorage.setItem('categorizedNovels', JSON.stringify(newCategorizedNovels));
     }
   }, []);
+  
 
   // Define gradients for each genre
   const genreGradients = {
@@ -83,10 +83,10 @@ export default function Novel() {
           >
             {novels.length > 0 ? novels.map((novel, index) => (
               <a
-                key={index}
+                key={novel.title} // Assuming titles are unique
                 href={`/novel/${encodeURIComponent(novel.title)}`}
                 className={styles.novelCard}
-                aria-label={`Read ${novel.title}`} // Add this line
+                aria-label={`Read ${novel.title}`} 
               >
                 <img className={styles.novelImage} src={novel.imageUrl} alt={`Cover of ${novel.title}`} />
                 <h3 className={styles.novelTitle}>{novel.title}</h3>
