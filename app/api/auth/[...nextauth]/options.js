@@ -105,7 +105,7 @@ export const options = {
             },
         }),
         GoogleProvider({
-            name: "Google",
+            name: "google",
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             async profile(profile) {
@@ -113,7 +113,6 @@ export const options = {
                     id: profile.sub,
                     name: profile.name,
                     email: profile.email,
-                    username: profile.email.split('@')[0], // Simple username generation
                     avatar: profile.picture,
                 };
             },
