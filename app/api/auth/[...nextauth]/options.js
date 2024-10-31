@@ -100,34 +100,41 @@ export const options = {
                     access_type: "offline",
                 },
             },
-            async profile(profile, req) {
+            async profile(profile, req) { // Added req parameter to access the request object
                 await mongodbConnect();
-                
                 const existingUser = await GoogleUser.findOne({ email: profile.email });
-
-                // Log the login activity for Google sign-in
+                
+                // Capture login activity
                 const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-
                 if (existingUser) {
                     existingUser.lastLogin = new Date();
                     await existingUser.save();
+
+                    // Record login activity
+                    await LoginActivity.create({
+                        userId: existingUser._id,
+                        name: existingUser.name,
+                        email: existingUser.email,
+                        ipAddress,
+                        lastLogin: existingUser.lastLogin // Use updated lastLogin time
+                    });
                 } else {
-                    await GoogleUser.create({
+                    const newUser = await GoogleUser.create({
                         name: profile.name,
                         email: profile.email,
                         avatar: { url: profile.picture },
                         lastLogin: new Date(),
                     });
+
+                    // Record login activity for the new user
+                    await LoginActivity.create({
+                        userId: newUser._id,
+                        name: newUser.name,
+                        email: newUser.email,
+                        ipAddress,
+                        lastLogin: newUser.lastLogin // Use lastLogin time
+                    });
                 }
-
-                await LoginActivity.create({
-                    userId: existingUser ? existingUser._id : new mongoose.Types.ObjectId(), // Use existing user ID if found, else create a new ID
-                    name: profile.name,
-                    email: profile.email,
-                    ipAddress,
-                    lastLogin: new Date(), // Set the last login time
-                });
-
                 return { id: profile.sub, name: profile.name, email: profile.email, image: profile.picture };
             },
         }),
