@@ -55,18 +55,18 @@ const Signin = () => {
     if (result?.error) {
       toast.error("Google sign-in failed. Please try again.");
     } else {
-      console.log("Google sign-in successful!");
-  
-      // Redirect after a short delay
-      setTimeout(() => {
-        // Show success toast after redirection
-        toast.success("Google sign-in successful!", { autoClose: 2000 });
-        router.push(callBackUrl || "/"); // Redirect to the callback URL or home
-      }, 700);
+      console.log("Google sign-in initiated, redirecting to Google..."); // Log to console
+      // Wait for the session to update, then show a success toast
+      setTimeout(async () => {
+        const sessionCheck = useSession();
+        if (sessionCheck.data) {
+          toast.success("Successfully signed in with Google!", { autoClose: 2000 });
+          router.push(callBackUrl || "/"); // Redirect to the callback URL or home
+        }
+      }, 1000); // Adjust the timeout if needed
     }
   };
   
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
       <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
