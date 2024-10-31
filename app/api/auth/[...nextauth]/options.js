@@ -102,6 +102,7 @@ export const options = {
                     name: profile.name,
                     email: profile.email,
                     username: profile.email.split('@')[0], // Use email prefix as username
+                    avatar: profile.picture,
                 };
             },
             async authorize(profile, req) {
@@ -116,6 +117,10 @@ export const options = {
                         name: profile.name,
                         email: profile.email,
                         username: profile.username,
+                        avatar: {
+                            public_id: profile.id,
+                            url: profile.avatar,
+                        },
                     });
                 }
 
@@ -136,6 +141,7 @@ export const options = {
                     email: user.email,
                     username: user.username,
                     role: user.role,
+                    avatar: user.avatar,
                 };
             },
         }),
@@ -157,6 +163,7 @@ export const options = {
                 token.username = user.username;
                 token.email = user.email;
                 token.role = user.role;
+                token.avatar = user.avatar;
             }
             return token;
         },
@@ -166,6 +173,7 @@ export const options = {
             session.user.username = token.username;
             session.user.email = token.email;
             session.user.role = token.role;
+            session.user.avatar = token.avatar;
             return session;
         },
     },

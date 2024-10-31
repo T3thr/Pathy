@@ -32,6 +32,10 @@ const userSchema = new Schema({
     type: String,
     default: "user",
   },
+  avatar: {
+    type: String, // URL for the user's avatar (if applicable)
+    required: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
