@@ -40,21 +40,21 @@ export const options = {
                         name: user.name,
                         email: user.email,
                         username: user.username,
-                        ipAddress: ipAddress,
+                        ipAddress,
                     });
-            
-                    return { id: user._id, ...user.toObject() };
-                } else {
-                    // Update lastLogin if the user exists
+
+                    // Update lastLogin
                     user.lastLogin = Date.now();
                     await user.save();
+
+                    return { id: user._id, ...user.toObject() };
                 }
-            
+                
                 // Check for username sign-in
                 const user = await User.findOne({ username: credentials.username }).select("+password");
             
                 if (user) {
-                    const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+                    const isPasswordValid = await bcrypt.compare(password, user.password);
             
                     if (!isPasswordValid) {
                         throw new Error("Incorrect password");
@@ -67,14 +67,14 @@ export const options = {
                         name: user.name,
                         email: user.email,
                         username: user.username,
-                        ipAddress: ipAddress,
+                        ipAddress,
                     });
             
-                    return { id: user._id, ...user.toObject() };
-                } else {
-                    // Update lastLogin if the user exists
+                    // Update lastLogin
                     user.lastLogin = Date.now();
                     await user.save();
+            
+                    return { id: user._id, ...user.toObject() };
                 }
             
                 // Admin hardcoded credentials check
