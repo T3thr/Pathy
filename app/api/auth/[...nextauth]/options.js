@@ -94,6 +94,14 @@ export const options = {
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            authorization: {
+                // Google OAuth 2.0 authorization URL with prompts and scopes
+                url: "https://accounts.google.com/o/oauth2/v2/auth",
+                params: {
+                    prompt: "select_account", // Prompt for account selection
+                    scope: "openid email profile", // Request openid, email, and profile information
+                },
+            },
             async profile(profile) {
                 await mongodbConnect();
                 const existingUser = await GoogleUser.findOne({ email: profile.email });
