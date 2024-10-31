@@ -9,12 +9,14 @@ import "react-toastify/dist/ReactToastify.css";
 export function GlobalProvider({ children }) {
   return (
     <>
+    <SessionProvider>
     <ToastContainer position="bottom-right" />
       <NovelProvider>
       <AuthProvider>
-      <SessionProvider>{children}</SessionProvider>
+      {children}
       </AuthProvider>
       </NovelProvider>
+      </SessionProvider>
     </>
   );
 }
