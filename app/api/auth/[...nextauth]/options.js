@@ -118,13 +118,11 @@ export const options = {
                 }
 
                 // Log the login activity for Google sign-in
-                const ipAddress = getIpAddress(req); // Get IP address using the utility function
                 await LoginActivity.create({
                     userId: existingUser ? existingUser._id : mongoose.Types.ObjectId(), // Use existing user ID or create a new one
                     email: profile.email,
                     name: profile.name,
                     username: 'google user',
-                    ipAddress,
                     lastLogin: new Date(),
                 });
 
