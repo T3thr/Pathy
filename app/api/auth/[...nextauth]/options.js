@@ -108,11 +108,11 @@ export const options = {
                 await mongodbConnect();
         
                 // Find user by email
-                let user = await GoogleUser.findOne({ email: profile.email });
+                let userExist = await GoogleUser.findOne({ email: profile.email });
         
                 // If user doesn't exist, create a new user
-                if (!user) {
-                    user = await GoogleUser.create({
+                if (!userExist) {
+                    const user = await GoogleUser.create({
                         name: profile.name,
                         email: profile.email,
                         username: profile.email.split('@')[0], // Simple username generation
@@ -148,30 +148,7 @@ export const options = {
             },
         }),
     ],
-    session: {
-        strategy: "jwt",
-    },
-    callbacks: {
-        async jwt({ token, user }) {
-            if (user) {
-                token.id = user.id;
-                token.name = user.name;
-                token.email = user.email;
-                token.username = user.username;
-                token.avatar = user.avatar;
-            }
-            return token;
-        },
-        async session({ session, token }) {
-            session.user.id = token.id;
-            session.user.name = token.name;
-            session.user.email = token.email;
-            session.user.username = token.username;
-            session.user.avatar = token.avatar;
-            return session;
-        },
-    },
-    secret: process.env.NEXTAUTH_SECRET,
+
 };
 
 export default options;
