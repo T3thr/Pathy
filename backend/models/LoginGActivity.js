@@ -4,30 +4,30 @@ import mongoose from 'mongoose';
 const LoginGActivitySchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true,
+        required: false,
         ref: 'User',
     },
     name: {
         type: String,
-        required: [true, "Please enter your name"],
+        required: [false, "Please enter your name"],
       },
     username: {
         type: String, // Change this to String to store the username directly
-        required: true,
+        required: false,
     },
     email: { // Optionally add an email field if you want to store email too
         type: String,
-        required: true,
+        required: false,
     },
     password: {
         type: String,
-        required: [true, "Please enter your password"],
+        required: [false, "Please enter your password"],
         minLength: [6, "Your password must be longer than 6 characters"],
         select: false,
       },
     ipAddress: {
         type: String,
-        required: true,
+        required: false,
     },
     createdAt: {
         type: Date,
