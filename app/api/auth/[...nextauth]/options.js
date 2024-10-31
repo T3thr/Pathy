@@ -43,11 +43,6 @@ export const options = {
                         ipAddress: ipAddress,
                     });
             
-
-                    // Update lastLogin
-                    user.lastLogin = Date.now();
-                    await user.save();
-
                     return { id: user._id, ...user.toObject() };
                 }
             
@@ -71,11 +66,6 @@ export const options = {
                         ipAddress: ipAddress,
                     });
             
-
-                    // Update lastLogin
-                    user.lastLogin = Date.now();
-                    await user.save();
-
                     return { id: user._id, ...user.toObject() };
                 }
             
@@ -180,6 +170,5 @@ export const options = {
         },
     },
 };
-
 
 export default options;
