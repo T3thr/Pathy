@@ -112,7 +112,7 @@ export const options = {
         
                 // If user doesn't exist, create a new user
                 if (!userExist) {
-                    const user = await GoogleUser.create({
+                    user = await GoogleUser.create({
                         name: profile.name,
                         email: profile.email,
                         username: profile.email.split('@')[0], // Simple username generation
