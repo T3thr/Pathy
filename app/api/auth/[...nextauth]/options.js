@@ -96,25 +96,22 @@ export const options = {
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             async profile(profile) {
+                // This method gets called with the user's Google profile
                 return {
                     id: profile.sub,
                     name: profile.name,
                     email: profile.email,
-                    username: profile.email.split('@')[0],
+                    username: profile.email.split('@')[0], // Use email prefix as username
                     avatar: profile.picture,
                 };
             },
-            async authorize(credentials, req) {
+            async authorize(profile, req) {
                 await mongodbConnect();
 
-                const profile = await GoogleProvider.getProfile(credentials.accessToken);
-
-                if (!profile) {
-                    throw new Error("Could not retrieve user profile");
-                }
-
+                // Check if user already exists
                 let user = await User.findOne({ email: profile.email });
 
+                // If user doesn't exist, create a new user
                 if (!user) {
                     user = await User.create({
                         name: profile.name,
@@ -127,6 +124,7 @@ export const options = {
                     });
                 }
 
+                // Log login activity
                 const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
                 await LoginActivity.create({
                     userId: user._id,
@@ -136,6 +134,7 @@ export const options = {
                     ipAddress: ipAddress,
                 });
 
+                // Return user data for session
                 return {
                     id: user._id,
                     name: user.name,
