@@ -35,7 +35,6 @@ const userSchema = new Schema({
   avatar: {
     public_id: { type: String },
     url: { type: String },
-    required: false,
   },
   createdAt: {
     type: Date,
