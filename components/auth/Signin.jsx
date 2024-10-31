@@ -54,8 +54,10 @@ const Signin = () => {
     if (result?.error) {
       toast.error("Google sign-in failed. Please try again.");
     } else {
-      toast.success("Google sign-in successful!");
-      router.push(callBackUrl || "/"); // Redirect to the callback URL or home
+      toast.success("Google sign-in successful!", { autoClose: 2000 });
+      setTimeout(() => {
+        router.push(callBackUrl || "/"); // Redirect to the callback URL or home
+      }, 700);
     }
   };
 
