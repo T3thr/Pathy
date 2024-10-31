@@ -91,6 +91,7 @@ export const options = {
             },
         }),
         GoogleProvider({
+            name: "google",
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             async profile(profile) {

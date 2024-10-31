@@ -50,12 +50,7 @@ const Signin = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    
-
-    const result = await signIn('google', {
-        ...formData,
-        redirect: false,
-    });
+    const result = await signIn("google", { redirect: false });
     if (result?.error) {
       toast.error("Google sign-in failed. Please try again.");
     } else {
