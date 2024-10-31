@@ -1,11 +1,13 @@
 'use client';
-import React from 'react';
+import React, { useContext } from 'react';
 import Link from 'next/link';
 import { useSession } from "next-auth/react";
+import AuthContext from '@/context/AuthContext';
 import SearchBar from './SearchBar';
 import { FaUserAlt } from "react-icons/fa";
 
 export default function Menu() {
+    const { user } = useContext(AuthContext);
     const { data: session } = useSession();
 
     return (
@@ -39,14 +41,13 @@ export default function Menu() {
                             <div className='flex items-center space-x-3 cursor-pointer'>
                                 <img
                                     className='w-10 h-10 border shadow-md rounded-full'
-                                    src={'/images/default.png'} // Use a dynamic src if you have user avatar
-                                    alt="User Avatar"
+                                    src={'/images/default.png'}
                                 />
                                 <div className='space-y-1 font-medium'>
                                     <p>
-                                        {session.user.name || 'GUEST'}
+                                        {user ? user.name : 'GUEST'}
                                         <time className='block text-sm text-gray-500 dark:text-gray-400'>
-                                            {session.user.email || 'No email'}
+                                            {user?.email}
                                         </time>
                                     </p>
                                 </div>
