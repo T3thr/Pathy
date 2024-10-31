@@ -64,7 +64,7 @@ export default function Novel() {
       {Object.entries(categorizedNovels).map(([genre, novels]) => (
         <div className={styles.genreSection} key={genre}>
           <div className={styles.genreHeader} style={{ background: genreGradients[genre] }}>
-            {`${genre} `}
+            {genre}
           </div>
           <div
             className={styles.novelList}
