@@ -93,48 +93,55 @@ export const options = {
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            async profile(profile) {
+                // Return the user profile object with relevant data
+                return {
+                    id: profile.id,
+                    name: profile.name,
+                    email: profile.email,
+                    username: profile.email.split('@')[0], // You can derive a username from the email or use another method
+                    avatar: profile.picture,
+                };
+            },
             async authorize(credentials, req) {
                 await mongodbConnect();
         
-                // Get the user information from Google
-                const user = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo`, {
-                    headers: {
-                        Authorization: `Bearer ${credentials.accessToken}`,
-                    },
-                }).then(res => res.json());
+                const { profile } = await GoogleProvider.getProfile({
+                    accessToken: credentials.accessToken,
+                });
         
-                // Check if user exists in your database
-                let dbUser = await User.findOne({ email: user.email });
-                
-                // If the user doesn't exist, you may want to create them
-                if (!dbUser) {
-                    dbUser = await User.create({
-                        name: user.name,
-                        email: user.email,
-                        username: user.email.split('@')[0], // Or however you want to generate a username
-                        // Other fields as necessary
+                // Check if the user already exists in your database
+                let user = await User.findOne({ email: profile.email });
+        
+                if (!user) {
+                    // If the user doesn't exist, create a new user
+                    user = await User.create({
+                        name: profile.name,
+                        email: profile.email,
+                        username: profile.username,
+                        avatar: profile.picture,
+                        // Add any other fields required for your User model
                     });
                 }
         
                 // Log login activity
                 const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
                 await LoginActivity.create({
-                    userId: dbUser._id,
-                    name: dbUser.name,
-                    email: dbUser.email,
-                    username: dbUser.username,
+                    userId: user._id,
+                    name: user.name,
+                    email: user.email,
+                    username: user.username,
                     ipAddress: ipAddress,
-                    role: dbUser.role || 'user', // Set a default role if not already set
                 });
         
                 return {
-                    id: dbUser._id,
-                    name: dbUser.name,
-                    email: dbUser.email,
-                    role: dbUser.role || 'user',
-                    avatar: user.picture || null, // Assuming the Google user has a picture
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    username: user.username,
+                    avatar: user.avatar,
                 };
-            },
+            }
         }),
         
     ],
