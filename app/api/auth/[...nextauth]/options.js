@@ -90,8 +90,6 @@ export const options = {
                 throw new Error("No user found with this username");
             },
         }),
-        CredentialsProvider({
-        }),
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
