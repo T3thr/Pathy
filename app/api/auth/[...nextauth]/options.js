@@ -90,36 +90,46 @@ export const options = {
                 throw new Error("No user found with this username");
             },
         }),
+        CredentialsProvider({
+            // CredentialsProvider setup remains the same
+        }),
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            async profile(profile) {
-                return {
-                    id: profile.id,
-                    name: profile.name,
-                    email: profile.email,
-                    username: profile.email.split('@')[0],
-                    avatar: profile.picture,
-                };
-            },
-            async authorize({ accessToken, profile }, req) {
+            async authorize(credentials, req) {
                 await mongodbConnect();
 
+                const profile = credentials; // Use the Google profile directly
+
                 let user = await User.findOne({ email: profile.email });
+
                 if (!user) {
                     user = await User.create({
                         name: profile.name,
                         email: profile.email,
-                        username: profile.email.split('@')[0],
+                        username: profile.email.split('@')[0], // Simple username generation
                         avatar: profile.picture,
                     });
                 }
 
                 const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-                await LoginActivity.create({ userId: user._id, ...user.toObject(), ipAddress });
+                await LoginActivity.create({
+                    userId: user._id,
+                    name: user.name,
+                    email: user.email,
+                    username: user.username,
+                    ipAddress: ipAddress,
+                });
 
-                return { id: user._id, ...user.toObject() };
-            }
+                return {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    username: user.username,
+                    role: 'user',
+                    avatar: user.avatar,
+                };
+            },
         }),
     ],
     session: {
@@ -136,6 +146,7 @@ export const options = {
             if (user) {
                 token.id = user.id;
                 token.name = user.name;
+                token.username = user.username;
                 token.email = user.email;
                 token.role = user.role;
                 token.avatar = user.avatar;
@@ -145,6 +156,7 @@ export const options = {
         async session({ session, token }) {
             session.user.id = token.id;
             session.user.name = token.name;
+            session.user.username = token.username;
             session.user.email = token.email;
             session.user.role = token.role;
             session.user.avatar = token.avatar;
