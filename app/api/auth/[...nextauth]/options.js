@@ -2,9 +2,9 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import User from "@/backend/models/User";
 import GoogleUser from "@/backend/models/GoogleUser";
-import LoginActivity from "@/backend/models/LoginActivity";
 import mongodbConnect from "@/backend/lib/mongodb";
 import bcrypt from "bcryptjs";
+import LoginActivity from "@/backend/models/LoginActivity";
 import mongoose from "mongoose";
 
 export const options = {
@@ -19,54 +19,106 @@ export const options = {
             async authorize(credentials, req) {
                 await mongodbConnect();
 
-                // Check email-based sign-in
-                const user = credentials.email 
-                    ? await User.findOne({ email: credentials.email }).select("+password") 
-                    : await User.findOne({ username: credentials.username }).select("+password");
+                // Check for email sign-in
+                if (credentials.email) {
+                    const user = await User.findOne({ email: credentials.email }).select("+password");
+                    if (!user) throw new Error("No user found with this email");
 
+                    const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+                    if (!isPasswordValid) throw new Error("Incorrect password");
+
+                    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+                    await LoginActivity.create({
+                        userId: user._id,
+                        name: user.name,
+                        email: user.email,
+                        username: user.username,
+                        ipAddress,
+                        lastLogin: new Date() // Update lastLogin time
+                    });
+
+                    return { id: user._id, ...user.toObject() };
+                }
+
+                // Check for username sign-in
+                const user = await User.findOne({ username: credentials.username }).select("+password");
                 if (user) {
                     const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
                     if (!isPasswordValid) throw new Error("Incorrect password");
 
-                    const ipAddress = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-                    await LoginActivity.create({ userId: user._id, ipAddress, name: user.name, email: user.email, username: user.username });
-                    
+                    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+                    await LoginActivity.create({
+                        userId: user._id,
+                        name: user.name,
+                        email: user.email,
+                        username: user.username,
+                        ipAddress,
+                        lastLogin: new Date() // Update lastLogin time
+                    });
+
                     return { id: user._id, ...user.toObject() };
                 }
 
-                throw new Error("No user found with this username or email");
-            },
-        }),
+                // Admin hardcoded credentials check
+                const adminId = new mongoose.Types.ObjectId(); // Use a predefined admin ID from environment variable
+                const adminPassword = 'admin123'; // Keep this secure; ideally, it should be hashed
+
+                if (credentials.username === 'Admin' && credentials.password === adminPassword) {
+                    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+                    await LoginActivity.create({
+                        userId: adminId,
+                        email: 'admin@pathy.com',
+                        name: 'admin',
+                        username: 'Admin',
+                        ipAddress: ipAddress,
+                        role: 'admin',
+                        lastLogin: new Date() // Update lastLogin time
+                    });
+
+                    return { id: adminId, name: 'admin', username: 'Admin', email: 'admin@pathy.com', role: 'admin' };
+                }
+
+                throw new Error("No user found with this username");
+                },
+                }),
+
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            async profile(profile) {
+                await mongodbConnect();
+                const existingUser = await GoogleUser.findOne({ email: profile.email });
+                
+                if (existingUser) {
+                    existingUser.lastLogin = new Date();
+                    await existingUser.save();
+                } else {
+                    await GoogleUser.create({
+                        name: profile.name,
+                        email: profile.email,
+                        avatar: { url: profile.picture },
+                        lastLogin: new Date(),
+                    });
+                }
+                return { id: profile.sub, name: profile.name, email: profile.email, image: profile.picture };
+            },
         }),
     ],
     callbacks: {
-        async signIn({ user, account }) {
-            await mongodbConnect();
-            if (account.provider === "google") {
-                const existingUser = await GoogleUser.findOne({ email: user.email });
-                if (!existingUser) {
-                    await GoogleUser.create({
-                        name: user.name,
-                        email: user.email,
-                        avatar: {
-                            url: user.image,
-                        },
-                        lastLogin: new Date(),
-                    });
-                } else {
-                    existingUser.lastLogin = new Date();
-                    await existingUser.save();
-                }
-            }
-            return true;
-        },
         async session({ session, token }) {
             session.user.id = token.sub;
             return session;
         },
+        async jwt({ token, account, profile }) {
+            if (account && profile) {
+                token.sub = profile.id;
+            }
+            return token;
+        }
     },
+
+    debug: true,
 };
+
 export default options;
