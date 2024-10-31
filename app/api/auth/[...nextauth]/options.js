@@ -4,6 +4,7 @@ import User from "@/backend/models/User";
 import mongodbConnect from "@/backend/lib/mongodb";
 import bcrypt from "bcryptjs";
 import LoginActivity from "@/backend/models/LoginActivity";
+import GoogleUser from "@/backend/models/GoogleUser";
 import mongoose from 'mongoose';
 
 export const options = {
@@ -96,13 +97,13 @@ export const options = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             async authorize(profile, req) {
                 await mongodbConnect();
-                
+        
                 // Find user by email
-                let user = await User.findOne({ email: profile.email });
-
+                let user = await GoogleUser.findOne({ email: profile.email });
+        
                 // If user doesn't exist, create a new user
                 if (!user) {
-                    user = await User.create({
+                    user = await GoogleUser.create({
                         name: profile.name,
                         email: profile.email,
                         username: profile.email.split('@')[0], // Simple username generation
@@ -111,18 +112,22 @@ export const options = {
                             url: profile.picture,
                         },
                     });
+                } else {
+                    // Update lastLogin if the user exists
+                    user.lastLogin = Date.now();
+                    await user.save();
                 }
-
+        
                 // Log login activity
                 const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
                 await LoginActivity.create({
-                    userId: user._id,
+                    googleUserId: user._id,
                     name: user.name,
                     email: user.email,
                     username: user.username,
                     ipAddress: ipAddress,
                 });
-
+        
                 return {
                     id: user._id,
                     name: user.name,
@@ -138,7 +143,12 @@ export const options = {
         strategy: "jwt",
     },
     callbacks: {
-
+        async signIn({ user, account }) {
+            if (account.provider === 'google') {
+                user.role = 'user';
+            }
+            return true;
+        },
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;

@@ -7,6 +7,11 @@ const LoginActivitySchema = new mongoose.Schema({
         required: false,
         ref: 'User',
     },
+    googleUserId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: false,
+        ref: 'GoogleUser',
+    },
     name: {
         type: String,
         required: [false, "Please enter your name"],

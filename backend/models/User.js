@@ -32,10 +32,6 @@ const userSchema = new Schema({
     type: String,
     default: "user",
   },
-  avatar: {
-    public_id: { type: String },
-    url: { type: String },
-  },
   createdAt: {
     type: Date,
     default: Date.now,
