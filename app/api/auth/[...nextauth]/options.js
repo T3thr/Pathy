@@ -159,7 +159,27 @@ export const options = {
             },
         }),
     ],
-
+    callbacks: {
+        async session({ session, token }) {
+            // Attach user data to the session object
+            if (token) {
+                session.user.id = token.id; // Attach user ID
+                session.user.role = token.role; // Attach user role if available
+                session.user.avatar = token.avatar; // Attach user avatar if available
+            }
+            return session;
+        },
+        async jwt({ token, user }) {
+            // Add user information to the token if user is available
+            if (user) {
+                token.id = user.id; // Store user ID
+                token.role = user.role; // Store user role
+                token.avatar = user.avatar; // Store user avatar
+            }
+            return token;
+        },
+    },
 };
+
 
 export default options;

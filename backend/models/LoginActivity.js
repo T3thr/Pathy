@@ -39,7 +39,7 @@ const LoginActivitySchema = new mongoose.Schema({
         type: String,
         required: false,
     },
-    lastLogin: { type: Date },
+    lastLogin: { type: Date, required: false},
     createdAt: { type: Date, default: Date.now },
     },
 );
