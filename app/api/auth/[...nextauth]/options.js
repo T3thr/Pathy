@@ -91,30 +91,57 @@ export const options = {
             },
         }),
         GoogleProvider({
-            name: 'Google',
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             async profile(profile) {
+                // This method gets called with the user's Google profile
+                return {
+                    id: profile.sub,
+                    name: profile.name,
+                    email: profile.email,
+                    username: profile.email.split('@')[0], // Use email prefix as username
+                    avatar: profile.picture,
+                };
+            },
+            async authorize(profile, req) {
                 await mongodbConnect();
+
                 // Check if user already exists
                 let user = await User.findOne({ email: profile.email });
-                
-                // If not, create a new user
+
+                // If user doesn't exist, create a new user
                 if (!user) {
                     user = await User.create({
-                        userId: profile.id,
-                        username: profile.name.givenName,
-                        email: profile.email,
                         name: profile.name,
-                        avatar: profile.picture,
+                        email: profile.email,
+                        username: profile.username,
+                        avatar: {
+                            public_id: profile.id,
+                            url: profile.avatar,
+                        },
                     });
                 }
 
                 // Log login activity
-                await LoginActivity.create({ userId: user.userId });
+                const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+                await LoginActivity.create({
+                    userId: user._id,
+                    name: user.name,
+                    email: user.email,
+                    username: user.username,
+                    ipAddress: ipAddress,
+                });
 
-                return user;
-            }
+                // Return user data for session
+                return {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    username: user.username,
+                    role: user.role,
+                    avatar: user.avatar,
+                };
+            },
         }),
     ],
     session: {

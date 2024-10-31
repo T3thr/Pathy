@@ -4,11 +4,6 @@ import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 
 const userSchema = new Schema({
-  userId: { 
-    type: String, 
-    required: false, 
-    unique: true 
-  },
   name: {
     type: String,
     required: [true, "Please enter your name"],
@@ -38,7 +33,8 @@ const userSchema = new Schema({
     default: "user",
   },
   avatar: {
-    type: String, // URL for the user's avatar (if applicable)
+    public_id: { type: String },
+    url: { type: String },
     required: false,
   },
   createdAt: {
