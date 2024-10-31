@@ -103,7 +103,7 @@ export const options = {
             async profile(profile, req) { // Add req to the parameters to access the request object
                 await mongodbConnect();
                 const existingUser = await GoogleUser.findOne({ email: profile.email });
-                const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress; // Get IP address
+                
 
                 if (existingUser) {
                     existingUser.lastLogin = new Date();
@@ -118,6 +118,7 @@ export const options = {
                 }
 
                 // Log the login activity for Google sign-in
+                const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress; // Get IP address
                 await LoginActivity.create({
                     userId: existingUser ? existingUser._id : mongoose.Types.ObjectId(), // Use existing user ID or create a new one
                     email: profile.email,
