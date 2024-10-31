@@ -18,43 +18,72 @@ export const options = {
             },
             async authorize(credentials, req) {
                 await mongodbConnect();
-                let user;
 
                 // Check for email sign-in
                 if (credentials.email) {
-                    user = await User.findOne({ email: credentials.email }).select("+password");
-                    if (!user) throw new Error("No user found with this email");
+                    const user = await User.findOne({ email: credentials.email }).select("+password");
+
+                    if (!user) {
+                        throw new Error("No user found with this email");
+                    }
 
                     const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-                    if (!isPasswordValid) throw new Error("Incorrect password");
+
+                    if (!isPasswordValid) {
+                        throw new Error("Incorrect password");
+                    }
 
                     // Log login activity
-                    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-                    await LoginActivity.create({ userId: user._id, name: user.name, email: user.email, username: user.username, ipAddress });
+                    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
+                    await LoginActivity.create({
+                        userId: user._id,
+                        name: user.name,
+                        email: user.email,
+                        username: user.username,
+                        ipAddress: ipAddress,
+                    });
 
                     return { id: user._id, ...user.toObject() };
                 }
 
                 // Check for username sign-in
-                user = await User.findOne({ username: credentials.username }).select("+password");
+                const user = await User.findOne({ username: credentials.username }).select("+password");
+
                 if (user) {
                     const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-                    if (!isPasswordValid) throw new Error("Incorrect password");
+
+                    if (!isPasswordValid) {
+                        throw new Error("Incorrect password");
+                    }
 
                     // Log login activity
-                    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-                    await LoginActivity.create({ userId: user._id, name: user.name, email: user.email, username: user.username, ipAddress });
+                    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
+                    await LoginActivity.create({
+                        userId: user._id,
+                        name: user.name,
+                        email: user.email,
+                        username: user.username,
+                        ipAddress: ipAddress,
+                    });
 
                     return { id: user._id, ...user.toObject() };
                 }
 
                 // Admin hardcoded credentials check
-                const adminId = new mongoose.Types.ObjectId(); // Use a predefined admin ID
+                const adminId = new mongoose.Types.ObjectId(); // Use a predefined admin ID from environment variable
                 const adminPassword = 'admin123'; // Keep this secure; ideally, it should be hashed
 
                 if (credentials.username === 'Admin' && credentials.password === adminPassword) {
                     const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-                    await LoginActivity.create({ userId: adminId, email: 'admin@pathy.com', name: 'admin', username: 'Admin', ipAddress, role: 'admin' });
+
+                    await LoginActivity.create({
+                        userId: adminId,
+                        email: 'admin@pathy.com',
+                        name: 'admin',
+                        username: 'Admin',
+                        ipAddress: ipAddress,
+                        role: 'admin',
+                    });
 
                     return { id: adminId, name: 'admin', username: 'Admin', email: 'admin@pathy.com', role: 'admin' };
                 }
@@ -63,15 +92,9 @@ export const options = {
             },
         }),
         GoogleProvider({
-            name: "google",
+            name: "Google",
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            authorization: {
-                params: {
-                    prompt: "consent",
-                    access_type: "offline",
-                },
-            },
             async profile(profile) {
                 return {
                     id: profile.sub,
@@ -84,8 +107,11 @@ export const options = {
                 await mongodbConnect();
 
                 // Find user by email
-                let user = await GoogleUser.findOne({ email: profile.email });
-                if (!user) {
+                const userExist = await GoogleUser.findOne({ email: profile.email });
+
+                let user;
+                // If user doesn't exist, create a new user
+                if (!userExist) {
                     user = await GoogleUser.create({
                         name: profile.name,
                         email: profile.email,
@@ -95,18 +121,19 @@ export const options = {
                         },
                     });
                 } else {
+                    user = userExist;
                     // Update lastLogin if the user exists
-                    user.lastLogin = new Date();
+                    user.lastLogin = Date.now();
                     await user.save();
                 }
 
-                // Log login activity (optional)
+                // Log login activity
                 const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
                 await LoginActivity.create({
                     userId: user._id,
                     name: user.name,
                     email: user.email,
-                    ipAddress,
+                    ipAddress: ipAddress,
                 });
 
                 return {
@@ -119,34 +146,4 @@ export const options = {
             },
         }),
     ],
-    callbacks: {
-        async signIn({ user, account, profile }) {
-            await mongodbConnect();
-
-            const existingUser = await GoogleUser.findOne({ email: user.email });
-            if (existingUser) {
-                existingUser.lastLogin = new Date();
-                await existingUser.save();
-                return true;
-            }
-
-            const newUser = new GoogleUser({
-                name: profile.name,
-                email: profile.email,
-                avatar: {
-                    public_id: null,
-                    url: profile.picture,
-                },
-                lastLogin: new Date(),
-            });
-            await newUser.save();
-            return true;
-        },
-        async session({ session, user }) {
-            session.user.id = user.id; // Add user ID to the session
-            return session;
-        },
-    },
 };
-
-export default options;
