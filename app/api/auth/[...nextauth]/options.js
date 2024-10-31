@@ -95,29 +95,27 @@ export const options = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             async authorize(credentials, req) {
                 await mongodbConnect();
-
-                // Extract the access token from the request
-                const { access_token } = credentials;
-
-                // Fetch user info from Google
-                const response = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${access_token}`);
-                const user = await response.json();
-
-                // Check if the user exists in the database
+        
+                // Get the user information from Google
+                const user = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo`, {
+                    headers: {
+                        Authorization: `Bearer ${credentials.accessToken}`,
+                    },
+                }).then(res => res.json());
+        
+                // Check if user exists in your database
                 let dbUser = await User.findOne({ email: user.email });
-
-                // If user does not exist, create a new one
+                
+                // If the user doesn't exist, you may want to create them
                 if (!dbUser) {
-                    dbUser = new User({
+                    dbUser = await User.create({
                         name: user.name,
                         email: user.email,
-                        username: user.email.split('@')[0], // You can customize the username logic
-                        avatar: user.picture,
-                        // Add any other fields you may need
+                        username: user.email.split('@')[0], // Or however you want to generate a username
+                        // Other fields as necessary
                     });
-                    await dbUser.save();
                 }
-
+        
                 // Log login activity
                 const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
                 await LoginActivity.create({
@@ -126,17 +124,19 @@ export const options = {
                     email: dbUser.email,
                     username: dbUser.username,
                     ipAddress: ipAddress,
+                    role: dbUser.role || 'user', // Set a default role if not already set
                 });
-
+        
                 return {
                     id: dbUser._id,
                     name: dbUser.name,
                     email: dbUser.email,
-                    role: 'user',
-                    avatar: dbUser.avatar,
+                    role: dbUser.role || 'user',
+                    avatar: user.picture || null, // Assuming the Google user has a picture
                 };
-            }
+            },
         }),
+        
     ],
     session: {
         strategy: "jwt",
