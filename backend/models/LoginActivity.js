@@ -34,10 +34,6 @@ const LoginActivitySchema = new mongoose.Schema({
         type: String,
         required: false,
     },
-    avatar: {
-        type: String, // URL for the user's avatar (if applicable)
-        required: false,
-    },
     createdAt: {
         type: Date,
         default: Date.now,

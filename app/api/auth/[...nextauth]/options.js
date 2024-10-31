@@ -91,24 +91,13 @@ export const options = {
             },
         }),
         GoogleProvider({
-            name: "google",
+            name: "Google",
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            async profile(profile) {
-                // This method gets called with the user's Google profile
-                return {
-                    id: profile.sub,
-                    name: profile.name,
-                    email: profile.email,
-
-                    avatar: profile.picture,
-                    role:'user',
-                };
-            },
             async authorize(profile, req) {
                 await mongodbConnect();
-
-                // Check if user already exists
+                
+                // Find user by email
                 let user = await User.findOne({ email: profile.email });
 
                 // If user doesn't exist, create a new user
@@ -116,10 +105,10 @@ export const options = {
                     user = await User.create({
                         name: profile.name,
                         email: profile.email,
-
+                        username: profile.email.split('@')[0], // Simple username generation
                         avatar: {
-                            public_id: profile.id,
-                            url: profile.avatar,
+                            public_id: profile.sub,
+                            url: profile.picture,
                         },
                     });
                 }
@@ -127,20 +116,19 @@ export const options = {
                 // Log login activity
                 const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
                 await LoginActivity.create({
-                    userId: profile._id,
-                    name: profile.name,
-                    email: profile.email,
-
+                    userId: user._id,
+                    name: user.name,
+                    email: user.email,
+                    username: user.username,
                     ipAddress: ipAddress,
                 });
 
-                // Return user data for session
                 return {
                     id: user._id,
                     name: user.name,
                     email: user.email,
                     username: user.username,
-                    role: user.role,
+                    role: user.role || 'user',
                     avatar: user.avatar,
                 };
             },
@@ -150,12 +138,7 @@ export const options = {
         strategy: "jwt",
     },
     callbacks: {
-        async signIn({ user, account }) {
-            if (account.provider === 'google') {
-                user.role = 'user';
-            }
-            return true;
-        },
+
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
