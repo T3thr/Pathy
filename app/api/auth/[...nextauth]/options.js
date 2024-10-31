@@ -118,15 +118,7 @@ export const options = {
                     await user.save();
                 }
         
-                // Log login activity
-                const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-                await LoginActivity.create({
-                    googleUserId: user._id,
-                    name: user.name,
-                    email: user.email,
-                    username: user.username,
-                    ipAddress: ipAddress,
-                });
+
         
                 return {
                     id: user._id,
