@@ -75,7 +75,7 @@ export default function Novel() {
             {novels.length > 0 ? novels.map((novel, index) => (
               <a
                 key={index}
-                href={`/novel/${novel.title.replace(/\s+/g, '-').toLowerCase()}`}
+                href={`/novel/${encodeURIComponent(novel.title)}`} // Use encodeURIComponent to handle Thai characters
                 className={styles.novelCard}
               >
                 <img className={styles.novelImage} src={novel.imageUrl} alt={`Cover of ${novel.title}`} />

@@ -36,10 +36,7 @@ const Signin = () => {
     e.preventDefault();
     
     const credentials = isUsernameSignIn ? { username, password } : { email, password };
-    const result = await signIn("credentials", {
-      redirect: false,
-      ...credentials,
-    });
+    const result = await signIn("credentials", { redirect: false, ...credentials });
 
     if (result?.error) {
       toast.error(result.error);

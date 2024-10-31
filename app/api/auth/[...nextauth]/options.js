@@ -94,56 +94,33 @@ export const options = {
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             async profile(profile) {
-                // Return the user profile object with relevant data
                 return {
                     id: profile.id,
                     name: profile.name,
                     email: profile.email,
-                    username: profile.email.split('@')[0], // You can derive a username from the email or use another method
+                    username: profile.email.split('@')[0],
                     avatar: profile.picture,
                 };
             },
-            async authorize(credentials, req) {
+            async authorize({ accessToken, profile }, req) {
                 await mongodbConnect();
-        
-                const { profile } = await GoogleProvider.getProfile({
-                    accessToken: credentials.accessToken,
-                });
-        
-                // Check if the user already exists in your database
+
                 let user = await User.findOne({ email: profile.email });
-        
                 if (!user) {
-                    // If the user doesn't exist, create a new user
                     user = await User.create({
                         name: profile.name,
                         email: profile.email,
-                        username: profile.username,
+                        username: profile.email.split('@')[0],
                         avatar: profile.picture,
-                        // Add any other fields required for your User model
                     });
                 }
-        
-                // Log login activity
+
                 const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-                await LoginActivity.create({
-                    userId: user._id,
-                    name: user.name,
-                    email: user.email,
-                    username: user.username,
-                    ipAddress: ipAddress,
-                });
-        
-                return {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    username: user.username,
-                    avatar: user.avatar,
-                };
+                await LoginActivity.create({ userId: user._id, ...user.toObject(), ipAddress });
+
+                return { id: user._id, ...user.toObject() };
             }
         }),
-        
     ],
     session: {
         strategy: "jwt",
