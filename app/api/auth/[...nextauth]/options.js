@@ -103,6 +103,7 @@ export const options = {
             async profile(profile, req) { // Add req to the parameters to access the request object
                 await mongodbConnect();
                 const existingUser = await GoogleUser.findOne({ email: profile.email });
+                const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress; // Get IP address
 
                 if (existingUser) {
                     existingUser.lastLogin = new Date();
@@ -122,7 +123,7 @@ export const options = {
                     email: profile.email,
                     name: profile.name,
                     username: 'google user',
-
+                    ipAddress,
                     lastLogin: new Date(),
                 });
 
