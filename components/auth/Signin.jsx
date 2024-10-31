@@ -51,22 +51,15 @@ const Signin = () => {
 
   const handleGoogleSignIn = async () => {
     console.log("Redirecting to Google sign-in..."); // Log to console
-
-    const result = await signIn("google", { redirect: false });
-    if (result?.error) {
-      toast.error("Google sign-in failed. Please try again.");
-    } else {
-      // Wait for the session to be established
-      const checkSessionInterval = setInterval(async () => {
-        const { data: session } = await useSession();
-        if (session) {
-          toast.success("Google sign-in successful!", { autoClose: 2000 });
-          clearInterval(checkSessionInterval);
-          router.push(callBackUrl || "/"); // Redirect to the callback URL or home
-        }
-      }, 1000); // Check every second until session is available
-    }
+    await signIn("google", { redirect: true });
   };
+
+  useEffect(() => {
+    if (session) {
+      toast.success("Google sign-in successful!", { autoClose: 2000 });
+      router.push(callBackUrl || "/"); // Redirect to the callback URL or home
+    }
+  }, [session, callBackUrl, router]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
