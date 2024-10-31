@@ -51,15 +51,21 @@ const Signin = () => {
 
   const handleGoogleSignIn = async () => {
     const result = await signIn("google", { redirect: false });
+    
     if (result?.error) {
       toast.error("Google sign-in failed. Please try again.");
     } else {
-      toast.success("Google sign-in successful!", { autoClose: 2000 });
+      console.log("Google sign-in successful!");
+  
+      // Redirect after a short delay
       setTimeout(() => {
+        // Show success toast after redirection
+        toast.success("Google sign-in successful!", { autoClose: 2000 });
         router.push(callBackUrl || "/"); // Redirect to the callback URL or home
       }, 700);
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
