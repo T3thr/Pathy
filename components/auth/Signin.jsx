@@ -51,8 +51,7 @@ const Signin = () => {
 
   const handleGoogleSignIn = async () => {
     
-    
-    e.preventDefault();
+
     const result = await signIn('google', {
         ...formData,
         redirect: false,
