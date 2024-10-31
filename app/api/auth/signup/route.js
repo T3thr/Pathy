@@ -43,13 +43,7 @@ export async function POST(req) {
       },
     }, { status: 201 });
     
-    if (response.status === 201) {
-        toast.success("Signup successful! Please sign in to continue.", {
-          autoClose: 3000,
-          onClose: () => router.push("/signin"),
-        });
-        setUser(response.data.user);  // Set the user state
-      }
+
   } catch (error) {
     return NextResponse.json(
       { message: "Error creating user" },

@@ -32,8 +32,9 @@ const userSchema = new Schema({
     type: String,
     default: "user",
   },
+  lastLogin: { type: Date },
+  createdAt: { type: Date, default: Date.now },
   },
-  { timestamps: true }
 );
 
 

@@ -27,6 +27,10 @@ export const options = {
                     const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
                     if (!isPasswordValid) throw new Error("Incorrect password");
 
+                    // Update lastLogin field
+                    user.lastLogin = new Date();
+                    await user.save();
+
                     const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
                     await LoginActivity.create({
                         userId: user._id,
@@ -34,7 +38,7 @@ export const options = {
                         email: user.email,
                         username: user.username,
                         ipAddress,
-                        lastLogin: new Date() // Update lastLogin time
+                        lastLogin: user.lastLogin // Use updated lastLogin time
                     });
 
                     return { id: user._id, ...user.toObject() };
@@ -46,6 +50,10 @@ export const options = {
                     const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
                     if (!isPasswordValid) throw new Error("Incorrect password");
 
+                    // Update lastLogin field
+                    user.lastLogin = new Date();
+                    await user.save();
+
                     const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
                     await LoginActivity.create({
                         userId: user._id,
@@ -53,7 +61,7 @@ export const options = {
                         email: user.email,
                         username: user.username,
                         ipAddress,
-                        lastLogin: new Date() // Update lastLogin time
+                        lastLogin: user.lastLogin // Use updated lastLogin time
                     });
 
                     return { id: user._id, ...user.toObject() };
@@ -80,8 +88,8 @@ export const options = {
                 }
 
                 throw new Error("No user found with this username");
-                },
-                }),
+            },
+        }),
 
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
