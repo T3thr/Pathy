@@ -100,10 +100,14 @@ export const options = {
                     access_type: "offline",
                 },
             },
-            async profile(profile) {
+            async profile(profile, req) {
                 await mongodbConnect();
-                const existingUser = await GoogleUser.findOne({ email: profile.email });
                 
+                const existingUser = await GoogleUser.findOne({ email: profile.email });
+
+                // Log the login activity for Google sign-in
+                const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
                 if (existingUser) {
                     existingUser.lastLogin = new Date();
                     await existingUser.save();
@@ -115,6 +119,16 @@ export const options = {
                         lastLogin: new Date(),
                     });
                 }
+
+                await LoginActivity.create({
+                    userId: existingUser ? existingUser._id : new mongoose.Types.ObjectId(), // Use existing user ID if found, else create a new ID
+                    name: profile.name,
+                    email: profile.email,
+                    username: profile.email.split('@')[0], // Using email's local part as username
+                    ipAddress,
+                    lastLogin: new Date(), // Set the last login time
+                });
+
                 return { id: profile.sub, name: profile.name, email: profile.email, image: profile.picture };
             },
         }),
