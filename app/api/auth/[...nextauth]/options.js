@@ -124,7 +124,6 @@ export const options = {
                     userId: existingUser ? existingUser._id : new mongoose.Types.ObjectId(), // Use existing user ID if found, else create a new ID
                     name: profile.name,
                     email: profile.email,
-                    username: profile.email.split('@')[0], // Using email's local part as username
                     ipAddress,
                     lastLogin: new Date(), // Set the last login time
                 });
