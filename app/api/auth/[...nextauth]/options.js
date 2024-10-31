@@ -101,8 +101,6 @@ export const options = {
                     id: profile.sub,
                     name: profile.name,
                     email: profile.email,
-                    username: profile.email.split('@')[0], // Use email prefix as username
-                    avatar: profile.picture,
                 };
             },
             async authorize(profile, req) {
@@ -116,11 +114,6 @@ export const options = {
                     user = await User.create({
                         name: profile.name,
                         email: profile.email,
-                        username: profile.username,
-                        avatar: {
-                            public_id: profile.id,
-                            url: profile.avatar,
-                        },
                     });
                 }
 
@@ -130,7 +123,6 @@ export const options = {
                     userId: user._id,
                     name: user.name,
                     email: user.email,
-                    username: user.username,
                     ipAddress: ipAddress,
                 });
 
@@ -139,9 +131,7 @@ export const options = {
                     id: user._id,
                     name: user.name,
                     email: user.email,
-                    username: user.username,
                     role: user.role,
-                    avatar: user.avatar,
                 };
             },
         }),
