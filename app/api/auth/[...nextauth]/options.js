@@ -1,11 +1,11 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import User from "@/backend/models/User";
+import GoogleUser from "@/backend/models/GoogleUser";
+import LoginActivity from "@/backend/models/LoginActivity";
 import mongodbConnect from "@/backend/lib/mongodb";
 import bcrypt from "bcryptjs";
-import LoginActivity from "@/backend/models/LoginActivity";
-import GoogleUser from "@/backend/models/GoogleUser";
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 export const options = {
     providers: [
@@ -19,131 +19,54 @@ export const options = {
             async authorize(credentials, req) {
                 await mongodbConnect();
 
-                // Check for email sign-in
-                if (credentials.email) {
-                    const user = await User.findOne({ email: credentials.email }).select("+password");
-
-                    if (!user) {
-                        throw new Error("No user found with this email");
-                    }
-
-                    const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-
-                    if (!isPasswordValid) {
-                        throw new Error("Incorrect password");
-                    }
-
-                    // Log login activity
-                    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
-                    await LoginActivity.create({
-                        userId: user._id,
-                        name: user.name,
-                        email: user.email,
-                        username: user.username,
-                        ipAddress: ipAddress,
-                    });
-
-                    return { id: user._id, ...user.toObject() };
-                }
-
-                // Check for username sign-in
-                const user = await User.findOne({ username: credentials.username }).select("+password");
+                // Check email-based sign-in
+                const user = credentials.email 
+                    ? await User.findOne({ email: credentials.email }).select("+password") 
+                    : await User.findOne({ username: credentials.username }).select("+password");
 
                 if (user) {
                     const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+                    if (!isPasswordValid) throw new Error("Incorrect password");
 
-                    if (!isPasswordValid) {
-                        throw new Error("Incorrect password");
-                    }
-
-                    // Log login activity
-                    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
-                    await LoginActivity.create({
-                        userId: user._id,
-                        name: user.name,
-                        email: user.email,
-                        username: user.username,
-                        ipAddress: ipAddress,
-                    });
-
+                    const ipAddress = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+                    await LoginActivity.create({ userId: user._id, ipAddress, name: user.name, email: user.email, username: user.username });
+                    
                     return { id: user._id, ...user.toObject() };
                 }
 
-                // Admin hardcoded credentials check
-                const adminId = new mongoose.Types.ObjectId(); // Use a predefined admin ID from environment variable
-                const adminPassword = 'admin123'; // Keep this secure; ideally, it should be hashed
-
-                if (credentials.username === 'Admin' && credentials.password === adminPassword) {
-                    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-
-                    await LoginActivity.create({
-                        userId: adminId,
-                        email: 'admin@pathy.com',
-                        name: 'admin',
-                        username: 'Admin',
-                        ipAddress: ipAddress,
-                        role: 'admin',
-                    });
-
-                    return { id: adminId, name: 'admin', username: 'Admin', email: 'admin@pathy.com', role: 'admin' };
-                }
-
-                throw new Error("No user found with this username");
+                throw new Error("No user found with this username or email");
             },
         }),
         GoogleProvider({
-            name: "Google",
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            async profile(profile) {
-                return {
-                    id: profile.sub,
-                    name: profile.name,
-                    email: profile.email,
-                    avatar: profile.picture,
-                };
-            },
-            async authorize(profile, req) {
-                await mongodbConnect();
-
-                // Find user by email
-                const userExist = await GoogleUser.findOne({ email: profile.email });
-
-                let user;
-                // If user doesn't exist, create a new user
-                if (!userExist) {
-                    user = await GoogleUser.create({
-                        name: profile.name,
-                        email: profile.email,
-                        avatar: {
-                            public_id: profile.sub,
-                            url: profile.picture,
-                        },
-                    });
-                } else {
-                    user = userExist;
-                    // Update lastLogin if the user exists
-                    user.lastLogin = Date.now();
-                    await user.save();
-                }
-
-                // Log login activity
-                const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-                await LoginActivity.create({
-                    userId: user._id,
-                    name: user.name,
-                    email: user.email,
-                    ipAddress: ipAddress,
-                });
-
-                return {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    role: user.role || 'user', // Default to 'user' if role is not defined
-                    avatar: user.avatar,
-                };
-            },
         }),
     ],
+    callbacks: {
+        async signIn({ user, account }) {
+            await mongodbConnect();
+            if (account.provider === "google") {
+                const existingUser = await GoogleUser.findOne({ email: user.email });
+                if (!existingUser) {
+                    await GoogleUser.create({
+                        name: user.name,
+                        email: user.email,
+                        avatar: {
+                            url: user.image,
+                        },
+                        lastLogin: new Date(),
+                    });
+                } else {
+                    existingUser.lastLogin = new Date();
+                    await existingUser.save();
+                }
+            }
+            return true;
+        },
+        async session({ session, token }) {
+            session.user.id = token.sub;
+            return session;
+        },
+    },
 };
+export default options;
