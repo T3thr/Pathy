@@ -1,15 +1,11 @@
-import mongoose from 'mongoose';
+// models/GoogleUser.js
 
-const googleUserSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+import mongoose from "mongoose";
 
-    avatar: {
-        public_id: { type: String },
-        url: { type: String },
-    },
-    lastLogin: { type: Date },
-    createdAt: { type: Date, default: Date.now },
-});
+const GoogleUserSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  image: { type: String },
+}, { timestamps: true });
 
-export default mongoose.models.GoogleUser || mongoose.model('GoogleUser', googleUserSchema);
+export default mongoose.models.GoogleUser || mongoose.model("GoogleUser", GoogleUserSchema);
