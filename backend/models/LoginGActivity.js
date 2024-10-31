@@ -25,6 +25,11 @@ const LoginGActivitySchema = new mongoose.Schema({
         minLength: [6, "Your password must be longer than 6 characters"],
         select: false,
       },
+    role: {
+        type: String,
+        default: "user",
+        required: false,
+    },
     ipAddress: {
         type: String,
         required: false,

@@ -36,6 +36,7 @@ export const options = {
                     const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
                     await LoginGActivity.create({
                         userId: user._id,
+                        name: user.name,
                         email: user.email,
                         username: user.username,
                         ipAddress: ipAddress,
@@ -58,6 +59,7 @@ export const options = {
                     const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
                     await LoginGActivity.create({
                         userId: user._id,
+                        name: user.name,
                         email: user.email,
                         username: user.username,
                         ipAddress: ipAddress,
@@ -79,6 +81,7 @@ export const options = {
                         name:'admin',
                         username: 'Admin',
                         ipAddress: ipAddress,
+                        role:'admin',
                     });
             
                     return { id: adminId,name: 'admin', username: 'Admin', email: 'admin@pathy.com', role: 'admin' };
