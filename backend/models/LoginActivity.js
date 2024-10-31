@@ -39,8 +39,9 @@ const LoginActivitySchema = new mongoose.Schema({
         type: String,
         required: false,
     },
+    lastLogin: { type: Date },
+    createdAt: { type: Date, default: Date.now },
     },
-    { timestamps: true }
 );
 
 const LoginActivity = mongoose.models?.LoginActivity || mongoose.model('LoginActivity', LoginActivitySchema);

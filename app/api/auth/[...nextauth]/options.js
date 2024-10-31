@@ -44,6 +44,10 @@ export const options = {
                     });
             
                     return { id: user._id, ...user.toObject() };
+                } else {
+                    // Update lastLogin if the user exists
+                    user.lastLogin = Date.now();
+                    await user.save();
                 }
             
                 // Check for username sign-in
@@ -67,6 +71,10 @@ export const options = {
                     });
             
                     return { id: user._id, ...user.toObject() };
+                } else {
+                    // Update lastLogin if the user exists
+                    user.lastLogin = Date.now();
+                    await user.save();
                 }
             
                 // Admin hardcoded credentials check
@@ -86,7 +94,12 @@ export const options = {
                     });
             
                     return { id: adminId,name: 'admin', username: 'Admin', email: 'admin@pathy.com', role: 'admin' };
+                } else {
+                    // Update lastLogin if the user exists
+                    user.lastLogin = Date.now();
+                    await user.save();
                 }
+                
             
                 throw new Error("No user found with this username");
             },
@@ -108,14 +121,13 @@ export const options = {
                 await mongodbConnect();
         
                 // Find user by email
-                let userExist = await GoogleUser.findOne({ email: profile.email });
+                const userExist = await GoogleUser.findOne({ email: profile.email });
         
                 // If user doesn't exist, create a new user
                 if (!userExist) {
                     user = await GoogleUser.create({
                         name: profile.name,
                         email: profile.email,
-                        username: profile.email.split('@')[0], // Simple username generation
                         avatar: {
                             public_id: profile.sub,
                             url: profile.picture,
@@ -133,7 +145,6 @@ export const options = {
                     userId: user._id,
                     name: user.name,
                     email: user.email,
-                    username: user.username,
                     ipAddress: ipAddress,
                 });
         
@@ -141,7 +152,6 @@ export const options = {
                     id: user._id,
                     name: user.name,
                     email: user.email,
-                    username: user.username,
                     role: user.role || 'user', // Default to 'user' if role is not defined
                     avatar: user.avatar,
                 };
