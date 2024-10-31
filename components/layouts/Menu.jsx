@@ -40,7 +40,7 @@ export default function Menu() {
                         <Link href='/profile'>
                             <div className='flex items-center space-x-3 cursor-pointer'>
                                 <img
-                                    className='w-10 h-10 border-md shadow-md rounded-full'
+                                    className='w-10 h-10 border shadow-md rounded-full'
                                     src={'/images/default.png'}
                                 />
                                 <div className='space-y-1 font-medium'>

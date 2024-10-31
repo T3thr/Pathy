@@ -55,29 +55,6 @@ const Signin = () => {
       toast.error("Google sign-in failed. Please try again.");
     } else {
       toast.success("Google sign-in successful!");
-
-      // Fetch user data from the session
-      const profile = {
-        name: result.user.name,
-        email: result.user.email,
-        picture: result.user.avatar, // Ensure this matches your user profile structure
-      };
-
-      // Call the API to save the user data
-      const apiResponse = await fetch('/api/auth/googleauth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ profile }),
-      });
-
-      if (!apiResponse.ok) {
-        const errorData = await apiResponse.json();
-        toast.error(errorData.message || "Failed to save user data.");
-        return;
-      }
-
       router.push(callBackUrl || "/"); // Redirect to the callback URL or home
     }
   };

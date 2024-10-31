@@ -86,6 +86,7 @@ export default function Novel() {
                 key={index}
                 href={`/novel/${encodeURIComponent(novel.title)}`}
                 className={styles.novelCard}
+                aria-label={`Read ${novel.title}`} // Add this line
               >
                 <img className={styles.novelImage} src={novel.imageUrl} alt={`Cover of ${novel.title}`} />
                 <h3 className={styles.novelTitle}>{novel.title}</h3>

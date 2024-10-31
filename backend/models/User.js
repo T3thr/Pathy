@@ -4,6 +4,11 @@ import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 
 const userSchema = new Schema({
+  userId: { 
+    type: String, 
+    required: false, 
+    unique: true 
+  },
   name: {
     type: String,
     required: [true, "Please enter your name"],
