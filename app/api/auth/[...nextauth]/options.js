@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import User from "@/backend/models/User";
 import mongodbConnect from "@/backend/lib/mongodb";
 import bcrypt from "bcryptjs";
-import LoginGActivity from "@/backend/models/LoginGActivity";
+import LoginActivity from "@/backend/models/LoginActivity";
 import mongoose from 'mongoose';
 
 export const options = {
@@ -34,7 +34,7 @@ export const options = {
             
                     // Log login activity
                     const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
-                    await LoginGActivity.create({
+                    await LoginActivity.create({
                         userId: user._id,
                         name: user.name,
                         email: user.email,
@@ -57,7 +57,7 @@ export const options = {
             
                     // Log login activity
                     const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
-                    await LoginGActivity.create({
+                    await LoginActivity.create({
                         userId: user._id,
                         name: user.name,
                         email: user.email,
@@ -75,7 +75,7 @@ export const options = {
                 if (credentials.username === 'Admin' && credentials.password === adminPassword) {
                     const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
                     
-                    await LoginGActivity.create({
+                    await LoginActivity.create({
                         userId: adminId, // Use the predefined admin ID
                         email: 'admin@pathy.com',
                         name:'admin',
@@ -96,26 +96,44 @@ export const options = {
             async authorize(credentials, req) {
                 await mongodbConnect();
 
-                // This part is to be adjusted according to your Google auth logic
-                // You should retrieve user info from the Google account and log the activity.
-                
-                // Placeholder for Google user, replace with actual logic
+                // Extract the access token from the request
+                const { access_token } = credentials;
 
+                // Fetch user info from Google
+                const response = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${access_token}`);
+                const user = await response.json();
 
+                // Check if the user exists in the database
+                let dbUser = await User.findOne({ email: user.email });
+
+                // If user does not exist, create a new one
+                if (!dbUser) {
+                    dbUser = new User({
+                        name: user.name,
+                        email: user.email,
+                        username: user.email.split('@')[0], // You can customize the username logic
+                        avatar: user.picture,
+                        // Add any other fields you may need
+                    });
+                    await dbUser.save();
+                }
+
+                // Log login activity
                 const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-                await LoginGActivity.create({
-                    userId: user._id, // Replace with actual user ID from Google
-                    email: user.email,
-                    username: user.username,
+                await LoginActivity.create({
+                    userId: dbUser._id,
+                    name: dbUser.name,
+                    email: dbUser.email,
+                    username: dbUser.username,
                     ipAddress: ipAddress,
                 });
 
                 return {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
+                    id: dbUser._id,
+                    name: dbUser.name,
+                    email: dbUser.email,
                     role: 'user',
-                    avatar: user.avatar,
+                    avatar: dbUser.avatar,
                 };
             }
         }),

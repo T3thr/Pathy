@@ -1,7 +1,7 @@
-// backend/models/LoginGActivity.js
+// backend/models/LoginActivity.js
 import mongoose from 'mongoose';
 
-const LoginGActivitySchema = new mongoose.Schema({
+const LoginActivitySchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         required: false,
@@ -40,6 +40,6 @@ const LoginGActivitySchema = new mongoose.Schema({
     },
 });
 
-const LoginGActivity = mongoose.models?.LoginGActivity || mongoose.model('LoginGActivity', LoginGActivitySchema);
+const LoginActivity = mongoose.models?.LoginActivity || mongoose.model('LoginActivity', LoginActivitySchema);
 
-export default LoginGActivity;
+export default LoginActivity;
