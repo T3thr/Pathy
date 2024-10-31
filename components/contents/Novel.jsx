@@ -72,7 +72,7 @@ export default function Novel() {
             onTouchStart={(event) => handleTouchStart(event, genre)}
             onTouchMove={(event) => handleTouchMove(event, genre)}
           >
-            {novels.map((novel, index) => (
+            {novels.length > 0 ? novels.map((novel, index) => (
               <a
                 key={index}
                 href={`/novel/${novel.title.replace(/\s+/g, '-').toLowerCase()}`}
@@ -81,7 +81,7 @@ export default function Novel() {
                 <img className={styles.novelImage} src={novel.imageUrl} alt={`Cover of ${novel.title}`} />
                 <h3 className={styles.novelTitle}>{novel.title}</h3>
               </a>
-            ))}
+            )) : <p className={styles.noNovels}>ไม่มีนิยายในหมวดหมู่นี้</p>}
           </div>
         </div>
       ))}
