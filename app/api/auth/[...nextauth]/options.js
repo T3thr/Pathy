@@ -95,6 +95,15 @@ export const options = {
             name: "Google",
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            async profile(profile) {
+                return {
+                    id: profile.sub,
+                    name: profile.name,
+                    email: profile.email,
+                    username: profile.email.split('@')[0], // Simple username generation
+                    avatar: profile.picture,
+                };
+            },
             async authorize(profile, req) {
                 await mongodbConnect();
         
@@ -118,14 +127,22 @@ export const options = {
                     await user.save();
                 }
         
-
+                // Log login activity (optional)
+                const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+                await LoginActivity.create({
+                    userId: user._id,
+                    name: user.name,
+                    email: user.email,
+                    username: user.username,
+                    ipAddress: ipAddress,
+                });
         
                 return {
                     id: user._id,
                     name: user.name,
                     email: user.email,
                     username: user.username,
-                    role: user.role || 'user',
+                    role: user.role || 'user', // Default to 'user' if role is not defined
                     avatar: user.avatar,
                 };
             },
