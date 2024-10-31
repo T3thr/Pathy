@@ -101,30 +101,74 @@ export const options = {
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             async profile(profile) {
-                // Customize the user profile
                 return {
-                  name: profile.name,
-                  email: profile.email,
-                  image: profile.picture,
+                    id: profile.sub,
+                    name: profile.name,
+                    email: profile.email,
+                    avatar: profile.picture,
                 };
-              },
-            }),
-          ],
-          callbacks: {
-            async signIn({ user, account, profile }) {
-              // Check if the user already exists in your MongoDB
-              const existingUser = await GoogleUser.findOne({ email: user.email });
-              if (!existingUser) {
-                // Create a new user if they don't exist
-                await GoogleUser.create({
-                  name: user.name,
-                  email: user.email,
-                  image: user.image,
-                });
-              }
-              return true;
             },
-          },
-        };
+            async authorize(profile, req) {
+                await mongodbConnect();
+        
+                // Find user by email
+                const userExist = await GoogleUser.findOne({ email: profile.email });
+        
+                // If user doesn't exist, create a new user
+                if (!userExist) {
+                    user = await GoogleUser.create({
+                        name: profile.name,
+                        email: profile.email,
+                        avatar: {
+                            public_id: profile.sub,
+                            url: profile.picture,
+                        },
+                    });
+                } else {
+                    // Update lastLogin if the user exists
+                    user.lastLogin = Date.now();
+                    await user.save();
+                }
+        
+                // Log login activity (optional)
+                const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+                await LoginActivity.create({
+                    userId: user._id,
+                    name: user.name,
+                    email: user.email,
+                    ipAddress: ipAddress,
+                });
+        
+                return {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role || 'user', // Default to 'user' if role is not defined
+                    avatar: user.avatar,
+                };
+            },
+        }),
+    ],
+    callbacks: {
+        async session({ session, token }) {
+            // Attach user data to the session object
+            if (token) {
+                session.user.id = token.id; // Attach user ID
+                session.user.role = token.role; // Attach user role if available
+                session.user.avatar = token.avatar; // Attach user avatar if available
+            }
+            return session;
+        },
+        async jwt({ token, user }) {
+            // Add user information to the token if user is available
+            if (user) {
+                token.id = user.id; // Store user ID
+                token.role = user.role; // Store user role
+                token.avatar = user.avatar; // Store user avatar
+            }
+            return token;
+        },
+    },
+};
 
 export default options;
