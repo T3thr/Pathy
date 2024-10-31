@@ -119,7 +119,7 @@ export const options = {
                 // Log the Google login activity
                 const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
                 await LoginActivity.create({
-                    userId: existingUser ? existingUser._id : profile.sub, // Use existing user's ID or profile's ID
+
                     name: profile.name,
                     email: profile.email,
                     ipAddress,
