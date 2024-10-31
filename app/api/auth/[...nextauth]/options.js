@@ -100,41 +100,32 @@ export const options = {
                     access_type: "offline",
                 },
             },
-            async profile(profile, req) { // Added req parameter to access the request object
+            async profile(profile, req) {
                 await mongodbConnect();
                 const existingUser = await GoogleUser.findOne({ email: profile.email });
                 
-                // Capture login activity
-                const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
                 if (existingUser) {
                     existingUser.lastLogin = new Date();
                     await existingUser.save();
-
-                    // Record login activity
-                    await LoginActivity.create({
-                        userId: existingUser._id,
-                        name: existingUser.name,
-                        email: existingUser.email,
-                        ipAddress,
-                        lastLogin: existingUser.lastLogin // Use updated lastLogin time
-                    });
                 } else {
-                    const newUser = await GoogleUser.create({
+                    await GoogleUser.create({
                         name: profile.name,
                         email: profile.email,
                         avatar: { url: profile.picture },
                         lastLogin: new Date(),
                     });
-
-                    // Record login activity for the new user
-                    await LoginActivity.create({
-                        userId: newUser._id,
-                        name: newUser.name,
-                        email: newUser.email,
-                        ipAddress,
-                        lastLogin: newUser.lastLogin // Use lastLogin time
-                    });
                 }
+
+                // Log the Google login activity
+                const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+                await LoginActivity.create({
+                    userId: existingUser ? existingUser._id : profile.sub, // Use existing user's ID or profile's ID
+                    name: profile.name,
+                    email: profile.email,
+                    ipAddress,
+                    lastLogin: new Date(), // Current login time
+                });
+
                 return { id: profile.sub, name: profile.name, email: profile.email, image: profile.picture };
             },
         }),
