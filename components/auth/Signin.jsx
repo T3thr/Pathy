@@ -50,23 +50,24 @@ const Signin = () => {
   };
 
   const handleGoogleSignIn = async () => {
+    console.log("Redirecting to Google sign-in..."); // Log to console
+
     const result = await signIn("google", { redirect: false });
-    
     if (result?.error) {
       toast.error("Google sign-in failed. Please try again.");
     } else {
-      console.log("Google sign-in initiated, redirecting to Google..."); // Log to console
-      // Wait for the session to update, then show a success toast
-      setTimeout(async () => {
-        const sessionCheck = useSession();
-        if (sessionCheck.data) {
-          toast.success("Successfully signed in with Google!", { autoClose: 2000 });
+      // Wait for the session to be established
+      const checkSessionInterval = setInterval(async () => {
+        const { data: session } = await useSession();
+        if (session) {
+          toast.success("Google sign-in successful!", { autoClose: 2000 });
+          clearInterval(checkSessionInterval);
           router.push(callBackUrl || "/"); // Redirect to the callback URL or home
         }
-      }, 1000); // Adjust the timeout if needed
+      }, 1000); // Check every second until session is available
     }
   };
-  
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
       <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
