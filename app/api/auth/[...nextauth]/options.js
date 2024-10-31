@@ -91,15 +91,27 @@ export const options = {
             },
         }),
         CredentialsProvider({
-            // CredentialsProvider setup remains the same
         }),
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            async profile(profile) {
+                return {
+                    id: profile.sub,
+                    name: profile.name,
+                    email: profile.email,
+                    username: profile.email.split('@')[0],
+                    avatar: profile.picture,
+                };
+            },
             async authorize(credentials, req) {
                 await mongodbConnect();
 
-                const profile = credentials; // Use the Google profile directly
+                const profile = await GoogleProvider.getProfile(credentials.accessToken);
+
+                if (!profile) {
+                    throw new Error("Could not retrieve user profile");
+                }
 
                 let user = await User.findOne({ email: profile.email });
 
@@ -107,8 +119,11 @@ export const options = {
                     user = await User.create({
                         name: profile.name,
                         email: profile.email,
-                        username: profile.email.split('@')[0], // Simple username generation
-                        avatar: profile.picture,
+                        username: profile.username,
+                        avatar: {
+                            public_id: profile.id,
+                            url: profile.avatar,
+                        },
                     });
                 }
 
@@ -126,7 +141,7 @@ export const options = {
                     name: user.name,
                     email: user.email,
                     username: user.username,
-                    role: 'user',
+                    role: user.role,
                     avatar: user.avatar,
                 };
             },
