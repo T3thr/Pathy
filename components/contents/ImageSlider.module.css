@@ -140,7 +140,10 @@
     height: 240px;
   }
   .navigationDots {
-    bottom: 20px;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    top: 90%;
     gap: 8px;
   }
   .dot {

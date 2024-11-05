@@ -9,28 +9,22 @@ export default function Novel() {
 
   // Categorize novels by genre
   useEffect(() => {
-    const savedNovels = localStorage.getItem('categorizedNovels');
-    if (savedNovels) {
-      setCategorizedNovels(JSON.parse(savedNovels));
-    } else {
-      const newCategorizedNovels = {
-        รักหวานแหวว: [],
-        ตลกขบขัน: [],
-        สยองขวัญ: [],
-        แฟนตาซี: [],
-      };
+    const newCategorizedNovels = {
+      รักหวานแหวว: [],
+      ตลกขบขัน: [],
+      สยองขวัญ: [],
+      แฟนตาซี: [],
+    };
   
-      novels.forEach(novel => {
-        console.log(`Categorizing novel: ${novel.title} under genre: ${novel.genre}`);
-        if (novel.genre in newCategorizedNovels) {
-          newCategorizedNovels[novel.genre].push(novel);
-        }
-      });
+    novels.forEach(novel => {
+      if (novel.genre in newCategorizedNovels) {
+        newCategorizedNovels[novel.genre].push(novel);
+      }
+    });
   
-      setCategorizedNovels(newCategorizedNovels);
-      localStorage.setItem('categorizedNovels', JSON.stringify(newCategorizedNovels));
-    }
+    setCategorizedNovels(newCategorizedNovels);
   }, []);
+  
   
 
   // Define gradients for each genre
