@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import styles from './Novel.module.css';
 import { novels, recommendationText } from '@/data/novels';
+import { stories } from '@/data/stories';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
@@ -32,7 +33,6 @@ export default function Novel() {
     setCategorizedNovels(newCategorizedNovels);
   }, [viewCounts]);
 
-  // Fetch the view count for each novel from the backend
   useEffect(() => {
     novels.forEach(novel => {
       const fetchViewCount = async () => {
@@ -52,28 +52,33 @@ export default function Novel() {
     });
   }, []);
 
-    // Define gradients for each genre
-    const genreGradients = {
-      รักหวานแหวว: 'linear-gradient(135deg, #ff7e5f, #feb47b)',
-      ตลกขบขัน: 'linear-gradient(135deg, #f6d365, #fda085)',
-      สยองขวัญ: 'linear-gradient(135deg, #4facfe, #00f2fe)',
-      แฟนตาซี: 'linear-gradient(135deg, #a18cd1, #fbc2eb)',
-    };
+  const genreGradients = {
+    รักหวานแหวว: 'linear-gradient(135deg, #ff7e5f, #feb47b)',
+    ตลกขบขัน: 'linear-gradient(135deg, #f6d365, #fda085)',
+    สยองขวัญ: 'linear-gradient(135deg, #4facfe, #00f2fe)',
+    แฟนตาซี: 'linear-gradient(135deg, #a18cd1, #fbc2eb)',
+  };
 
-  const handleNovelSelect = async (novel) => {
+  const handleAddEpisodes = async (novelTitle) => {
+    const episodes = stories[novelTitle];
+    if (!episodes) {
+      console.error(`No episodes found for novel: ${novelTitle}`);
+      return;
+    }
+
     try {
-      const response = await axios.post(`/api/novels/${encodeURIComponent(novel.title)}/view`, {
-        genre: novel.genre,
-        author: novel.author,
-        description: novel.description,
-        imageUrl: novel.imageUrl,
+      const response = await axios.post(`/api/novels/${encodeURIComponent(novelTitle)}/episodes`, {
+        episodes,
       });
 
-      if (response.status === 200 || response.status === 201) {
-        router.push(`/novel/${encodeURIComponent(novel.title)}`); // Navigate to the detail page
+      if (response.status === 201) {
+        console.log(`Episodes for ${novelTitle} added successfully`);
+        router.push(`/novel/${encodeURIComponent(novelTitle)}`);
+      } else {
+        console.error(`Failed to add episodes for ${novelTitle}`);
       }
     } catch (error) {
-      console.error(`Error updating view count for ${novel.title}:`, error);
+      console.error(`Error adding episodes for ${novelTitle}:`, error);
     }
   };
 
@@ -90,14 +95,13 @@ export default function Novel() {
           <div
             className={styles.novelList}
             ref={(el) => (novelListRefs.current[genre] = el)}
-            onTouchStart={(event) => handleTouchStart(event, genre)}
-            onTouchMove={(event) => handleTouchMove(event, genre)}
           >
             {novels.length > 0 ? novels.map((novel, index) => (
               <a
                 key={novel.title} // Assuming titles are unique
                 href={`/novel/${encodeURIComponent(novel.title)}`}
-                className={`${styles.novelCard} ${index === 0 ? styles.firstNovel : ''}`} // Add conditionally 'firstNovel' class
+                onClick={() => handleAddEpisodes(novel.title)}
+                className={`${styles.novelCard} ${index === 0 ? styles.firstNovel : ''}`}
                 aria-label={`Read ${novel.title}`} 
               >
                 <img className={styles.novelImage} src={novel.imageUrl} alt={`Cover of ${novel.title}`} />

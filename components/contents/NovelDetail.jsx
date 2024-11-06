@@ -1,15 +1,27 @@
 // components/NovelDetail.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import styles from './NovelDetail.module.css';
 
 export default function NovelDetail({ novelDetails }) {
+  const [episodes, setEpisodes] = useState([]);
   const router = useRouter();
 
-  if (!novelDetails) {
-    return <div>Novel not found</div>;
-  }
+  useEffect(() => {
+    const fetchEpisodes = async () => {
+      try {
+        const response = await axios.get(`/api/novels/${encodeURIComponent(novelDetails.title)}/episodes`);
+        setEpisodes(response.data.episodes);
+      } catch (error) {
+        console.error('Failed to fetch episodes:', error);
+      }
+    };
+
+    if (novelDetails?.title) {
+      fetchEpisodes();
+    }
+  }, [novelDetails]);
 
   const handleReadNow = async () => {
     try {
@@ -36,6 +48,28 @@ export default function NovelDetail({ novelDetails }) {
       <button className={styles.readButton} onClick={handleReadNow}>
         Read Now
       </button>
+
+      <div className={styles.episodesContainer}>
+        <h3 className={styles.episodesTitle}>Episodes</h3>
+        {episodes.length > 0 ? (
+          <div className={styles.episodesList}>
+            {episodes.map((episode) => (
+              <div key={episode._id} className={styles.episodeBox}>
+                <h4 className={styles.episodeTitle}>{episode.title}</h4>
+                <p className={styles.episodeContent}>{episode.content.slice(0, 100)}...</p>
+                <button
+                  className={styles.readEpisodeButton}
+                  onClick={() => router.push(`/novel/${encodeURIComponent(novelDetails.title)}/episode/${episode.title}`)}
+                >
+                  Read Episode
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No episodes available for this novel.</p>
+        )}
+      </div>
     </div>
   );
 }
