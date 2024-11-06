@@ -20,10 +20,10 @@
 
 /* Text section style for recommendations */
 .textSection {
-  font-size: 1.2rem; /* Sets the font size for the recommendation text */
-  color: #34495e; /* Sets a darker blue color for the text */
-  text-align: center; /* Centers the text */
-  margin-bottom: 40px; /* Adds space below the text section */
+  font-size: 1.2rem; 
+  color: #34495e; 
+  text-align: center; 
+  margin-bottom: 40px; 
 }
 
 /* Genre section container */
@@ -54,6 +54,9 @@
 /* Novel card style */
 .novelCard {
   flex: 0 0 auto; 
+  display: flex;                /* Enable Flexbox */
+  flex-direction: column;       /* Stack elements vertically */
+  justify-content: space-between; /* Ensure elements are spread and the viewCount goes to the bottom */
   background-color: #ecf0f1; 
   border-radius: 10px; 
   text-align: center; 
@@ -74,6 +77,7 @@
   width: 100%;
   height: auto; 
   border-radius: 10px 10px 0 0; 
+
 }
 
 /* Novel title style */
@@ -99,6 +103,7 @@
 .viewCount {
   font-size: 0.9rem;
   color: #7f8c8d; 
-  margin-top: 5px;
+  margin-top: 10px; /* Space between the title and the view count */
   text-align: center; 
+  align-self: center;  /* Center the view count horizontally */
 }
