@@ -10,12 +10,13 @@ export default function ReadPage({ params }) {
   
   const novelDetails = novels.find(novel => novel.title === title);
   
+  // Check if the novel exists early on, before using useState
   if (!novelDetails) {
     return <p>Novel not found.</p>;
   }
 
+  // Proceed with useState and other logic
   const story = stories[novelDetails.title];
-
   const [currentChapter, setCurrentChapter] = useState(0);
 
   // Handle user's choice and move to the next chapter
