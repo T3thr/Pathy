@@ -1,4 +1,4 @@
-// components/Novel.jsx
+// components/contents/Novel.jsx
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
 import styles from './Novel.module.css';
@@ -98,7 +98,7 @@ export default function Novel() {
           >
             {novels.length > 0 ? novels.map((novel, index) => (
               <a
-                key={novel.title} // Assuming titles are unique
+                key={novel.title} // unique
                 href={`/novel/${encodeURIComponent(novel.title)}`}
                 onClick={() => handleAddEpisodes(novel.title)}
                 className={`${styles.novelCard} ${index === 0 ? styles.firstNovel : ''}`}
