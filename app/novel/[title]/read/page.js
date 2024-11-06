@@ -1,19 +1,34 @@
-// novel/[title]/read/page.js
-import React from 'react';
+// pages/novel/[title]/read/page.js
+'use client'
+import React, { useState } from 'react';
 import ReadNovel from '@/components/contents/read/ReadNovel'; // Adjust the import path as necessary
 import { novels } from '@/data/novels'; // Import the novels data
+import { stories } from '@/data/stories'; // Import the stories data
 
 export default function ReadPage({ params }) {
-  // Decode the title from the URL
   const title = decodeURIComponent(params.title);
   
-  // Find the corresponding novel details based on the title
   const novelDetails = novels.find(novel => novel.title === title);
+  
+  if (!novelDetails) {
+    return <p>Novel not found.</p>;
+  }
 
-  // Mock content for the novel; you can replace this with actual content
-  const content = novelDetails ? `นี่คือเรื่อง ${novelDetails.title}.` : 'Novel not found.';
+  const story = stories[novelDetails.title];
+
+  const [currentChapter, setCurrentChapter] = useState(0);
+
+  // Handle user's choice and move to the next chapter
+  const handleChoice = (nextChapter) => {
+    setCurrentChapter(nextChapter);
+  };
 
   return (
-    <ReadNovel title={title} content={content} />
+    <ReadNovel
+      title={novelDetails.title}
+      story={story}
+      currentChapter={currentChapter}
+      onChoice={handleChoice}
+    />
   );
 }

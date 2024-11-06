@@ -1,14 +1,38 @@
+/* ReadNovel.module.css */
 .container {
-    padding: 20px;
-  }
-  
-  .title {
-    font-size: 2rem;
-    margin-bottom: 10px;
-  }
-  
-  .content {
-    font-size: 1.2rem;
-    line-height: 1.5;
-  }
-  
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 2.5rem;
+  text-align: center;
+  font-weight: bold;
+  color: #333;
+}
+
+.chapter {
+  margin-bottom: 20px;
+}
+
+.choices {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.choiceButton {
+  background-color: #fbbf24; /* Tailwind's yellow-500 */
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  margin: 10px;
+  width: 100%;
+}
+
+.choiceButton:hover {
+  background-color: #f59e0b; /* Tailwind's yellow-600 */
+}

@@ -89,3 +89,11 @@
 .novelCard:hover {
   transform: scale(1.05); /* Slightly scales up the card when hovered */
 }
+
+/* View count style */
+.viewCount {
+  font-size: 0.9rem; /* Slightly smaller than the title */
+  color: #7f8c8d; /* A subtle gray color */
+  margin-top: 5px; /* Adds some space above the view count */
+  text-align: center; /* Center the view count */
+}
