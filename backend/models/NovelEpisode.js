@@ -2,9 +2,9 @@
 import mongoose from 'mongoose';
 
 const NovelEpisodeSchema = new mongoose.Schema({
-  novelTitle: { type: String, required: true }, // The title of the novel to which this episode belongs
-  titles: [{ type: String, required: true }], // Array to store multiple episode titles
-  contents: [{ type: String, required: true }], // Array to store multiple episode contents
+  novelTitle: { type: String, required: true }, 
+  titles: [{ type: String, required: true }], 
+  contents: [{ type: String, required: true }], 
   choices: [
     {
       text: { type: String, required: true },
