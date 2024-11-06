@@ -3,8 +3,8 @@ import mongoose from 'mongoose';
 
 const NovelEpisodeSchema = new mongoose.Schema({
   novelTitle: { type: String, required: true }, 
-  titles: [{ type: String, required: true }], 
-  contents: [{ type: String, required: true }], 
+  titles: { type: String, required: true }, 
+  contents: { type: String, required: true }, 
   choices: [
     {
       text: { type: String, required: true },

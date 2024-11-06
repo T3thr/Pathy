@@ -106,7 +106,7 @@ export default function Novel() {
               >
                 <img className={styles.novelImage} src={novel.imageUrl} alt={`Cover of ${novel.title}`} />
                 <h3 className={styles.novelTitle}>{novel.title}</h3>
-                <p className={styles.viewCount}>Views: {viewCounts[novel.title] || 0}</p>
+                <p className={styles.viewCount}>Views: {viewCounts[novel.title] }</p>
               </a>
             )) : <p className={styles.noNovels}>ไม่มีนิยายในหมวดหมู่นี้</p>}
           </div>
