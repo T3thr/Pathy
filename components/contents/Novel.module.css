@@ -64,6 +64,11 @@
   transition: transform 0.3s; /* Smooth transition effect on hover */
 }
 
+.firstNovel {
+  margin-left: 20px; /* Add 5px space before the first novel card */
+}
+
+
 /* Novel image style */
 .novelImage {
   width: 100%; /* Image fills the entire width of the card */

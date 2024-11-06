@@ -93,11 +93,11 @@ export default function Novel() {
             onTouchStart={(event) => handleTouchStart(event, genre)}
             onTouchMove={(event) => handleTouchMove(event, genre)}
           >
-            {novels.length > 0 ? novels.map((novel) => (
+            {novels.length > 0 ? novels.map((novel, index) => (
               <a
                 key={novel.title} // Assuming titles are unique
                 href={`/novel/${encodeURIComponent(novel.title)}`}
-                className={styles.novelCard}
+                className={`${styles.novelCard} ${index === 0 ? styles.firstNovel : ''}`} // Add conditionally 'firstNovel' class
                 aria-label={`Read ${novel.title}`} 
               >
                 <img className={styles.novelImage} src={novel.imageUrl} alt={`Cover of ${novel.title}`} />
