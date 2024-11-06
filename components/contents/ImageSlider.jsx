@@ -6,8 +6,8 @@ import styles from './ImageSlider.module.css';
 const images = [
   '/images/novel1.png',
   '/images/novel2.png',
-  '/images/novel3.png',
-  '/images/novel4.png',
+  '/images/novel3.jpg',
+  '/images/novel4.jpg',
 ];
 
 export default function ImageSlider() {
