@@ -7,6 +7,7 @@ import { stories } from '@/data/stories';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
+import Loading from '@/app/loading';
 
 export default function Novel() {
   const [categorizedNovels, setCategorizedNovels] = useState({});
@@ -64,7 +65,8 @@ export default function Novel() {
     }
   };
 
-  if (error || !viewCounts) return null; // Prevents displaying any loading or error text
+  if (error) return <p>404</p>;
+  if (!viewCounts) return <Loading />;
 
   return (
     <div className={styles.container}>
