@@ -4,19 +4,16 @@ import React, { useEffect, useState, useRef } from 'react';
 import styles from './Novel.module.css';
 import { novels, recommendationText } from '@/data/novels';
 import { stories } from '@/data/stories';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import useSWR from 'swr';
-import Loading from '@/app/loading';
+import { useNovelViewCounts, addNovelEpisodes } from '@/backend/lib/novelAction';
 
 export default function Novel() {
   const [categorizedNovels, setCategorizedNovels] = useState({});
   const novelListRefs = useRef({});
   const router = useRouter();
 
-  // Fetch all view counts for novels in one request
-  const fetcher = url => axios.get(url).then(res => res.data);
-  const { data: viewCounts, error } = useSWR('/api/novels/${encodeURIComponent(novel.title)}/viewCount', fetcher, { refreshInterval: 5000 });
+  // Use the custom hook to get view counts
+  const { data: viewCounts, error } = useNovelViewCounts();
 
   useEffect(() => {
     const newCategorizedNovels = {
@@ -49,24 +46,17 @@ export default function Novel() {
       return;
     }
 
-    try {
-      const response = await axios.post(`/api/novels/${encodeURIComponent(novelTitle)}/episodes`, {
-        episodes,
-      });
-
-      if (response.status === 201) {
-        console.log(`Episodes for ${novelTitle} added successfully`);
-        router.push(`/novel/${encodeURIComponent(novelTitle)}`);
-      } else {
-        console.error(`Failed to add episodes for ${novelTitle}`);
-      }
-    } catch (error) {
-      console.error(`Error adding episodes for ${novelTitle}:`, error);
+    const success = await addNovelEpisodes(novelTitle, episodes);
+    if (success) {
+      console.log(`Episodes for ${novelTitle} added successfully`);
+      router.push(`/novel/${encodeURIComponent(novelTitle)}`);
+    } else {
+      console.error(`Failed to add episodes for ${novelTitle}`);
     }
   };
 
-  if (error) return <p>404</p>;
-  if (!viewCounts) return <Loading />;
+  if (error) return <p>Failed to load view counts</p>;
+  if (!viewCounts) return <p>Loading view counts...</p>;
 
   return (
     <div className={styles.container}>
