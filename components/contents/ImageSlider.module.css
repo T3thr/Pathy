@@ -134,7 +134,7 @@
 @media (max-width: 768px) {
   .relative {
     max-width: 100%;
-    max-height: 220;
+    max-height: 210;
   }
   .imageContainer {
     height: 210px;
