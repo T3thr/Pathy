@@ -40,10 +40,22 @@ export default function NovelDetail({ novelDetails }) {
     }
   };
 
-  const handleStartOver = () => {
+  const handleStartOver = async () => {
     // Clear the localStorage progress
     localStorage.removeItem(`progress-${novelDetails.title}`);
-    router.push(`/novel/${encodeURIComponent(novelDetails.title)}/read`);
+    try {
+      const response = await axios.post(`/api/novels/${encodeURIComponent(novelDetails.title)}/view`, {
+        genre: novelDetails.genre,
+        author: novelDetails.author,
+        description: novelDetails.description,
+        imageUrl: novelDetails.imageUrl,
+      });
+      console.log('Updated view count:', response.data.viewCount);
+      router.push(`/novel/${encodeURIComponent(novelDetails.title)}/read`);
+    } catch (error) {
+      console.error('Failed to update view count:', error);
+      alert('Failed to update view count. Please try again later.');
+    }
   };
 
   // Retrieve last read chapter from localStorage
