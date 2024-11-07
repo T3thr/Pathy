@@ -34,6 +34,22 @@ export default function Novel() {
   }, [viewCounts]);
 
   useEffect(() => {
+    const fetchAllViewCounts = async () => {
+      try {
+        const response = await axios.get('/api/novels/viewCounts');
+        if (response.status === 200) {
+          setViewCounts(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching all view counts:', error);
+      }
+    };
+  
+    fetchAllViewCounts();
+  }, []);
+  
+
+  useEffect(() => {
     novels.forEach(novel => {
       const fetchViewCount = async () => {
         try {
