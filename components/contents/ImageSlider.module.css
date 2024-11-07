@@ -134,16 +134,16 @@
 @media (max-width: 768px) {
   .relative {
     max-width: 100%;
-    max-height: 100%;
+    max-height: 220;
   }
   .imageContainer {
-    height: 220px;
+    height: 210px;
   }
   .navigationDots {
     position: absolute;
     display: flex;
     justify-content: center;
-    top: 90%;
+    top: 88%;
     gap: 8px;
   }
   .dot {
