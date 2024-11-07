@@ -55,8 +55,8 @@ export default function Novel() {
     }
   };
 
-  if (error) return <p>Failed to load view counts</p>;
-  if (!viewCounts) return <p>Loading view counts...</p>;
+  if (error) return <p>404</p>;
+  if (!viewCounts) return null;
 
   return (
     <div className={styles.container}>
