@@ -6,12 +6,16 @@ import { novels, recommendationText } from '@/data/novels';
 import { stories } from '@/data/stories';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import useSWR from 'swr';
 
 export default function Novel() {
   const [categorizedNovels, setCategorizedNovels] = useState({});
-  const [viewCounts, setViewCounts] = useState({});
   const novelListRefs = useRef({});
   const router = useRouter();
+
+  // Fetch all view counts for novels in one request
+  const fetcher = url => axios.get(url).then(res => res.data);
+  const { data: viewCounts, error } = useSWR('/api/novels/${encodeURIComponent(novel.title)}/viewCount', fetcher, { refreshInterval: 5000 });
 
   useEffect(() => {
     const newCategorizedNovels = {
@@ -24,48 +28,10 @@ export default function Novel() {
     novels.forEach(novel => {
       if (novel.genre in newCategorizedNovels) {
         newCategorizedNovels[novel.genre].push(novel);
-        if (!viewCounts[novel.title]) {
-          setViewCounts(prevCounts => ({ ...prevCounts, [novel.title]: 0 }));
-        }
       }
     });
 
     setCategorizedNovels(newCategorizedNovels);
-  }, [viewCounts]);
-
-  useEffect(() => {
-    // Fetch view counts in a single batch request
-    const fetchViewCounts = async () => {
-      try {
-        const response = await axios.get('/api/novels/viewCounts');
-        if (response.status === 200) {
-          setViewCounts(response.data);
-        }
-      } catch (error) {
-        console.error('Error fetching view counts:', error);
-      }
-    };
-
-    fetchViewCounts();
-  }, []);
-
-  useEffect(() => {
-    novels.forEach(novel => {
-      const fetchViewCount = async () => {
-        try {
-          const response = await axios.get(`/api/novels/${encodeURIComponent(novel.title)}/viewCount`);
-          if (response.status === 200) {
-            setViewCounts(prevCounts => ({
-              ...prevCounts,
-              [novel.title]: response.data.viewCount,
-            }));
-          }
-        } catch (error) {
-          console.error(`Error fetching view count for ${novel.title}:`, error);
-        }
-      };
-      fetchViewCount();
-    });
   }, []);
 
   const genreGradients = {
@@ -98,6 +64,8 @@ export default function Novel() {
     }
   };
 
+  if (error || !viewCounts) return null; // Prevents displaying any loading or error text
+
   return (
     <div className={styles.container}>
       <h1 className={styles.header}>ยินดีต้อนรับ</h1>
@@ -114,7 +82,7 @@ export default function Novel() {
           >
             {novels.length > 0 ? novels.map((novel, index) => (
               <a
-                key={novel.title} // unique
+                key={novel.title}
                 href={`/novel/${encodeURIComponent(novel.title)}`}
                 onClick={() => handleAddEpisodes(novel.title)}
                 className={`${styles.novelCard} ${index === 0 ? styles.firstNovel : ''}`}
@@ -122,7 +90,7 @@ export default function Novel() {
               >
                 <img className={styles.novelImage} src={novel.imageUrl} alt={`Cover of ${novel.title}`} />
                 <h3 className={styles.novelTitle}>{novel.title}</h3>
-                <p className={styles.viewCount}>Views: {viewCounts[novel.title] }</p>
+                <p className={styles.viewCount}>Views: {viewCounts[novel.title] || 0}</p>
               </a>
             )) : <p className={styles.noNovels}>ไม่มีนิยายในหมวดหมู่นี้</p>}
           </div>

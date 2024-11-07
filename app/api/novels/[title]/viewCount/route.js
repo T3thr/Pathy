@@ -1,25 +1,22 @@
-// app/api/novels/[title]/viewCount/route.js
+// app/api/novels/viewCounts/route.js
 import mongodbConnect from '@/backend/lib/mongodb';
 import Novel from '@/backend/models/Novel';
 
-export async function GET(req, { params }) {
-  const { title } = params; // Get the novel's title from the URL params
-
+export async function GET(req) {
   try {
-    await mongodbConnect(); // Ensure we're connected to MongoDB
+    await mongodbConnect();
 
-    // Find the novel by title and retrieve the viewCount
-    const novel = await Novel.findOne({ title });
+    // Retrieve only titles and viewCounts for all novels
+    const novels = await Novel.find({}, 'title viewCount');
+    const viewCounts = {};
 
-    // If the novel was not found, return an error
-    if (!novel) {
-      return new Response(JSON.stringify({ message: 'Novel not found' }), { status: 404 });
-    }
+    novels.forEach(novel => {
+      viewCounts[novel.title] = novel.viewCount;
+    });
 
-    // Return the viewCount in the response
-    return new Response(JSON.stringify({ viewCount: novel.viewCount }), { status: 200 });
+    return new Response(JSON.stringify(viewCounts), { status: 200 });
   } catch (error) {
-    console.error('Error fetching view count:', error);
-    return new Response(JSON.stringify({ message: 'Error fetching view count', error }), { status: 500 });
+    console.error('Error fetching view counts:', error);
+    return new Response(JSON.stringify({ message: 'Error fetching view counts', error }), { status: 500 });
   }
 }
