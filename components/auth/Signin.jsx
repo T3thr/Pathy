@@ -7,6 +7,28 @@ import AuthContext from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
 
+const handleGoogleSignIn = async (callBackUrl) => {
+  try {
+    console.log("Redirecting to Google sign-in...");
+    
+    // Trigger Google sign-in
+    const result = await signIn("google", { redirect: false }); // Set redirect to false to handle manually
+
+    if (result?.error) {
+      // Handle errors if any
+      console.error("Google sign-in error:", result.error);
+      toast.error("Google sign-in failed. Please try again.");
+    } else {
+      // Successful sign-in: Show toast and redirect
+      toast.success("Google sign-in successful!", { autoClose: 2000 });
+      window.location.href = callBackUrl || "/";  // Manually handle redirect
+    }
+  } catch (error) {
+    console.error("An error occurred during Google sign-in:", error);
+    toast.error("An error occurred. Please try again.");
+  }
+};
+
 const Signin = () => {
   const { data: session } = useSession();
   const { error, clearErrors } = useContext(AuthContext);
@@ -19,22 +41,35 @@ const Signin = () => {
   const params = useSearchParams();
   const callBackUrl = params.get("callbackUrl");
 
+  // Get the error parameter from the URL (for Google sign-in cancellation or failure)
+  const errorParam = params.get("error");
+
   useEffect(() => {
     if (session) {
       router.push(callBackUrl || "/"); // Redirect to the callback URL if available
     }
   }, [session, callBackUrl, router]);
 
+  // Show toast error if any error exists (e.g. for Google sign-in cancellation)
   useEffect(() => {
     if (error) {
       toast.error(error);
       clearErrors();
     }
-  }, [error]);
+  }, [error, clearErrors]);
+
+
+  // Redirect user to /signin when Google sign-in is canceled
+  useEffect(() => {
+    if (errorParam === "Callback") {
+      toast.error("Google sign-in was canceled. Please try again.");
+      router.push("/signin"); // Redirect to /signin on cancellation
+    }
+  }, [errorParam, router]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    
+
     const credentials = isUsernameSignIn ? { username, password } : { email, password };
     const result = await signIn("credentials", { redirect: false, ...credentials });
 
@@ -48,18 +83,6 @@ const Signin = () => {
       }, 700);
     }
   };
-
-  const handleGoogleSignIn = async () => {
-    console.log("Redirecting to Google sign-in..."); // Log to console
-    await signIn("google", { redirect: true });
-  };
-
-  useEffect(() => {
-    if (session) {
-      toast.success("Google sign-in successful!", { autoClose: 2000 });
-      router.push(callBackUrl || "/"); // Redirect to the callback URL or home
-    }
-  }, [session, callBackUrl, router]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
