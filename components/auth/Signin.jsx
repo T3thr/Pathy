@@ -41,7 +41,6 @@ const Signin = () => {
     if (result?.error) {
       toast.error(result.error);
     } else {
-      toast.success("Login successful!", { autoClose: 2000 });
       setTimeout(() => {
         router.push(callBackUrl || "/"); // Redirect to the callback URL or home
         window.location.reload();
@@ -56,7 +55,7 @@ const Signin = () => {
 
   useEffect(() => {
     if (session) {
-      toast.success("sign-in successful!", { autoClose: 2000 });
+      toast.success("signin successful!", { autoClose: 2000 });
       router.push(callBackUrl || "/"); // Redirect to the callback URL or home
     }
   }, [session, callBackUrl, router]);
