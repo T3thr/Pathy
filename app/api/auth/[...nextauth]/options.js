@@ -67,9 +67,9 @@ export const options = {
                     return { id: user._id, role: user.role, ...user.toObject() };
                 }
 
-                // Admin hardcoded credentials check
+                // Admin credentials check
                 const adminId = new mongoose.Types.ObjectId(); // Use a predefined admin ID from environment variable
-                const adminPassword = process.env.ADMIN_PASSWORD; // Keep this secure; ideally, it should be hashed
+                const adminPassword = process.env.ADMIN_PASSWORD; 
 
                 if (credentials.username === 'Admin' && credentials.password === adminPassword) {
                     const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -120,7 +120,7 @@ export const options = {
 
                 // Log the login activity for Google sign-in
                 await LoginActivity.create({
-                    userId: existingUser ? existingUser._id : mongoose.Types.ObjectId(), // Use existing user ID or create a new one
+                    userId: existingUser ? existingUser._id : mongoose.Types.ObjectId(), 
                     email: profile.email,
                     name: profile.name,
                     username: 'google user',

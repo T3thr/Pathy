@@ -19,20 +19,11 @@ const Signin = () => {
   const params = useSearchParams();
   const callBackUrl = params.get("callbackUrl");
 
-  const [googleSignInSuccess, setGoogleSignInSuccess] = useState(false); // Local state to track Google sign-in status
-
   useEffect(() => {
     if (session) {
       router.push(callBackUrl || "/"); // Redirect to the callback URL if available
     }
   }, [session, callBackUrl, router]);
-
-  useEffect(() => {
-    if (googleSignInSuccess) {
-      toast.success("Google sign-in successful!", { autoClose: 2000 });
-      router.push(callBackUrl || "/"); // Redirect to the callback URL or home
-    }
-  }, [session, googleSignInSuccess, callBackUrl, router]);
 
   useEffect(() => {
     if (error) {
@@ -60,15 +51,15 @@ const Signin = () => {
 
   const handleGoogleSignIn = async () => {
     console.log("Redirecting to Google sign-in..."); // Log to console
-    const result = await signIn("google", { redirect: false });
-
-    if (result?.error) {
-      toast.error(result.error);
-    } else {
-      // Mark Google sign-in as successful and show the success toast in the effect
-      setGoogleSignInSuccess(true);
-    }
+    await signIn("google", { redirect: true });
   };
+
+  useEffect(() => {
+    if (session) {
+      toast.success("sign-in successful!", { autoClose: 2000 });
+      router.push(callBackUrl || "/"); // Redirect to the callback URL or home
+    }
+  }, [session, callBackUrl, router]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
