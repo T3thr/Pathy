@@ -19,7 +19,7 @@ const Signin = () => {
   const params = useSearchParams();
   const callBackUrl = params.get("callbackUrl");
 
-  const [googleSignInSuccess, setGoogleSignInSuccess] = useState(true); // Local state to track Google sign-in status
+  const [googleSignInSuccess, setGoogleSignInSuccess] = useState(false); // Local state to track Google sign-in status
 
   useEffect(() => {
     if (session) {
