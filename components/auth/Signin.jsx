@@ -62,7 +62,7 @@ const Signin = () => {
   // Handle Google sign-in
   const handleGoogleSignIn = async () => {
     console.log("Redirecting to Google sign-in...");
-    const result = await signIn("google", { redirect: false }); // Use redirect: false to stay on the page
+    const result = await signIn("google", { redirect: true }); // Use redirect: false to stay on the page
     if (result?.error) {
       toast.error("Google sign-in failed!");
     } else {
