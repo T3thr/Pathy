@@ -49,13 +49,12 @@ const Signin = () => {
     }
   };
 
-
-  // Merge Google sign-in and success handling into one function
   const handleGoogleSignIn = async () => {
-    // Sign in with Google
-    console.log("Redirecting to Google sign-in...");
+    console.log("Redirecting to Google sign-in..."); // Log to console
+  
+    // Start the sign-in process with Google
     const result = await signIn("google", { redirect: false }); // Use `redirect: false` to control the redirect manually
-
+  
     if (result?.error) {
       // Handle errors if any (e.g. canceled sign-in)
       if (result.error === "Callback") {
@@ -65,11 +64,16 @@ const Signin = () => {
         toast.error("Google sign-in failed. Please try again.");
       }
     } else {
-      // Handle success: Show toast and redirect
+      // Handle success: Show success toast and redirect
       toast.success("Google sign-in successful!", { autoClose: 2000 });
-      router.push(callBackUrl || "/"); // Redirect to the callback URL or home
+  
+      // Redirect the user to the callback URL or home after a short delay
+      setTimeout(() => {
+        router.push(callBackUrl || "/"); // Redirect to the callback URL or home
+      }, 700);
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
