@@ -28,7 +28,7 @@ const Signin = () => {
   }, [session, callBackUrl, router]);
 
   useEffect(() => {
-    if (session && googleSignInSuccess) {
+    if (googleSignInSuccess) {
       toast.success("Google sign-in successful!", { autoClose: 2000 });
       router.push(callBackUrl || "/"); // Redirect to the callback URL or home
     }
