@@ -2,88 +2,64 @@
 
 import Link from "next/link";
 import React, { useState, useContext, useEffect } from "react";
-import { useSession, signIn } from "next-auth/react";  // Import signIn method from next-auth
+import { useSession, signIn } from "next-auth/react";
 import AuthContext from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const Signin = () => {
-  const { data: session, status } = useSession(); // Get session from NextAuth and status
-  const { loginUser, adminSignIn, error, clearErrors } = useContext(AuthContext);
+  const { data: session } = useSession();
+  const { error, clearErrors } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [isUsernameSignIn, setIsUsernameSignIn] = useState(true);
-  
+
   const router = useRouter();
   const params = useSearchParams();
   const callBackUrl = params.get("callbackUrl");
 
-  // Check for error in the URL params (for Google sign-in failure)
-  const errorParam = params.get("error");
-
-  // Redirect if already logged in
   useEffect(() => {
     if (session) {
-      router.push(callBackUrl || "/"); // Redirect to callback URL or home
+      router.push(callBackUrl || "/"); // Redirect to the callback URL if available
     }
   }, [session, callBackUrl, router]);
 
-  // Show toast error if any error exists
   useEffect(() => {
     if (error) {
       toast.error(error);
       clearErrors();
     }
-  }, [error, clearErrors]);
+  }, [error]);
 
-  // Handle Google sign-in
-  const handleGoogleSignIn = async () => {
-    console.log("Redirecting to Google sign-in...");
-    await signIn("google", { redirect: true });  // Redirect to Google sign-in
-  };
-
-  // Show toast when Google sign-in is successful
-  useEffect(() => {
-    if (status === "authenticated" && session) {
-      // Show success toast only after successful login
-      toast.success("Google sign-in successful!", { autoClose: 2000 });
-      router.push(callBackUrl || "/"); // Redirect to callback URL or home
-    }
-  }, [status, session, callBackUrl, router]);
-
-  // Handle Google sign-in failure (user cancels or sign-in fails)
-  useEffect(() => {
-    if (errorParam) {
-      // Handle error and show a toast
-      toast.error("Google sign-in failed. Please try again.");
-      // Redirect user back to /signin page if sign-in fails
-      router.push("/signin");
-    }
-  }, [errorParam, router]);
-
-  // Submit handler for the login form (standard username/email password sign-in)
   const submitHandler = async (e) => {
     e.preventDefault();
+    
+    const credentials = isUsernameSignIn ? { username, password } : { email, password };
+    const result = await signIn("credentials", { redirect: false, ...credentials });
 
-    const credentials = { username, email, password };
-
-    // Check if the credentials are for the admin
-    const isAdminLogin = credentials.username === "Admin" && credentials.password === "admin123";
-
-    const result = isAdminLogin
-      ? await adminSignIn() // Call adminSignIn from AuthContext if admin credentials
-      : await loginUser(credentials); // Call loginUser for regular user credentials
-
-    if (result?.success) {
+    if (result?.error) {
+      toast.error(result.error);
+    } else {
       toast.success("Login successful!", { autoClose: 2000 });
       setTimeout(() => {
-        router.push(callBackUrl || "/"); // Redirect to callback URL or home
+        router.push(callBackUrl || "/"); // Redirect to the callback URL or home
         window.location.reload();
       }, 700);
-    } else if (result?.message) {
-      toast.error(result.message);
     }
+  };
+
+  const handleGoogleSignIn = async () => {
+    console.log("Redirecting to Google sign-in..."); // Log to console
+    await signIn("google", { redirect: true });
+ 
+
+  useEffect(() => {
+    if (session) {
+      toast.success("Google sign-in successful!", { autoClose: 2000 });
+      router.push(callBackUrl || "/"); // Redirect to the callback URL or home
+    }
+  }, [session, callBackUrl, router]); 
   };
 
   return (
