@@ -131,7 +131,7 @@
 }
 
 /* Adjust slider container on small screens */
-@media (max-width: 768px) {
+@media (max-width: 540px) {
   .relative {
     max-width: 100%;
     max-height: 210;
