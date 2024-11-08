@@ -7,6 +7,13 @@ import { stories } from '@/data/stories';
 import { useRouter } from 'next/navigation';
 import { useNovelViewCounts, addNovelEpisodes } from '@/backend/lib/novelAction';
 
+export const genreGradients = {
+  รักหวานแหวว: 'linear-gradient(135deg, #ff7e5f, #feb47b)',
+  ตลกขบขัน: 'linear-gradient(135deg, #f6d365, #fda085)',
+  สยองขวัญ: 'linear-gradient(135deg, #4facfe, #00f2fe)',
+  แฟนตาซี: 'linear-gradient(135deg, #a18cd1, #fbc2eb)',
+};
+
 export default function Novel() {
   const [categorizedNovels, setCategorizedNovels] = useState({});
   const novelListRefs = useRef({});
@@ -32,12 +39,7 @@ export default function Novel() {
     setCategorizedNovels(newCategorizedNovels);
   }, []);
 
-  const genreGradients = {
-    รักหวานแหวว: 'linear-gradient(135deg, #ff7e5f, #feb47b)',
-    ตลกขบขัน: 'linear-gradient(135deg, #f6d365, #fda085)',
-    สยองขวัญ: 'linear-gradient(135deg, #4facfe, #00f2fe)',
-    แฟนตาซี: 'linear-gradient(135deg, #a18cd1, #fbc2eb)',
-  };
+
 
   const handleAddEpisodes = async (novelTitle) => {
     const episodes = stories[novelTitle];

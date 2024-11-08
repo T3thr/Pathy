@@ -32,19 +32,18 @@ export default function SearchBar() {
 
     const submitHandler = (e) => {
         e.preventDefault(); 
-        const currentPath = window.location.pathname;
-
+    
         if (keyword) {
             const updatedHistory = [keyword, ...searchHistory.filter(item => item !== keyword)];
             setSearchHistory(updatedHistory);
             localStorage.setItem('searchHistory', JSON.stringify(updatedHistory));
-
-            const newUrl = `${currentPath}?keyword=${encodeURIComponent(keyword)}`;
-            router.push(newUrl);
-        } else {
-            router.push(currentPath);
-        }
+    
+            // Open the new URL in a new tab
+            const searchUrl = `/search/novel/${encodeURIComponent(keyword)}`;
+            window.open(searchUrl, '_blank');
+        } 
     };
+    
 
     const handleHistoryItemClick = (item) => {
         setKeyword(item);
