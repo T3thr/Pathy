@@ -19,24 +19,38 @@ const Signin = () => {
   const params = useSearchParams();
   const callBackUrl = params.get("callbackUrl");
 
-  // Get the error parameter from the URL (for Google sign-in cancellation or failure)
-  const errorParam = params.get("error");
-
   useEffect(() => {
     if (session) {
       router.push(callBackUrl || "/"); // Redirect to the callback URL if available
     }
   }, [session, callBackUrl, router]);
 
-  // Show toast error if any error exists (e.g. for Google sign-in cancellation)
   useEffect(() => {
     if (error) {
       toast.error(error);
       clearErrors();
     }
-  }, [error, clearErrors]);
+  }, [error]);
 
-  // Handle Google sign-in
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    
+    const credentials = isUsernameSignIn ? { username, password } : { email, password };
+    const result = await signIn("credentials", { redirect: false, ...credentials });
+
+    if (result?.error) {
+      toast.error(result.error);
+    } else {
+      toast.success("Login successful!", { autoClose: 2000 });
+      setTimeout(() => {
+        router.push(callBackUrl || "/"); // Redirect to the callback URL or home
+        window.location.reload();
+      }, 700);
+    }
+  };
+
+
+  // Merge Google sign-in and success handling into one function
   const handleGoogleSignIn = async () => {
     // Sign in with Google
     console.log("Redirecting to Google sign-in...");
@@ -54,23 +68,6 @@ const Signin = () => {
       // Handle success: Show toast and redirect
       toast.success("Google sign-in successful!", { autoClose: 2000 });
       router.push(callBackUrl || "/"); // Redirect to the callback URL or home
-    }
-  };
-
-  const submitHandler = async (e) => {
-    e.preventDefault();
-
-    const credentials = isUsernameSignIn ? { username, password } : { email, password };
-    const result = await signIn("credentials", { redirect: false, ...credentials });
-
-    if (result?.error) {
-      toast.error(result.error);
-    } else {
-      toast.success("Login successful!", { autoClose: 2000 });
-      setTimeout(() => {
-        router.push(callBackUrl || "/"); // Redirect to the callback URL or home
-        window.location.reload();
-      }, 700);
     }
   };
 
