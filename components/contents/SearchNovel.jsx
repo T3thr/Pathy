@@ -31,7 +31,7 @@ export default function SearchNovel() {
 
     return (
         <div className={styles.searchContainer}>
-            <h2 className={styles.searchTitle}>ผลการค้นหาสำหรับ &quot;{decodeURIComponent(keyword)}&quot</h2>
+            <h2 className={styles.searchTitle}>ผลการค้นหาสำหรับ &quot;{decodeURIComponent(keyword)}&quot;</h2>
             {Object.keys(filteredNovels).length > 0 ? (
                 Object.entries(filteredNovels).map(([genre, novels]) => (
                     <div className={styles.genreSection} key={genre}>
@@ -58,7 +58,7 @@ export default function SearchNovel() {
                     </div>
                 ))
             ) : (
-                <p className={styles.noResults}>ไม่พบผลลัพธ์สำหรับ "{decodeURIComponent(keyword)}"</p> 
+                <p className={styles.noResults}>ไม่พบผลลัพธ์สำหรับ &quot;{decodeURIComponent(keyword)}&quot;</p> 
             )}
         </div>
     );
