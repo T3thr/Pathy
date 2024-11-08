@@ -31,7 +31,7 @@ export default function SearchNovel() {
 
     return (
         <div className={styles.searchContainer}>
-            <h2 className={styles.searchTitle}>ผลการค้นหาสำหรับ '{decodeURIComponent(keyword)}'</h2>
+            <h2 className={styles.searchTitle}>ผลการค้นหาสำหรับ &quot;{decodeURIComponent(keyword)}&quot</h2>
             {Object.keys(filteredNovels).length > 0 ? (
                 Object.entries(filteredNovels).map(([genre, novels]) => (
                     <div className={styles.genreSection} key={genre}>
