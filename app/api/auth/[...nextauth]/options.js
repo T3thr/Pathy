@@ -113,6 +113,7 @@ export const options = {
                         name: profile.name,
                         email: profile.email,
                         avatar: { url: profile.picture },
+                        role : 'user',
                         lastLogin: new Date(),
                     });
                 }
@@ -134,7 +135,7 @@ export const options = {
     callbacks: {
         async signIn({ user, account, profile }) {
             if (account.provider === 'google') {
-                user.role = 'admin';
+                user.role = 'user';
             }
             return true;
         },
