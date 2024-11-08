@@ -7,28 +7,6 @@ import AuthContext from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const handleGoogleSignIn = async (callBackUrl) => {
-  try {
-    console.log("Redirecting to Google sign-in...");
-    
-    // Trigger Google sign-in
-    const result = await signIn("google", { redirect: false }); // Set redirect to false to handle manually
-
-    if (result?.error) {
-      // Handle errors if any
-      console.error("Google sign-in error:", result.error);
-      toast.error("Google sign-in failed. Please try again.");
-    } else {
-      // Successful sign-in: Show toast and redirect
-      toast.success("Google sign-in successful!", { autoClose: 2000 });
-      window.location.href = callBackUrl || "/";  // Manually handle redirect
-    }
-  } catch (error) {
-    console.error("An error occurred during Google sign-in:", error);
-    toast.error("An error occurred. Please try again.");
-  }
-};
-
 const Signin = () => {
   const { data: session } = useSession();
   const { error, clearErrors } = useContext(AuthContext);
@@ -58,14 +36,26 @@ const Signin = () => {
     }
   }, [error, clearErrors]);
 
+  // Handle Google sign-in
+  const handleGoogleSignIn = async () => {
+    // Sign in with Google
+    console.log("Redirecting to Google sign-in...");
+    const result = await signIn("google", { redirect: false }); // Use `redirect: false` to control the redirect manually
 
-  // Redirect user to /signin when Google sign-in is canceled
-  useEffect(() => {
-    if (errorParam === "Callback") {
-      toast.error("Google sign-in was canceled. Please try again.");
-      router.push("/signin"); // Redirect to /signin on cancellation
+    if (result?.error) {
+      // Handle errors if any (e.g. canceled sign-in)
+      if (result.error === "Callback") {
+        toast.error("Google sign-in was canceled. Please try again.");
+        router.push("/signin"); // Redirect to /signin if canceled
+      } else {
+        toast.error("Google sign-in failed. Please try again.");
+      }
+    } else {
+      // Handle success: Show toast and redirect
+      toast.success("Google sign-in successful!", { autoClose: 2000 });
+      router.push(callBackUrl || "/"); // Redirect to the callback URL or home
     }
-  }, [errorParam, router]);
+  };
 
   const submitHandler = async (e) => {
     e.preventDefault();
