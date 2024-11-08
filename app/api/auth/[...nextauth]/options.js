@@ -131,24 +131,32 @@ export const options = {
         }),
     ],
     callbacks: {
-        async session({ session, token }) {
-            session.user.id = token.sub;
-            session.user.name = token.name;
-            session.user.email = token.email;
-            session.user.role = token.role || 'user'; // Ensure that role is available in the session
-            return session;
+        async signIn({ user, account, profile }) {
+            if (account.provider === 'google') {
+                user.role = 'admin';
+            }
+            return true;
         },
-        async jwt({ token, account, profile }) {
-            if (account && profile) {
-                token.sub = profile.id;
-                token.name = profile.name;
-                token.email = profile.email;
-                token.role = profile.role || 'user'; // Include role in the token
+        async jwt({ token, user }) {
+            if (user) {
+                token.id = user.id;
+                token.name = user.name;
+                token.email = user.email;
+                token.role = user.role;
+                token.avatar = user.avatar;
             }
             return token;
-        }
+        },
+        async session({ session, token }) {
+            session.user.id = token.id;
+            session.user.name = token.name;
+            session.user.email = token.email;
+            session.user.role = token.role;
+            session.user.avatar = token.avatar;
+            return session;
+        },
     },
-
+    secret: process.env.NEXTAUTH_SECRET,
     debug: true,
 };
 
