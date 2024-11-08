@@ -8,6 +8,10 @@ const googleUserSchema = new mongoose.Schema({
         public_id: { type: String },
         url: { type: String },
     },
+    role: {
+        type: String,
+        required: false,
+    },
     lastLogin: { type: Date },
     createdAt: { type: Date, default: Date.now },
 });
