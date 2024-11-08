@@ -19,11 +19,14 @@ const Signin = () => {
   const params = useSearchParams();
   const callBackUrl = params.get("callbackUrl");
 
+  const [googleSignInSuccess, setGoogleSignInSuccess] = useState(false); // Local state to track Google sign-in status
+
   useEffect(() => {
-    if (session) {
-      router.push(callBackUrl || "/"); // Redirect to the callback URL if available
+    if (session && googleSignInSuccess) {
+      toast.success("Google sign-in successful!", { autoClose: 2000 });
+      router.push(callBackUrl || "/"); // Redirect to the callback URL or home
     }
-  }, [session, callBackUrl, router]);
+  }, [session, googleSignInSuccess, callBackUrl, router]);
 
   useEffect(() => {
     if (error) {
@@ -51,29 +54,16 @@ const Signin = () => {
 
   const handleGoogleSignIn = async () => {
     console.log("Redirecting to Google sign-in..."); // Log to console
-  
-    // Start the sign-in process with Google
-    const result = await signIn("google", { redirect: false }); // Use `redirect: false` to control the redirect manually
-  
+    const result = await signIn("google", { redirect: false });
+
     if (result?.error) {
-      // Handle errors if any (e.g. canceled sign-in)
-      if (result.error === "Callback") {
-        toast.error("Google sign-in was canceled. Please try again.");
-        router.push("/signin"); // Redirect to /signin if canceled
-      } else {
-        toast.error("Google sign-in failed. Please try again.");
-      }
+      toast.error(result.error);
     } else {
-      // Handle success: Show success toast and redirect
-      toast.success("Google sign-in successful!", { autoClose: 2000 });
-  
-      // Redirect the user to the callback URL or home after a short delay
-      setTimeout(() => {
-        router.push(callBackUrl || "/"); // Redirect to the callback URL or home
-      }, 700);
+      // Mark Google sign-in as successful and show the success toast in the effect
+      setGoogleSignInSuccess(true);
     }
   };
-  
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
