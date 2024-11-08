@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { novels } from '@/data/novels';
 import styles from './SearchNovel.module.css';
 import { useNovelViewCounts } from '@/backend/lib/novelAction';
-import { genreGradients } from './Novel'; // Import genre gradients for consistent styling
+import { genreGradients } from './Novel'; 
 
 export default function SearchNovel() {
     const { keyword } = useParams();
