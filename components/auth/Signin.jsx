@@ -22,6 +22,12 @@ const Signin = () => {
   const [googleSignInSuccess, setGoogleSignInSuccess] = useState(false); // Local state to track Google sign-in status
 
   useEffect(() => {
+    if (session) {
+      router.push(callBackUrl || "/"); // Redirect to the callback URL if available
+    }
+  }, [session, callBackUrl, router]);
+
+  useEffect(() => {
     if (session && googleSignInSuccess) {
       toast.success("Google sign-in successful!", { autoClose: 2000 });
       router.push(callBackUrl || "/"); // Redirect to the callback URL or home
@@ -63,7 +69,6 @@ const Signin = () => {
       setGoogleSignInSuccess(true);
     }
   };
-
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
