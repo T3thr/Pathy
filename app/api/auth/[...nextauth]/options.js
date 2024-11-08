@@ -69,7 +69,7 @@ export const options = {
 
                 // Admin hardcoded credentials check
                 const adminId = new mongoose.Types.ObjectId(); // Use a predefined admin ID from environment variable
-                const adminPassword = 'admin123'; // Keep this secure; ideally, it should be hashed
+                const adminPassword = process.env.ADMIN_PASSWORD; // Keep this secure; ideally, it should be hashed
 
                 if (credentials.username === 'Admin' && credentials.password === adminPassword) {
                     const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -123,6 +123,7 @@ export const options = {
                     email: profile.email,
                     name: profile.name,
                     username: 'google user',
+                    role : 'user',
                     lastLogin: new Date(),
                 });
 
