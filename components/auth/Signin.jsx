@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import React, { useState, useContext, useEffect } from "react";
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import AuthContext from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const Signin = () => {
   const { data: session } = useSession();
-  const { error, clearErrors } = useContext(AuthContext);
+  const { loginUser, adminSignIn, error, clearErrors } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -21,7 +21,7 @@ const Signin = () => {
 
   useEffect(() => {
     if (session) {
-      router.push(callBackUrl || "/"); // Redirect to the callback URL if available
+      router.push(callBackUrl || "/"); // Redirect to callback URL or home
     }
   }, [session, callBackUrl, router]);
 
@@ -34,32 +34,38 @@ const Signin = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    
-    const credentials = isUsernameSignIn ? { username, password } : { email, password };
-    const result = await signIn("credentials", { redirect: false, ...credentials });
 
-    if (result?.error) {
-      toast.error(result.error);
-    } else {
+    const credentials = { username, email, password };
+
+    // Check if the credentials are for the admin
+    const isAdminLogin = credentials.username === "Admin" && credentials.password === "admin123";
+
+    const result = isAdminLogin
+      ? await adminSignIn() // Call adminSignIn from AuthContext if admin credentials
+      : await loginUser(credentials); // Call loginUser for regular user credentials
+
+    if (result?.success) {
       toast.success("Login successful!", { autoClose: 2000 });
       setTimeout(() => {
-        router.push(callBackUrl || "/"); // Redirect to the callback URL or home
+        router.push(callBackUrl || "/"); // Redirect to callback URL or home
         window.location.reload();
       }, 700);
+    } else if (result?.message) {
+      toast.error(result.message);
     }
   };
 
   const handleGoogleSignIn = async () => {
     console.log("Redirecting to Google sign-in..."); // Log to console
     await signIn("google", { redirect: true });
-  };
-
+  
   useEffect(() => {
     if (session) {
       toast.success("Google sign-in successful!", { autoClose: 2000 });
-      router.push(callBackUrl || "/"); // Redirect to the callback URL or home
+      router.push(callBackUrl || "/"); // Redirect to callback URL or home
     }
   }, [session, callBackUrl, router]);
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">

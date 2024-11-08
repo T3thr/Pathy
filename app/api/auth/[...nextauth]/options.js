@@ -41,7 +41,7 @@ export const options = {
                         lastLogin: user.lastLogin // Use updated lastLogin time
                     });
 
-                    return { id: user._id, ...user.toObject() };
+                    return { id: user._id, role: user.role, ...user.toObject() };
                 }
 
                 // Check for username sign-in
@@ -64,7 +64,7 @@ export const options = {
                         lastLogin: user.lastLogin // Use updated lastLogin time
                     });
 
-                    return { id: user._id, ...user.toObject() };
+                    return { id: user._id, role: user.role, ...user.toObject() };
                 }
 
                 // Admin hardcoded credentials check
@@ -126,18 +126,24 @@ export const options = {
                     lastLogin: new Date(),
                 });
 
-                return { id: profile.sub, name: profile.name, email: profile.email, image: profile.picture };
+                return { id: profile.sub, name: profile.name, email: profile.email, image: profile.picture, role: existingUser?.role || 'user' };
             },
         }),
     ],
     callbacks: {
         async session({ session, token }) {
             session.user.id = token.sub;
+            session.user.name = token.name;
+            session.user.email = token.email;
+            session.user.role = token.role || 'user'; // Ensure that role is available in the session
             return session;
         },
         async jwt({ token, account, profile }) {
             if (account && profile) {
                 token.sub = profile.id;
+                token.name = profile.name;
+                token.email = profile.email;
+                token.role = profile.role || 'user'; // Include role in the token
             }
             return token;
         }
