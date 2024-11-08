@@ -2,36 +2,40 @@
 
 import Link from "next/link";
 import React, { useState, useContext, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import AuthContext from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const Signin = () => {
-  const { data: session } = useSession();
-  const { loginUser, adminSignIn, error, clearErrors } = useContext(AuthContext);
+  const { data: session } = useSession(); // Get session from NextAuth
+  const { loginUser, adminSignIn, error, clearErrors } = useContext(AuthContext); // AuthContext functions
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [isUsernameSignIn, setIsUsernameSignIn] = useState(true);
+  const [googleSignInSuccess, setGoogleSignInSuccess] = useState(false); // State to track Google login success
 
   const router = useRouter();
   const params = useSearchParams();
   const callBackUrl = params.get("callbackUrl");
 
+  // Redirect if already logged in
   useEffect(() => {
     if (session) {
       router.push(callBackUrl || "/"); // Redirect to callback URL or home
     }
   }, [session, callBackUrl, router]);
 
+  // Handle errors from the AuthContext
   useEffect(() => {
     if (error) {
       toast.error(error);
       clearErrors();
     }
-  }, [error]);
+  }, [error, clearErrors]);
 
+  // Submit handler for the login form
   const submitHandler = async (e) => {
     e.preventDefault();
 
@@ -55,17 +59,24 @@ const Signin = () => {
     }
   };
 
+  // Handle Google sign-in
   const handleGoogleSignIn = async () => {
-    console.log("Redirecting to Google sign-in..."); // Log to console
-    await signIn("google", { redirect: true });
-  
+    console.log("Redirecting to Google sign-in...");
+    const result = await signIn("google", { redirect: false }); // Use redirect: false to stay on the page
+    if (result?.error) {
+      toast.error("Google sign-in failed!");
+    } else {
+      setGoogleSignInSuccess(true); // Set success state when Google sign-in is successful
+    }
+  };
+
+  // Effect to show toast when Google sign-in is successful
   useEffect(() => {
-    if (session) {
+    if (googleSignInSuccess) {
       toast.success("Google sign-in successful!", { autoClose: 2000 });
       router.push(callBackUrl || "/"); // Redirect to callback URL or home
     }
-  }, [session, callBackUrl, router]);
-  };
+  }, [googleSignInSuccess, callBackUrl, router]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
