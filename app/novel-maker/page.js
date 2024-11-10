@@ -1,36 +1,22 @@
+// app/novel-maker/page.js
 'use client';
-
+import { useSession } from 'next-auth/react';
 import NovelMakerLayout from '@/components/novel-maker/NovelMakerLayout';
-import { useState } from 'react';
+
 
 export default function NovelMakerPage() {
-    const [image, setImage] = useState(null);
-    const [dialogue, setDialogue] = useState("Welcome to your novel!");
-    const [zoom, setZoom] = useState(1);
-    const [flipped, setFlipped] = useState(false);
-    const [textFrameSize, setTextFrameSize] = useState(200);
-    const [fontSize, setFontSize] = useState(16);
+    const { data: session, status } = useSession();
 
-    const handleImageUpload = (file) => {
-        const imageUrl = URL.createObjectURL(file);
-        setImage(imageUrl);
-    };
-
+    if (!session || session.user.role !== 'admin') {
+        return (
+        <div className='flex justify-center items-center min-h-screen'>
+            <div className='text-xl text-red-600'>Access Denied, Addmin Only!!</div>
+        </div>
+    )}
     return (
-        <NovelMakerLayout
-            image={image}
-            setImage={setImage}
-            dialogue={dialogue}
-            setDialogue={setDialogue}
-            zoom={zoom}
-            setZoom={setZoom}
-            flipped={flipped}
-            setFlipped={setFlipped}
-            textFrameSize={textFrameSize}
-            setTextFrameSize={setTextFrameSize}
-            fontSize={fontSize}
-            setFontSize={setFontSize}
-            onImageUpload={handleImageUpload}
-        />
+        <div>
+            {/* Render the NovelMakerLayout component to display the UI */}
+            <NovelMakerLayout />
+        </div>
     );
 }
