@@ -1,0 +1,169 @@
+/* General toolbar layout */
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #e8f0fe;
+    padding: 20px 40px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: screen;
+    margin: auto;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    z-index: 50;
+}
+
+.leftSection {
+    display: flex;
+    align-items: center;
+}
+
+.title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #222;
+}
+
+/* Desktop right section */
+.rightSectionDesktop {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Profile Image Styling */
+.profileImage {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid #007bff;
+    box-shadow: 0 2px 6px rgba(0, 123, 255, 0.3);
+}
+
+.username {
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    color: #444;
+    font-weight: 500;
+}
+
+/* Button group styling */
+.buttonGroup {
+    display: flex;
+    gap: 10px;
+}
+
+/* Button styling */
+.button {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 3px 8px rgba(0, 123, 255, 0.2);
+}
+
+.button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3);
+}
+
+.button:active {
+    background-color: #004494;
+    transform: translateY(1px);
+}
+
+/* Loading state styling */
+.loading {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    color: #888;
+    font-weight: 500;
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Mobile Menu Button */
+.menuButton {
+    display: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 3px 8px rgba(0, 123, 255, 0.2);
+}
+
+/* Overlay for Sidebar */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 39;
+}
+
+/* Sidebar styling */
+.sidebar {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: -100%; /* Sidebar is hidden initially */
+    width: 100%;
+    max-width: 200px;
+    height: 100vh;
+    background-color: #f4f4f4;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+    padding: 20px;
+    z-index: 40;
+    transition: right 0.3s ease; /* Smooth transition when sidebar opens/closes */
+}
+
+.sidebarOpen {
+    right: 0; /* Sidebar becomes visible when toggled */
+}
+
+@media (max-width: 650px) {
+
+    .buttonGroup {
+        flex-direction: column; /* Align buttons vertically on mobile */
+        gap: 15px; /* Add space between buttons */
+    }
+
+    /* Button styling */
+    .button {
+        font-size: 15px;
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 8px;
+        width: 170px;
+    }
+
+    .rightSectionDesktop {
+        display: none;
+    }
+
+    .menuButton {
+        display: block;
+    }
+
+    .toolbar {
+        padding: 15px 20px;
+    }
+}

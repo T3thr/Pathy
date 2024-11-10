@@ -16,7 +16,7 @@ export default async function SideBar(){
           <>
             <li>
               <Link
-                href="/admin/novel/addnovel"
+                href="/novel-maker"
                 className="block px-3 py-2 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md"
               >
                 Add Novel <span className="text-red-500">(Admin)</span>

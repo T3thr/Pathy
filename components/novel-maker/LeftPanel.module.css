@@ -1,0 +1,79 @@
+.leftPanel {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    background-color: #f9fafb;
+    border-radius: 8px;
+    color: #333;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tabContainer {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 10px;
+}
+
+.tabButton {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+    border: none;
+    background-color: #007acc;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-radius: 4px;
+}
+
+.activeTab {
+    background-color: #005f99;
+}
+
+.uploadButton {
+    padding: 10px;
+    margin-top: 12px;
+    background-color: #007acc;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.uploadButton:hover {
+    background-color: #005f99;
+}
+
+.label {
+    font-weight: bold;
+    margin-top: 16px;
+}
+
+.textInput, .textArea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+}
+
+.textArea {
+    resize: vertical;
+}
+
+.addTextButton {
+    padding: 10px;
+    margin-top: 12px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.addTextButton:hover {
+    background-color: #218838;
+}
