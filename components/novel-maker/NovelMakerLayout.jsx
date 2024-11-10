@@ -82,23 +82,7 @@ export default function NovelMakerLayout() {
                         dialogue={dialogue} // Pass dialogue
                     />
                 </div>
-                <div className={styles.canvas}>
-                    <Canvas
-                        backgroundImage={backgroundImage}
-                        characterImage={characterImage}
-                        dialogue={dialogue}
-                        characterName={characterName}
-                        backgroundZoom={backgroundZoom}
-                        backgroundPositionX={backgroundPositionX}
-                        backgroundPositionY={backgroundPositionY}
-                        characterZoom={characterZoom}
-                        characterPositionX={characterPositionX}
-                        characterPositionY={characterPositionY}
-                        flipped={flipped}
-                        textFrameSize={textFrameSize}
-                        fontSize={fontSize}
-                    />
-                </div>
+
                 <div className={styles.rightPanel}>
                     <RightPanel
                         backgroundZoom={backgroundZoom}
@@ -119,6 +103,24 @@ export default function NovelMakerLayout() {
                         setTextFrameSize={setTextFrameSize}
                         fontSize={fontSize}
                         setFontSize={setFontSize}
+                    />
+                </div>
+
+                <div className={styles.canvas}>
+                    <Canvas
+                        backgroundImage={backgroundImage}
+                        characterImage={characterImage}
+                        dialogue={dialogue}
+                        characterName={characterName}
+                        backgroundZoom={backgroundZoom}
+                        backgroundPositionX={backgroundPositionX}
+                        backgroundPositionY={backgroundPositionY}
+                        characterZoom={characterZoom}
+                        characterPositionX={characterPositionX}
+                        characterPositionY={characterPositionY}
+                        flipped={flipped}
+                        textFrameSize={textFrameSize}
+                        fontSize={fontSize}
                     />
                 </div>
             </div>
