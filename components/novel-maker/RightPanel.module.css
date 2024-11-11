@@ -1,55 +1,139 @@
 .rightPanel {
     display: flex;
     flex-direction: column;
-    padding: 16px;
-    background-color: #f5f5f5;
-    border-radius: 8px;
+    padding: 20px;
+    background-color: #eaefff; /* Darker background for a more professional look */
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: #2d2d2d; /* Light text color for better contrast */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .tabContainer, .imageTypeTabContainer {
     display: flex;
-    justify-content: space-around;
-    margin-bottom: 10px;
+    justify-content: space-between;
+    margin-bottom: 15px;
 }
 
 .tabButton, .imageTypeTabButton {
     flex: 1;
-    padding: 10px;
-    font-size: 14px;
-    background-color: #007acc;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #606c81; /* Subtle background for buttons */
     color: #fff;
     cursor: pointer;
-    border-radius: 4px;
+    border: 2px solid #4b5a6e; /* Slight border for distinction */
+    border-radius: 6px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .tabButton.activeTab, .imageTypeTabButton.activeImageTab {
-    background-color: #005f99;
+    background-color: #3a4c67; /* Active tab color */
+    border-color: #ff6f61; /* A nice vibrant color for the active tab */
+    transform: scale(1.05);
+}
+
+.tabButton:hover, .imageTypeTabButton:hover {
+    background-color: #5a6a82; /* Lighter shade on hover */
+    transform: scale(1.02);
 }
 
 .controlButton, .deleteButton {
-    padding: 10px;
-    margin-top: 10px;
+    padding: 12px;
+    margin-top: 15px;
     background-color: #007acc;
     color: #fff;
     border: none;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.deleteButton {
+    background-color: #ff6666;
+}
+
+.controlButton:hover, .deleteButton:hover {
+    background-color: #006bb3; /* Darker blue for hover effect */
+    transform: scale(1.05);
 }
 
 .deleteButton:hover {
-    background: #ff3333;
+    background-color: #ff4444; /* Darker red for delete button hover */
 }
 
 .input[type="range"] {
     width: 100%;
-    margin-top: 5px;
+    margin-top: 8px;
+    background-color: #4b5a6e;
+    border-radius: 4px;
+    height: 8px;
+    outline: none;
+    transition: background-color 0.3s ease;
 }
 
+.input[type="range"]:focus {
+    background-color: #5a6a82; /* Change color on focus */
+}
+
+.input[type="number"], .input[type="text"], .textarea {
+    padding: 10px;
+    margin: 5px 0 10px 0;
+    background-color: #3e4a60;
+    color: #e0e0e0;
+    border: 1px solid #4b5a6e;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 100%;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.input[type="number"]:focus, .input[type="text"]:focus, .textarea:focus {
+    background-color: #5a6a82;
+    border-color: #ff6f61;
+}
+
+.textarea {
+    height: 120px;
+    resize: vertical;
+}
 
 .label {
-    font-size: 14px;
-    margin: 10px 0 5px;
-    color: #333;
+    font-size: 16px;
+    margin: 12px 0 6px 0;
+    color: #e0e0e0;
 }
 
+.resetButton {
+    padding: 12px;
+    margin-top: 15px;
+    background-color: #f3ffd3;
+    color: #000000;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
 
+.resetButton:hover {
+    background-color: #cdc94e;
+    transform: scale(1.05);
+}
+
+.addTextButton {
+    padding: 12px;
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.addTextButton:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}

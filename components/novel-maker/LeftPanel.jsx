@@ -1,32 +1,35 @@
 'use client';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import styles from './LeftPanel.module.css';
 
-export default function LeftPanel({ onImageUpload, setDialogue, setCharacterName, imageType, setImageType }) {
+export default function LeftPanel({ onImageUpload, imageType, setImageType }) {
     const fileInputRef = useRef(null);
-    const [text, setText] = useState(localStorage.getItem('dialogue') || '');
-    const [characterNameInput, setCharacterNameInput] = useState('');
-    const [activeTab, setActiveTab] = useState('background');
-
-    useEffect(() => {
-        localStorage.setItem('dialogue', text);
-        setDialogue(text);
-    }, [text, setDialogue]);
+    const [activeTab, setActiveTab] = useState('gallery');
+    const [activeUploadTab, setActiveUploadTab] = useState('background');
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (file) {
             if (file.type.startsWith('image/')) {
-                onImageUpload(file, activeTab);
+                onImageUpload(file, activeUploadTab);
             } else {
                 alert('Please upload a valid image file.');
             }
         }
     };
 
-    const handleAddText = () => {
-        setDialogue(text);
-        setCharacterName(characterNameInput);
+    // Handle the click for preset gallery images
+    const handlePresetImageClick = (imageSrc, type) => {
+        // Create a temporary Blob from the image source if it is not a file
+        fetch(imageSrc)
+            .then(response => response.blob())
+            .then(blob => {
+                const file = new File([blob], imageSrc.split('/').pop(), { type: 'image/png' });
+                onImageUpload(file, type); // Call the onImageUpload with the file and type
+            })
+            .catch(error => {
+                console.error("Error loading preset image:", error);
+            });
     };
 
     return (
@@ -34,49 +37,84 @@ export default function LeftPanel({ onImageUpload, setDialogue, setCharacterName
             <h3>Assets Manager</h3>
             <div className={styles.tabContainer}>
                 <button
-                    className={`${styles.tabButton} ${activeTab === 'background' ? styles.activeTab : ''}`}
-                    onClick={() => { setActiveTab('background'); setImageType('background'); }}
+                    className={`${styles.tabButton} ${activeTab === 'gallery' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('gallery')}
                 >
-                    Background
+                    Gallery
                 </button>
                 <button
-                    className={`${styles.tabButton} ${activeTab === 'character' ? styles.activeTab : ''}`}
-                    onClick={() => { setActiveTab('character'); setImageType('character'); }}
+                    className={`${styles.tabButton} ${activeTab === 'upload' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('upload')}
                 >
-                    Character
+                    Upload
                 </button>
             </div>
-            <button onClick={() => fileInputRef.current.click()} className={styles.uploadButton}>
-                Upload {activeTab} Image
-            </button>
-            <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                style={{ display: 'none' }}
-                accept="image/*"
-            />
-            <label className={styles.label}>Character Name:</label>
-            <input
-                type="text"
-                className={styles.textInput}
-                value={characterNameInput}
-                onChange={(e) => setCharacterNameInput(e.target.value)}
-                placeholder="Enter character name"
-            />
-            <button onClick={handleAddText} className={styles.addTextButton}>
-                Add Character Name
-            </button>
-            <label className={styles.label}>Dialogue:</label>
-            <textarea
-                className={styles.textArea}
-                placeholder="Enter dialogue text here"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-            />
-            <button onClick={handleAddText} className={styles.addTextButton}>
-                Add Text
-            </button>
+
+            {activeTab === 'gallery' && (
+                <div className={styles.galleryTabContainer}>
+                    <button
+                        className={`${styles.galleryTabButton} ${activeUploadTab === 'background' ? styles.activeGalleryTab : ''}`}
+                        onClick={() => { setActiveUploadTab('background'); setImageType('background'); }}
+                    >
+                        Background
+                    </button>
+                    <button
+                        className={`${styles.galleryTabButton} ${activeUploadTab === 'character' ? styles.activeGalleryTab : ''}`}
+                        onClick={() => { setActiveUploadTab('character'); setImageType('character'); }}
+                    >
+                        Character
+                    </button>
+
+                    <div className={styles.imageGallery}>
+                        {activeUploadTab === 'background' && (
+                            <img
+                                src='/images/background/1.png'
+                                alt="Background"
+                                className={styles.imagePreview}
+                                onClick={() => handlePresetImageClick('/images/background/1.png', 'background')}
+                            />
+                        )}
+                        {activeUploadTab === 'character' && (
+                            <img
+                                src='/images/character/1.png'
+                                alt="Character"
+                                className={styles.imagePreview}
+                                onClick={() => handlePresetImageClick('/images/character/1.png', 'character')}
+                            />
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'upload' && (
+                <>
+                    <div className={styles.uploadTabContainer}>
+                        <button
+                            className={`${styles.uploadTabButton} ${activeUploadTab === 'background' ? styles.activeUploadTab : ''}`}
+                            onClick={() => setActiveUploadTab('background')}
+                        >
+                            Upload Background Image
+                        </button>
+                        <button
+                            className={`${styles.uploadTabButton} ${activeUploadTab === 'character' ? styles.activeUploadTab : ''}`}
+                            onClick={() => setActiveUploadTab('character')}
+                        >
+                            Upload Character Image
+                        </button>
+                    </div>
+
+                    <button onClick={() => fileInputRef.current.click()} className={styles.uploadButton}>
+                        Upload {activeUploadTab} Image
+                    </button>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        style={{ display: 'none' }}
+                        accept="image/*"
+                    />
+                </>
+            )}
         </div>
     );
 }

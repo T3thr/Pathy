@@ -1,3 +1,4 @@
+/* Main container for LeftPanel */
 .leftPanel {
     display: flex;
     flex-direction: column;
@@ -6,74 +7,130 @@
     border-radius: 8px;
     color: #333;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: screen;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
 }
 
+/* Tab container style */
 .tabContainer {
     display: flex;
     justify-content: space-around;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #e0e0e0;
 }
 
+/* Tab button style */
 .tabButton {
     flex: 1;
-    padding: 10px;
-    font-size: 14px;
+    padding: 12px;
+    font-size: 16px;
     border: none;
     background-color: #007acc;
     color: #fff;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    border-radius: 4px;
+    border-radius: 6px 6px 0 0;
 }
 
+/* Active tab button style */
 .activeTab {
     background-color: #005f99;
 }
 
+/* Gallery tab container */
+.galleryTabContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+/* Gallery tab buttons for switching between background and character */
+.galleryTabButton {
+    padding: 12px;
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+/* Active gallery tab button style */
+.activeGalleryTab {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* Image gallery grid */
+.imageGallery {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Image preview thumbnail styles */
+.imagePreview {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Hover effect on image preview */
+.imagePreview:hover {
+    transform: scale(1.1);
+}
+
+/* Upload tab container */
+.uploadTabContainer {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 16px;
+    gap: 12px;
+}
+
+/* Upload tab buttons for background and character upload */
+.uploadTabButton {
+    padding: 12px;
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+/* Active upload tab button style */
+.activeUploadTab {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* Upload button for triggering file input */
 .uploadButton {
-    padding: 10px;
-    margin-top: 12px;
+    padding: 12px;
+    margin-top: 20px;
     background-color: #007acc;
     color: #fff;
     border: none;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 6px;
     transition: background-color 0.3s ease;
+    width: 100%;
 }
 
+/* Upload button hover effect */
 .uploadButton:hover {
     background-color: #005f99;
 }
 
+/* Label style for any text or inputs */
 .label {
     font-weight: bold;
     margin-top: 16px;
-}
-
-.textInput, .textArea {
-    width: 100%;
-    padding: 8px;
-    margin-top: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #f0f0f0;
-}
-
-.textArea {
-    resize: vertical;
-}
-
-.addTextButton {
-    padding: 10px;
-    margin-top: 12px;
-    background-color: #28a745;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-}
-
-.addTextButton:hover {
-    background-color: #218838;
 }
