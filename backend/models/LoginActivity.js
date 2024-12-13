@@ -17,10 +17,10 @@ const LoginActivitySchema = new mongoose.Schema({
         required: [false, "Please enter your name"],
       },
     username: {
-        type: String, // Change this to String to store the username directly
+        type: String, 
         required: false,
     },
-    email: { // Optionally add an email field if you want to store email too
+    email: { 
         type: String,
         required: false,
     },

@@ -1,4 +1,4 @@
-// models/Novel.js
+// backend/models/Novel.js
 import mongoose from 'mongoose';
 
 const NovelSchema = new mongoose.Schema({
