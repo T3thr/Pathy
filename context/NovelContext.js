@@ -1,4 +1,5 @@
 // context/NovelContext.js
+"use client";
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const NovelContext = createContext();

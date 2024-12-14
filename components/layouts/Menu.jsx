@@ -41,10 +41,12 @@ export default async function Menu() {
                   className='w-10 h-10 border shadow-md rounded-full'
                   src={'/images/default.png'}
                 />
-                <div className='space-y-1 font-medium'>
+                <div className='space-y-1 font-medium hidden lg:flex '>
                   <p>
+                    <div className='text-gray-700'>
                     {session.user.name || 'GUEST'}
-                    <time className='block text-sm text-gray-500 dark:text-gray-400'>
+                    </div>
+                    <time className='block text-sm text-gray-500 '>
                       {session.user.email }
                     </time>
                   </p>

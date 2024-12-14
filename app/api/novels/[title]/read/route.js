@@ -1,40 +1,43 @@
-// app/api/novels/[title]/view/route.js
 import { NextResponse } from 'next/server';
 import mongodbConnect from '@/backend/lib/mongodb';
 import Novel from '@/backend/models/Novel';
 
-export async function POST(req, { params }) {
-  const { title } = params; // Get the novel's title from the URL params
+export async function POST(req: Request, { params }: { params: { title: string } }) {
+  const { title } = params;
 
   try {
-    await mongodbConnect(); // Ensure we're connected to MongoDB
+    await mongodbConnect();
 
-    const requestBody = await req.json(); // Get the request body
-    const { genre, author, description, imageUrl } = requestBody;
+    const { episodeIndex } = await req.json(); // Get the episodeIndex from the request body
 
-    // Check if the novel already exists
-    const existingNovel = await Novel.findOne({ title });
+    // Optionally update view count for the specific episode if it's stored in the document
+    const updatedNovel = await Novel.findOneAndUpdate(
+      { title },
+      {
+        $inc: { viewCount: 1, [`episodes.${episodeIndex}.viewCount`]: 1 }, // Increment both novel and episode view count
+      },
+      { 
+        upsert: true,
+        new: true,
+        setDefaultsOnInsert: true 
+      }
+    );
 
-    if (existingNovel) {
-      // Increment the view count by 1 for existing novel
-      existingNovel.viewCount += 1;
-      await existingNovel.save(); // Save the updated novel
-      return NextResponse.json({ viewCount: existingNovel.viewCount }, { status: 200 });
-    } else {
-      // Create a new novel document if it doesn't exist
-      const newNovel = new Novel({
-        title,
-        genre,
-        author,
-        description,
-        imageUrl,
-        viewCount: 1 // Initialize view count to 1
-      });
-      await newNovel.save(); // Save the new novel
-      return NextResponse.json({ viewCount: newNovel.viewCount }, { status: 201 });
-    }
+    return NextResponse.json(
+      { 
+        viewCount: updatedNovel.viewCount,
+        message: 'View count updated successfully for the novel and episode' 
+      }, 
+      { status: 200 }
+    );
   } catch (error) {
     console.error('Error updating view count:', error);
-    return NextResponse.json({ message: 'Error updating view count', error }, { status: 500 });
+    return NextResponse.json(
+      { 
+        message: 'Error updating view count', 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      }, 
+      { status: 500 }
+    );
   }
 }

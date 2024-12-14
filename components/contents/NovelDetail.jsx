@@ -1,116 +1,122 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import styles from './NovelDetail.module.css';
-import { stories } from '../../data/stories'; // Import the stories data
+import { stories } from '@/data/stories';
 
 export default function NovelDetail({ novelDetails }) {
-  const [episodes, setEpisodes] = useState([]);
   const router = useRouter();
+  const [episodes, setEpisodes] = useState([]);
+  const [story, setStory] = useState([]);
 
   useEffect(() => {
-    const fetchEpisodes = async () => {
-      try {
-        const response = await axios.get(`/api/novels/${encodeURIComponent(novelDetails.title)}/episodes`);
-        setEpisodes(response.data.episodes);
-      } catch (error) {
-        console.error('Failed to fetch episodes:', error);
-      }
-    };
+    // Dynamically fetch the story for the novel
+    const storyData = stories[novelDetails.title] || [];
+    setStory(storyData);
+  }, [novelDetails.title]);
 
-    if (novelDetails?.title) {
-      fetchEpisodes();
-    }
-  }, [novelDetails]);
-
-  const handleReadNow = async () => {
+  const updateViewCount = useCallback(async () => {
     try {
-      const response = await axios.post(`/api/novels/${encodeURIComponent(novelDetails.title)}/view`, {
-        genre: novelDetails.genre,
-        author: novelDetails.author,
-        description: novelDetails.description,
-        imageUrl: novelDetails.imageUrl,
+      const response = await axios.post(`/api/novels/${encodeURIComponent(novelDetails.title)}/viewCount`, {
+        title: novelDetails.title,
       });
-      console.log('Updated view count:', response.data.viewCount);
-      router.push(`/novel/${encodeURIComponent(novelDetails.title)}/read`);
+      return response.data.viewCount;
     } catch (error) {
       console.error('Failed to update view count:', error);
-      alert('Failed to update view count. Please try again later.');
+      return null;
     }
-  };
+  }, [novelDetails.title]);
+  
 
-  const handleStartOver = async () => {
-    // Clear the localStorage progress
-    localStorage.removeItem(`progress-${novelDetails.title}`);
-    try {
-      const response = await axios.post(`/api/novels/${encodeURIComponent(novelDetails.title)}/view`, {
-        genre: novelDetails.genre,
-        author: novelDetails.author,
-        description: novelDetails.description,
-        imageUrl: novelDetails.imageUrl,
-      });
-      console.log('Updated view count:', response.data.viewCount);
-      router.push(`/novel/${encodeURIComponent(novelDetails.title)}/read`);
-    } catch (error) {
-      console.error('Failed to update view count:', error);
-      alert('Failed to update view count. Please try again later.');
+  const handleReadNovel = useCallback(async (resetProgress = false) => {
+    if (resetProgress) {
+      localStorage.removeItem(`progress-${novelDetails.title}`);
     }
-  };
 
-  // Retrieve last read chapter from localStorage
-  const lastReadChapter = localStorage.getItem(`progress-${novelDetails.title}`);
+    await updateViewCount();
+    router.push(`/novel/${encodeURIComponent(novelDetails.title)}/read`);
+  }, [novelDetails, router, updateViewCount]);
 
-  // Retrieve the correct story from stories.js
-  const story = stories[novelDetails.title];
-
-  const handleEpisodeRead = (episodeIndex) => {
-    // Get the current episode data
+  const handleEpisodeRead = useCallback(async (episodeIndex) => {
     const currentEpisode = story[episodeIndex];
     if (currentEpisode && currentEpisode.choices) {
-      // Pass the nextChapter to the ReadNovel page
-      const nextChapter = currentEpisode.choices[0].nextChapter;
-      router.push(`/novel/${encodeURIComponent(novelDetails.title)}/read/`);
+      localStorage.setItem(`progress-${novelDetails.title}`, episodeIndex.toString());
+  
+      // Trigger the view count update for the episode
+      await updateViewCount();
+  
+      router.push(`/novel/${encodeURIComponent(novelDetails.title)}/read`);
     }
-  };
+  }, [story, novelDetails, router, updateViewCount]);
+
+  const [lastReadChapter, setLastReadChapter] = useState(null);
+
+  useEffect(() => {
+    const progress = localStorage.getItem(`progress-${novelDetails.title}`);
+    setLastReadChapter(progress ? parseInt(progress, 10) : null);
+  }, [novelDetails.title]);
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>{novelDetails.title}</h1>
-      <img className={styles.coverImage} src={novelDetails.imageUrl} alt={`Cover of ${novelDetails.title}`} />
-      <h2 className={styles.author}>By {novelDetails.author}</h2>
-      <p className={styles.description}>{novelDetails.description}</p>
-      
-      <button className={styles.readButton} onClick={handleReadNow}>
-        {lastReadChapter ? 'Continue Reading' : 'Start Reading'}
-      </button>
+    <div className="max-w-4xl mx-auto p-6 bg-var-container text-var-foreground rounded-lg shadow-lg">
+      <h1 className="text-3xl font-bold mb-4 text-center animate-fadeIn">{novelDetails.title}</h1>
 
-      {/* Start Over Button */}
-      <button className={styles.startOverButton} onClick={handleStartOver}>
-        Start Over
-      </button>
+      <div className="relative w-full h-64 mb-4">
+        <Image 
+          src={novelDetails.imageUrl} 
+          alt={`Cover of ${novelDetails.title}`} 
+          layout="fill"
+          objectFit="cover"
+          className="rounded-lg"
+          priority
+        />
+      </div>
 
-      <div className={styles.episodesContainer}>
-        <h3 className={styles.episodesTitle}>Episodes</h3>
-        {episodes.length > 0 ? (
-          <div className={styles.episodesList}>
-            {episodes.map((episode, index) => (
-              <div key={episode._id} className={styles.episodeBox}>
-                <h4 className={styles.episodeTitle}>{episode.title}</h4>
-                <p className={styles.episodeContent}>
-                  {episode.content ? episode.content.slice(0, 100) : 'No content available'}...
+      <h2 className="text-xl font-semibold mb-2">By {novelDetails.author}</h2>
+      <p className="text-base mb-6 text-var-muted">{novelDetails.description}</p>
+
+      <div className="flex space-x-4 mb-8">
+        <button 
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none"
+          onClick={() => handleReadNovel()}
+        >
+          {lastReadChapter !== null ? 'Continue Reading' : 'Start Reading'}
+        </button>
+
+        {lastReadChapter !== null && (
+          <button 
+            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 focus:outline-none"
+            onClick={() => handleReadNovel(true)}
+          >
+            Start Over
+          </button>
+        )}
+      </div>
+
+      <div className="mt-8">
+        <h3 className="text-2xl font-semibold mb-4">Story Chapters</h3>
+        {story.length > 0 ? (
+          <div className="space-y-4">
+            {story.map((episode, index) => (
+              <div 
+                key={index} 
+                className="p-4 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-var-divider"
+              >
+                <h4 className="text-xl font-semibold mb-2">{episode.title}</h4>
+                <p className="text-var-muted mb-4">
+                  {episode.content ? `${episode.content.slice(0, 100)}...` : 'No content available'}
                 </p>
                 <button
-                  className={styles.readEpisodeButton}
-                  onClick={() => handleEpisodeRead(index)} // Navigate to specific episode
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none"
+                  onClick={() => handleEpisodeRead(index)}
                 >
-                  Read Episode
+                  Read Chapter
                 </button>
               </div>
             ))}
           </div>
         ) : (
-          <p>No episodes available for this novel.</p>
+          <p className="text-gray-500">No chapters available for this novel.</p>
         )}
       </div>
     </div>

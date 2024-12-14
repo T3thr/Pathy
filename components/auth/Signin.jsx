@@ -61,9 +61,9 @@ const Signin = () => {
   }, [session, callBackUrl, router]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
-      <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
-        <h2 className="mb-5 text-3xl font-bold text-center text-gray-800">Welcome Back</h2>
+    <div className="flex items-center justify-center min-h-screen bg-var-background transition-all duration-500 ease-in-out">
+      <div className="bg-white dark:bg-gray-600 shadow-lg rounded-lg p-8 max-w-md w-full">
+        <h2 className="mb-5 text-3xl font-bold text-center text-var-foreground">Welcome Back</h2>
 
         <div className="flex justify-center mb-4">
           <button
@@ -83,9 +83,9 @@ const Signin = () => {
         <form onSubmit={submitHandler}>
           {isUsernameSignIn ? (
             <div className="mb-4">
-              <label className="block mb-1 font-medium">Username</label>
+              <label className="block mb-1 font-medium text-var-foreground">Username</label>
               <input
-                className="border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                className="border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                 type="text"
                 placeholder="Enter your username"
                 value={username}
@@ -95,9 +95,9 @@ const Signin = () => {
             </div>
           ) : (
             <div className="mb-4">
-              <label className="block mb-1 font-medium">Email</label>
+              <label className="block mb-1 font-medium text-var-foreground">Email</label>
               <input
-                className="border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                className="border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                 type="email"
                 placeholder="Enter your email"
                 value={email}
@@ -107,9 +107,9 @@ const Signin = () => {
             </div>
           )}
           <div className="mb-4">
-            <label className="block mb-1 font-medium">Password</label>
+            <label className="block mb-1 font-medium text-var-foreground">Password</label>
             <input
-              className="border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+              className="border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
               type="password"
               placeholder="Enter your password"
               value={password}

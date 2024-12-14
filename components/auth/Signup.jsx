@@ -35,15 +35,20 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
-      <div style={{ maxWidth: "480px" }} className="mt-10 mb-20 p-4 md:p-7 bg-white rounded-lg shadow-lg">
+    <div className="flex items-center justify-center min-h-screen bg-var-background transition-all duration-500 ease-in-out">
+      <div
+        style={{ maxWidth: "480px" }}
+        className="mt-10 mb-20 p-4 md:p-7 bg-white dark:bg-gray-600 rounded-lg shadow-lg dark:shadow-light"
+      >
         <form onSubmit={submitHandler}>
-          <h2 className="mb-5 text-2xl font-semibold text-center">Create Account</h2>
+          <h2 className="mb-5 text-2xl font-semibold text-center text-var-foreground">
+            Create Account
+          </h2>
 
           <div className="mb-4">
-            <label className="block mb-1">Name</label>
+            <label className="block mb-1 text-var-muted">Name</label>
             <input
-              className="appearance-none border border-gray-200 bg-gray-100 rounded-md py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400 w-full"
+              className="appearance-none border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 rounded-md py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400 w-full text-var-foreground dark:text-var-foreground"
               type="text"
               placeholder="Type your name"
               value={name}
@@ -52,11 +57,10 @@ const Signup = () => {
             />
           </div>
 
-
           <div className="mb-4">
-          <label className="block mb-1">Username</label>
+            <label className="block mb-1 text-var-muted">Username</label>
             <input
-              className="appearance-none border border-gray-200 bg-gray-100 rounded-md py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400 w-full"
+              className="appearance-none border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 rounded-md py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400 w-full text-var-foreground dark:text-var-foreground"
               type="text"
               placeholder="Type your username"
               value={username}
@@ -66,9 +70,9 @@ const Signup = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block mb-1">Email</label>
+            <label className="block mb-1 text-var-muted">Email</label>
             <input
-              className="appearance-none border border-gray-200 bg-gray-100 rounded-md py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400 w-full"
+              className="appearance-none border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 rounded-md py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400 w-full text-var-foreground dark:text-var-foreground"
               type="email"
               placeholder="Type your email"
               value={email}
@@ -78,9 +82,9 @@ const Signup = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block mb-1">Password</label>
+            <label className="block mb-1 text-var-muted">Password</label>
             <input
-              className="appearance-none border border-gray-200 bg-gray-100 rounded-md py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400 w-full"
+              className="appearance-none border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 rounded-md py-2 px-3 hover:border-gray-400 focus:outline-none focus:border-gray-400 w-full text-var-foreground dark:text-var-foreground"
               type="password"
               placeholder="Type your password"
               minLength={6}
@@ -99,7 +103,7 @@ const Signup = () => {
 
           <hr className="mt-4" />
 
-          <p className="text-center mt-5">
+          <p className="text-center mt-5 text-var-muted">
             Already have an account?{" "}
             <Link href="/signin" className="text-blue-500 hover:underline">
               Sign in

@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { novels } from '@/data/novels';
 import { stories } from '@/data/stories';
-import styles from './ReadNovel.module.css';
 
 export default function ReadNovel({ params }) {
   const [novelDetails, setNovelDetails] = useState(null);
@@ -36,19 +35,25 @@ export default function ReadNovel({ params }) {
   };
 
   if (!novelDetails || !story) {
-    return <p>Novel not found.</p>;
+    return <p className="text-var-muted">Novel not found.</p>;
   }
 
   const chapter = story[currentChapter];
 
   return (
-    <div className="bg-gradient-to-b from-yellow-100 to-yellow-50 min-h-screen p-8 flex flex-col items-center justify-center">
-      <div className="max-w-3xl w-full bg-white p-6 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">{novelDetails.title}</h1>
+    <div className="bg-var-background min-h-screen p-8 flex flex-col items-center justify-center">
+      <div className="max-w-3xl w-full bg-var-container p-6 rounded-lg shadow-lg theme-change-animation">
+        <h1 className="text-3xl font-semibold text-center text-var-foreground mb-6">
+          {novelDetails.title}
+        </h1>
 
         <div className="mb-4">
-          <h2 className="text-xl font-bold text-gray-700">{chapter.title}</h2>
-          <p className="text-gray-600 mt-2">{chapter.content}</p>
+          <h2 className="text-xl font-bold text-var-foreground">
+            {chapter.title}
+          </h2>
+          <p className="text-var-muted mt-2">
+            {chapter.content}
+          </p>
         </div>
 
         {chapter.choices && (
@@ -56,7 +61,7 @@ export default function ReadNovel({ params }) {
             {chapter.choices.map((choice, index) => (
               <button
                 key={index}
-                className="bg-blue-500 text-white py-2 px-4 rounded-lg mr-2"
+                className="bg-blue-500 text-white py-2 px-4 rounded-lg mr-2 hover:bg-blue-600 focus:ring-2 focus:ring-blue-400"
                 onClick={() => handleChoice(choice.nextChapter)}
               >
                 {choice.text}
