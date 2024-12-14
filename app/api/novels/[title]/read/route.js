@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import mongodbConnect from '@/backend/lib/mongodb';
 import Novel from '@/backend/models/Novel';
 
-export async function POST(req: Request, { params }: { params: { title: string } }) {
+export async function POST(req, { params }) {
   const { title } = params;
 
   try {
