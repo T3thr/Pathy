@@ -1,25 +1,28 @@
+// context/Theme.js
 "use client";
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 const ThemeContext = createContext();
 
-export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState('light'); // Default theme is 'light'
+export function ThemeProvider({ children, initialTheme = "light" }) {
+  const [theme, setTheme] = useState(initialTheme);
 
-  // Function to toggle theme
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
+    const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
-    document.body.classList.toggle('dark', newTheme === 'dark');
-    localStorage.setItem('theme', newTheme); // Save theme to localStorage
+    document.documentElement.classList.toggle("dark", newTheme === "dark"); // Apply theme at the root (html) level
+    document.cookie = `theme=${newTheme}; path=/; max-age=31536000`; // Store theme in cookies
   };
 
-  // Load theme from localStorage on initial render
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'light'; // Default to 'light'
-    setTheme(savedTheme);
-    document.body.classList.toggle('dark', savedTheme === 'dark');
-  }, []);
+    const storedTheme = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("theme="))
+      ?.split("=")[1];
+    const currentTheme = storedTheme || initialTheme;
+    setTheme(currentTheme);
+    document.documentElement.classList.toggle("dark", currentTheme === "dark");
+  }, [initialTheme]);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

@@ -6,7 +6,7 @@ export default async function SideBar() {
   const session = await getServerSession(options)
 
   return (
-    <aside className="md:w-1/3 lg:w-1/4 px-4 py-6 bg-var-container text-var-foreground rounded-lg shadow-light dark:bg-var-container dark:text-var-foreground">
+    <aside className="md:w-1/3 lg:w-1/4 p-3 px-4 py-6 bg-var-container text-var-foreground rounded-lg shadow-light dark:bg-var-container dark:text-var-foreground">
       <ul className="space-y-4">
         {/* Check if user is authenticated and has admin role */}
         {session?.user?.role === 'admin' && (

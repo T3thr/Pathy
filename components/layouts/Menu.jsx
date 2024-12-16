@@ -10,14 +10,14 @@ export default async function Menu() {
   const session = await getServerSession(options);
 
   return (
-    <div className='container max-w-screen-xl w-full mx-auto px-4 bg-gray-200'>
+    <div className='container max-w-screen w-full mx-auto px-4 bg-gray-200'>
       <div className='flex flex-wrap items-center justify-between'>
         <div className='flex-shrink-0 mr-auto lg:mx-16 mb-2 lg:mb-0'>
           {/* Logo or Brand Name */}
         </div>
 
         <div className='flex items-center ml-auto space-x-4 mb-1'>
-          <div className='flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-300 rounded-full'>
+          <div className='flex items-center justify-center border-indigo-800 '>
             <SearchBar className="mb-[-2px]" />
           </div>
 
@@ -38,18 +38,18 @@ export default async function Menu() {
             <Link href='/profile'>
               <div className='flex items-center space-x-3 cursor-pointer'>
                 <img
-                  className='w-10 h-10 border shadow-md rounded-full'
+                  className='w-10 h-10 border border-indigo-800 shadow-xl rounded-full'
                   src={'/images/default.png'}
                 />
-                <div className='space-y-1 font-medium hidden lg:flex '>
-                  <p>
+                <div className='space-y-1 font-medium hidden lg:flex flex-col '>
+
                     <div className='text-gray-700'>
                     {session.user.name || 'GUEST'}
                     </div>
                     <time className='block text-sm text-gray-500 '>
                       {session.user.email }
                     </time>
-                  </p>
+
                 </div>
               </div>
             </Link>

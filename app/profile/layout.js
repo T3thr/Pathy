@@ -3,21 +3,34 @@ import Sidebar from "@/components/layouts/Sidebar";
 export default function RootLayout({ children }) {
   return (
     <div className="bg-var-background text-var-foreground dark:bg-var-container dark:text-var-foreground">
-      <section className="py-5 sm:py-7 bg-blue-100 dark:bg-indigo-700 mt-5 md:pb-7 sm:pb-7 transition-all">
-        <div className="container max-w-screen-xl mx-auto px-4">
-          <h1 className="font-semibold text-2xl text-var-foreground">User Dashboard</h1>
+
+      {/* Hero Section */}
+      <section className="py-4 sm:py-8 bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-700 dark:from-indigo-800 dark:via-indigo-900 dark:to-purple-900 shadow-xl lg:mt-4 -mt-1 md:pb-8 sm:pb-6 transition-all">
+        <div className="container max-w-screen h-auto mx-auto px-6">
+          <h1 className="font-bold text-4xl sm:text-5xl text-white tracking-tight drop-shadow-xl leading-tight">
+            User Dashboard
+          </h1>
+          <p className="text-lg sm:text-xl text-white/80">Manage your account</p>
         </div>
       </section>
 
-      <section className="py-10">
-        <div className="container max-w-screen-xl mx-auto px-4">
-          <div className="flex flex-col md:flex-row -mx-4">
-            <Sidebar />
-            <main className="md:w-2/3 lg:w-3/4 px-4">
-              <article className="border border-gray-200 bg-white dark:border-gray-900 dark:bg-slate-900 shadow-sm dark:shadow-light rounded mb-5 p-3 lg:p-5 transition-all">
+      {/* Main Content */}
+      <section className="py-4 sm:py-16">
+        <div className="container max-w-screen mx-auto h-auto">
+          <div className="flex flex-col md:flex-row gap-2">
+            
+            {/* Sidebar */}
+
+              <Sidebar />
+ 
+
+            {/* Main Content Area */}
+            <main className="w-screen ">
+              <article className="border w-full border-gray-200 bg-white dark:border-gray-900 dark:bg-slate-900 shadow-lg dark:shadow-xl rounded-xl transition-all">
                 {children}
               </article>
             </main>
+
           </div>
         </div>
       </section>
