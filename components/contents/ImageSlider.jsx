@@ -35,7 +35,7 @@ export default function ImageSlider() {
   const resetArrowTimeout = () => {
     clearTimeout(interactionTimeout.current);
     setShowArrows(true);
-    interactionTimeout.current = setTimeout(() => setShowArrows(false), 3000);
+    interactionTimeout.current = setTimeout(() => setShowArrows(false), 1000);
   };
 
   useEffect(() => {

@@ -91,7 +91,15 @@ export default function NovelDetail({ novelDetails }) {
             Start Over
           </button>
         )}
+
+        <button 
+          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 focus:outline-none"
+          onClick={() => router.push(`/novel/${encodeURIComponent(novelDetails.title)}/readvisual`)}
+        >
+          Read Visual Version
+        </button>
       </div>
+
 
       <div className="mt-8">
         <h3 className="text-2xl font-semibold mb-4">Story Chapters</h3>
