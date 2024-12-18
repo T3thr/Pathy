@@ -170,7 +170,7 @@ export default function ReadVisualNovel({ params }) {
   }
 
   return (
-    <div className="flex items-center justify-center w-screen h-screen bg-gradient-to-br from-gray-900 to-black overflow-hidden">
+    <div className="flex items-center mt-6 lg:mt-2 justify-center w-screen h-screen bg-gradient-to-br from-gray-900 to-black overflow-hidden">
       <div className="relative w-full max-w-[1200px] h-full max-h-[640px] bg-black rounded-none md:rounded-xl overflow-hidden shadow-2xl flex flex-col">
         {/* Scene Background */}
         <div 
