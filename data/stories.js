@@ -87,7 +87,7 @@ export const stories = {
     
   ], //จบเรื่องดอกส้ม
 
-  'ฺBound to me สยบรักคุณมาเฟีย': 
+  'Bound to me สยบรักคุณมาเฟีย': 
   [
     {
       title: 

@@ -6,7 +6,7 @@ export const visualStories = {
       title: "Chapter 1: เริ่มต้นเรื่องราว",
       backgroundImage: "/images/background/1.png",
       characterImage: "/images/character/doraemon.png",
-      characterName: "เรยา",
+      characterName: "โนบิตะ",
       dialogue: "สวัสดี วันนี้เป็นวันแรกของฉันที่โรงเรียนแห่งใหม่",
       mood: "neutral",
       nextScene: { 
@@ -15,12 +15,22 @@ export const visualStories = {
           { 
             text: "ยิ้มทัก", 
             nextSceneId: 1,
-            impact: { mood: 'positive', relationship: 1 }
+            impact: {
+  
+              knowledge: 0,
+              trust: 5,
+              romance: 5
+            }
           },
           { 
             text: "มองตรงไปข้างหน้า", 
             nextSceneId: 2,
-            impact: { mood: 'neutral', relationship: 0 }
+            impact: {
+              happiness: -5,
+              knowledge: 0,
+              trust: -10,
+              romance: 0
+            }
           }
         ]
       }
@@ -28,9 +38,10 @@ export const visualStories = {
     {
       id: 1,
       type: 'dialogue',
+      title: "Chapter 1: เริ่มต้นเรื่องราว",
       backgroundImage: "/images/background/1.png",
       characterImage: "/images/character/nobita.png",
-      characterName: "เพื่อนร่วมชั้น",
+      characterName: "โนบิตะ",
       dialogue: "สวัสดีจ้า เธอดูเป็นมิตรจังนะ! ฉันชื่อโนบิตะ",
       mood: "friendly",
       nextScene: {
@@ -41,9 +52,9 @@ export const visualStories = {
     {
       id: 2,
       type: 'dialogue',
+      title: "Chapter 1: เริ่มต้นเรื่องราว",
       backgroundImage: "/images/background/1.png",
       characterImage: "/images/character/doraemon.png",
-      characterName: "เรยา",
       dialogue: "ฉันจะยึดครองที่นี่ให้ได้",
       mood: "serious",
       nextScene: {
@@ -54,6 +65,7 @@ export const visualStories = {
     {
       id: 3,
       type: 'dialogue',
+      title: "Chapter 1: เริ่มต้นเรื่องราว",
       backgroundImage: "/images/background/1.png",
       characterImage: "/images/character/teacher.png",
       characterName: "คุณครู",

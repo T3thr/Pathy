@@ -3,7 +3,7 @@ export const recommendationText = "เลือกนิยายของคุ
 
 export const novels = [
     { title: "ดอกส้มสีทอง", genre: "รักหวานแหวว",author: "Author 1",imageUrl: "/images/romance/novel1.jpg", description: "Description of ดอกส้มสีทอง" },
-    { title: "ฺBound to me สยบรักคุณมาเฟีย", genre: "รักหวานแหวว",author: "Author 2",imageUrl: "/images/romance/novel2.jpg", description: "Description of โดราเอมอน" },
+    { title: "Bound to me สยบรักคุณมาเฟีย", genre: "รักหวานแหวว",author: "Author 2",imageUrl: "/images/romance/novel2.jpg", description: "Description of โดราเอมอน" },
     { title: "ดอกส้มสีทอรักในสายลม", genre: "รักหวานแหวว",author: "Author 3",imageUrl: "/images/romance/novel3.jpeg", description: "Description of ดอกส้มสีทอรักในสายลม" },
     { title: "ดอกไม้ในหัวใจ", genre: "รักหวานแหวว",author: "Author 4",imageUrl: "/images/romance/novel4.jpeg", description: "Description of ดอกไม้ในหัวใจ" },
     { title: "เมื่อดอกไม้บาน", genre: "รักหวานแหวว",author: "Author 5",imageUrl: "/images/romance/novel5.jpeg", description: "Description of เมื่อดอกไม้บาน" },

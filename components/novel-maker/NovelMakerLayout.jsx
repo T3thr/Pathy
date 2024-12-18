@@ -4,7 +4,6 @@ import TopToolbar from './TopToolbar';
 import LeftPanel from './LeftPanel';
 import RightPanel from './RightPanel';
 import Canvas from './Canvas';
-import styles from './NovelMakerLayout.module.css';
 
 export default function NovelMakerLayout() {
     // State to manage images, dialogue, and character data
@@ -117,16 +116,16 @@ export default function NovelMakerLayout() {
     };
 
     return (
-        <div className={styles.layout}>
+        <div className="flex flex-col h-screen bg-gray-100 font-sans">
             {/* Top Toolbar */}
-            <div className={styles.topToolbar}>
+            <div className="w-full z-50">
                 <TopToolbar />
             </div>
 
             {/* Main Content Layout */}
-            <div className={styles.container}>
+            <div className="flex flex-grow p-4 gap-4 flex-col md:flex-row">
                 {/* Left Panel for Image Uploads */}
-                <div className={styles.leftPanel}>
+                <div className="flex-2 order-1 lg:order-1 bg-gray-200 p-6 rounded-lg">
                     <LeftPanel
                         onImageUpload={handleImageUpload}
                         imageType={imageType}
@@ -135,7 +134,7 @@ export default function NovelMakerLayout() {
                 </div>
 
                 {/* Right Panel for Image & Text Customization */}
-                <div className={styles.rightPanel}>
+                <div className="flex-2 order-3 lg:order-2 bg-gray-200 p-6 rounded-lg">
                     <RightPanel
                         backgroundPositionX={backgroundPositionX}
                         setBackgroundPositionX={setBackgroundPositionX}
@@ -171,7 +170,7 @@ export default function NovelMakerLayout() {
                 </div>
 
                 {/* Canvas for Previewing Changes */}
-                <div className={styles.canvas}>
+                <div className="lg:flex-1 flex-2 order-2 w-full h-96 lg:h-full lg:h-max-[900px] lg:order-3 relative bg-white border-2 border-gray-300 rounded-lg p-8 flex items-center justify-center">
                     <Canvas
                         backgroundImage={backgroundImage}
                         characterImage={characterImage}

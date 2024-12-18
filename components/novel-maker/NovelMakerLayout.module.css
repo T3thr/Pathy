@@ -158,11 +158,11 @@
 
   /* Swapping the order of elements */
   .leftPanel {
-    order: 2; /* Position LeftPanel second */
+    order: 1; /* Position LeftPanel second */
   }
 
   .canvas {
-    order: 1; /* Position Canvas first */
+    order: 2; /* Position Canvas first */
   }
 
   .rightPanel {
