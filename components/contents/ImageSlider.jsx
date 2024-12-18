@@ -51,11 +51,15 @@ export default function ImageSlider() {
     touchCurrentXRef.current = e.touches[0].clientX;
     const deltaX = touchStartXRef.current - touchCurrentXRef.current;
     const progress = Math.max(Math.min(deltaX / window.innerWidth, 1), -1);
-    
+
     const imageWrappers = document.querySelectorAll(`.${styles.imageWrapper}`);
     imageWrappers.forEach((wrapper, index) => {
       if (index === currentIndex) {
         wrapper.style.transform = `translateX(${progress * -100}%)`;
+      } else if (index === currentIndex - 1 || (currentIndex === 0 && index === images.length - 1)) {
+        wrapper.style.transform = `translateX(${-100 + progress * 100}%)`;
+      } else if (index === currentIndex + 1 || (currentIndex === images.length - 1 && index === 0)) {
+        wrapper.style.transform = `translateX(${100 + progress * -100}%)`;
       }
     });
   };
@@ -67,10 +71,12 @@ export default function ImageSlider() {
     } else if (deltaX < -50) {
       handlePrevious();
     }
-    resetArrowTimeout();
 
+    // Reset images position
     const imageWrappers = document.querySelectorAll(`.${styles.imageWrapper}`);
-    imageWrappers.forEach(wrapper => (wrapper.style.transform = ''));
+    imageWrappers.forEach((wrapper) => (wrapper.style.transform = ''));
+
+    resetArrowTimeout();
   };
 
   return (

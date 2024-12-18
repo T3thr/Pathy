@@ -4,16 +4,33 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { stories } from '@/data/stories';
+import { visualStories } from '@/data/visualstories';
+import { motion } from 'framer-motion';
 
 export default function NovelDetail({ novelDetails }) {
   const router = useRouter();
   const [episodes, setEpisodes] = useState([]);
   const [story, setStory] = useState([]);
+  const [visualStory, setVisualStory] = useState([]);
+  const [lastReadChapter, setLastReadChapter] = useState(null);
+  const [lastReadVisualChapter, setLastReadVisualChapter] = useState(null);
 
+  // Fetch stories for both text and visual versions
   useEffect(() => {
-    // Dynamically fetch the story for the novel
-    const storyData = stories[novelDetails.title] || [];
-    setStory(storyData);
+    const textStoryData = stories[novelDetails.title] || [];
+    const visualStoryData = visualStories[novelDetails.title] || [];
+    
+    setStory(textStoryData);
+    setVisualStory(visualStoryData);
+  }, [novelDetails.title]);
+
+  // Track progress for both text and visual novels
+  useEffect(() => {
+    const textProgress = localStorage.getItem(`progress-${novelDetails.title}`);
+    const visualProgress = localStorage.getItem(`visual-progress-${novelDetails.title}`);
+    
+    setLastReadChapter(textProgress ? parseInt(textProgress, 10) : null);
+    setLastReadVisualChapter(visualProgress ? parseInt(visualProgress, 10) : null);
   }, [novelDetails.title]);
 
   const updateViewCount = useCallback(async () => {
@@ -27,7 +44,6 @@ export default function NovelDetail({ novelDetails }) {
       return null;
     }
   }, [novelDetails.title]);
-  
 
   const handleReadNovel = useCallback(async (resetProgress = false) => {
     if (resetProgress) {
@@ -38,95 +54,172 @@ export default function NovelDetail({ novelDetails }) {
     router.push(`/novel/${encodeURIComponent(novelDetails.title)}/read`);
   }, [novelDetails, router, updateViewCount]);
 
+  const handleReadVisualNovel = useCallback(async (resetProgress = false) => {
+    if (resetProgress) {
+      localStorage.removeItem(`visual-progress-${novelDetails.title}`);
+    }
+
+    await updateViewCount();
+    router.push(`/novel/${encodeURIComponent(novelDetails.title)}/readvisual`);
+  }, [novelDetails, router, updateViewCount]);
+
   const handleEpisodeRead = useCallback(async (episodeIndex) => {
     const currentEpisode = story[episodeIndex];
     if (currentEpisode && currentEpisode.choices) {
       localStorage.setItem(`progress-${novelDetails.title}`, episodeIndex.toString());
   
-      // Trigger the view count update for the episode
       await updateViewCount();
   
       router.push(`/novel/${encodeURIComponent(novelDetails.title)}/read`);
     }
   }, [story, novelDetails, router, updateViewCount]);
 
-  const [lastReadChapter, setLastReadChapter] = useState(null);
-
-  useEffect(() => {
-    const progress = localStorage.getItem(`progress-${novelDetails.title}`);
-    setLastReadChapter(progress ? parseInt(progress, 10) : null);
-  }, [novelDetails.title]);
-
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-var-container text-var-foreground rounded-lg shadow-lg">
-      <h1 className="text-3xl font-bold mb-4 text-center animate-fadeIn">{novelDetails.title}</h1>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-5xl mx-auto p-6 bg-var-container text-var-foreground rounded-xl shadow-2xl"
+    >
+      <motion.h1 
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+        className="text-4xl font-bold mb-6 text-center text-gradient dark:bg-gradient-to-r from-blue-900 to-purple-900 rounded-xl bg-blue-200"
+      >
+        {novelDetails.title}
+      </motion.h1>
 
-      <div className="relative w-full h-64 mb-4">
-        <Image 
-          src={novelDetails.imageUrl} 
-          alt={`Cover of ${novelDetails.title}`} 
-          layout="fill"
-          objectFit="cover"
-          className="rounded-lg"
-          priority
-        />
-      </div>
-
-      <h2 className="text-xl font-semibold mb-2">By {novelDetails.author}</h2>
-      <p className="text-base mb-6 text-var-muted">{novelDetails.description}</p>
-
-      <div className="flex space-x-4 mb-8">
-        <button 
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none"
-          onClick={() => handleReadNovel()}
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Cover Image Section */}
+        <motion.div 
+          initial={{ x: -50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="relative w-full h-48 lg:h-96 rounded-xl overflow-hidden shadow-lg"
         >
-          {lastReadChapter !== null ? 'Continue Reading' : 'Start Reading'}
-        </button>
+          <Image 
+            src={novelDetails.imageUrl} 
+            alt={`Cover of ${novelDetails.title}`} 
+            layout="fill"
+            objectFit="cover"
+            className="transition-transform duration-300 hover:scale-105"
+            priority
+          />
+        </motion.div>
 
-        {lastReadChapter !== null && (
-          <button 
-            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 focus:outline-none"
-            onClick={() => handleReadNovel(true)}
+        {/* Novel Details Section */}
+        <div>
+          <motion.h2 
+            initial={{ x: 50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="text-2xl font-semibold mb-2"
           >
-            Start Over
-          </button>
-        )}
+            By {novelDetails.author}
+          </motion.h2>
 
-        <button 
-          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 focus:outline-none"
-          onClick={() => router.push(`/novel/${encodeURIComponent(novelDetails.title)}/readvisual`)}
-        >
-          Read Visual Version
-        </button>
+          <motion.p 
+            initial={{ x: 50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="text-base mb-6 text-var-muted"
+          >
+            {novelDetails.description}
+          </motion.p>
+
+          {/* Reading Mode Buttons */}
+          <div className="space-y-4">
+            {/* Text Novel Reading Buttons */}
+            <motion.div 
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              className="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl"
+            >
+              <h3 className="text-xl font-semibold mb-3 text-blue-600">Text Novel Mode</h3>
+              <div className="flex space-x-4">
+                <button 
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  onClick={() => handleReadNovel()}
+                >
+                  {lastReadChapter !== null ? 'Continue Reading' : 'Start Reading'}
+                </button>
+
+                {lastReadChapter !== null && (
+                  <button 
+                    className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                    onClick={() => handleReadNovel(true)}
+                  >
+                    Start Over
+                  </button>
+                )}
+              </div>
+            </motion.div>
+
+            {/* Visual Novel Reading Buttons */}
+            <motion.div 
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+              className="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl"
+            >
+              <h3 className="text-xl font-semibold mb-3 text-purple-600">Visual Novel Mode</h3>
+              <div className="flex space-x-4">
+                <button 
+                  className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                  onClick={() => handleReadVisualNovel()}
+                >
+                  {lastReadVisualChapter !== null ? 'Continue Visual Novel' : 'Start Visual Novel'}
+                </button>
+
+                {lastReadVisualChapter !== null && (
+                  <button 
+                    className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                    onClick={() => handleReadVisualNovel(true)}
+                  >
+                    Reset Visual Novel
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        </div>
       </div>
 
-
-      <div className="mt-8">
-        <h3 className="text-2xl font-semibold mb-4">Story Chapters</h3>
+      {/* Story Chapters Section */}
+      <motion.div 
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.7, duration: 0.5 }}
+        className="mt-12"
+      >
+        <h3 className="text-2xl font-semibold mb-6 text-center">Story Chapters</h3>
         {story.length > 0 ? (
-          <div className="space-y-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {story.map((episode, index) => (
-              <div 
+              <motion.div 
                 key={index} 
-                className="p-4 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-var-divider"
+                whileHover={{ scale: 1.03 }}
+                className="border border-gray-300 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all"
               >
-                <h4 className="text-xl font-semibold mb-2">{episode.title}</h4>
-                <p className="text-var-muted mb-4">
-                  {episode.content ? `${episode.content.slice(0, 100)}...` : 'No content available'}
+                <h4 className="text-xl font-semibold mb-2 text-blue-600">{episode.title}</h4>
+                <p className="text-var-muted mb-4 line-clamp-3">
+                  {episode.content ? `${episode.content.slice(0, 150)}...` : 'No content available'}
                 </p>
                 <button
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none transition-colors"
                   onClick={() => handleEpisodeRead(index)}
                 >
                   Read Chapter
                 </button>
-              </div>
+              </motion.div>
             ))}
           </div>
         ) : (
-          <p className="text-gray-500">No chapters available for this novel.</p>
+          <p className="text-gray-500 text-center">No chapters available for this novel.</p>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

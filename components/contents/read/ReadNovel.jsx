@@ -61,7 +61,7 @@ export default function ReadNovel({ params }) {
             {chapter.choices.map((choice, index) => (
               <button
                 key={index}
-                className="bg-blue-500 text-white py-2 px-4 rounded-lg mr-2 hover:bg-blue-600 focus:ring-2 focus:ring-blue-400"
+                className="bg-blue-500 text-white py-2 px-4 rounded-lg mr-2 hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 gap-3"
                 onClick={() => handleChoice(choice.nextChapter)}
               >
                 {choice.text}

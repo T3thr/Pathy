@@ -1,28 +1,79 @@
 export const visualStories = {
-    "ดอกส้มสีทอง": [
-      {
-        title: "Chapter 1: ดอกส้ม",
-        backgroundImage: "/images/background/1.png",
-        characterImage: "/images/character/1.png",
-        characterName: "เรยา",
-        dialogue: "สวัสดีชั้นชื่อเรยา",
-        choices: [
-          { text: "สวัสดีจ้า", nextChapter: 1 },
-          { text: "fdfddf", nextChapter: 2 },
-        ],
-      },
-      {
-        title: "Chapter 2: หกหก",
-        backgroundImage: "/images/background/1.png",
-        characterImage: "/images/character/1.png",
-        characterName: "เรยา",
-        dialogue: "เธอคือใครหรือจ๊ะ",
-        choices: [
-          { text: "คุยกับเรยา", nextChapter: 3 },
-          { text: "เดินหนีออกมา", nextChapter: 4 },
-        ],
-      },
-      
-    ],
-  };
-  
+  "ดอกส้มสีทอง": [
+    {
+      id: 0,
+      type: 'dialogue',
+      title: "Chapter 1: เริ่มต้นเรื่องราว",
+      backgroundImage: "/images/background/1.png",
+      characterImage: "/images/character/doraemon.png",
+      characterName: "เรยา",
+      dialogue: "สวัสดี วันนี้เป็นวันแรกของฉันที่โรงเรียนแห่งใหม่",
+      mood: "neutral",
+      nextScene: { 
+        type: 'choice',
+        options: [
+          { 
+            text: "ยิ้มทัก", 
+            nextSceneId: 1,
+            impact: { mood: 'positive', relationship: 1 }
+          },
+          { 
+            text: "มองตรงไปข้างหน้า", 
+            nextSceneId: 2,
+            impact: { mood: 'neutral', relationship: 0 }
+          }
+        ]
+      }
+    },
+    {
+      id: 1,
+      type: 'dialogue',
+      backgroundImage: "/images/background/1.png",
+      characterImage: "/images/character/nobita.png",
+      characterName: "เพื่อนร่วมชั้น",
+      dialogue: "สวัสดีจ้า เธอดูเป็นมิตรจังนะ! ฉันชื่อโนบิตะ",
+      mood: "friendly",
+      nextScene: {
+        type: 'auto',
+        nextSceneId: 3
+      }
+    },
+    {
+      id: 2,
+      type: 'dialogue',
+      backgroundImage: "/images/background/1.png",
+      characterImage: "/images/character/doraemon.png",
+      characterName: "เรยา",
+      dialogue: "ฉันจะยึดครองที่นี่ให้ได้",
+      mood: "serious",
+      nextScene: {
+        type: 'auto',
+        nextSceneId: 3
+      }
+    },
+    {
+      id: 3,
+      type: 'dialogue',
+      backgroundImage: "/images/background/1.png",
+      characterImage: "/images/character/teacher.png",
+      characterName: "คุณครู",
+      dialogue: "ยินดีต้อนรับทุกคน วันนี้เราจะเรียนรู้เรื่องราวใหม่ๆ กัน",
+      nextScene: {
+        type: 'choice',
+        options: [
+          { 
+            text: "ตั้งใจฟัง", 
+            nextSceneId: 5,
+            impact: { knowledge: 1, mood: 'positive' }
+          },
+          { 
+            text: "มองออกนอกหน้าต่าง", 
+            nextSceneId: 6,
+            impact: { knowledge: 0, mood: 'neutral' }
+          }
+        ]
+      }
+    }
+    // More scenes can be added...
+  ]
+};

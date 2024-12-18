@@ -49,7 +49,7 @@
 /* Left Image: Places the left image slightly shrunk and dimmed, to the left of the center */
 .leftImage,
 .rightImage {
-  transform: translateX(-105%) scale(0.9); 
+  transform: translateX(-100%) scale(0.9); 
   opacity: 0.5;
   filter: brightness(0.6);
   z-index: 1;
@@ -57,7 +57,7 @@
 
 /* Right Image: Places the right image slightly shrunk and dimmed, to the right of the center */
 .rightImage {
-  transform: translateX(105%) scale(0.9); 
+  transform: translateX(100%) scale(0.9); 
   opacity: 0.5;
   filter: brightness(0.6);
   z-index: 1;
@@ -134,11 +134,60 @@
 @media (max-width: 540px) {
   .relative {
     max-width: 100%;
-    max-height: 200px;
+    max-height: 210px;
+    height: 100%;
   }
+
   .imageContainer {
-    height: 200px;
+    display: flex;
+    position: relative;
+    width: 100%;
+    height: 210px;
   }
+
+  /* Image Wrapper: Creates space for images and animations; sets alignment and transitions */
+  .imageWrapper {
+    position: absolute;
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* Full width of the container */
+    height: 100%; /* Full height of the container */
+    border-radius: 15px;
+    gap: 20; /* No gap between images */
+    overflow: hidden; /* Prevents image overflow beyond rounded corners */
+    opacity: 0;
+  }
+
+  /* Center Image: Sets the main image with full opacity */
+  .centerImage {
+    transform: translateX(0); /* In the center */
+    opacity: 1;
+    z-index: 2;
+  }
+
+  /* Left Image: Places the left image to the left of the center */
+  .leftImage {
+    transform: translateX(-105%); /* Move it to the left */
+    opacity: 1;
+    z-index: 1;
+    filter: brightness(0.6);
+  }
+
+  /* Right Image: Places the right image to the right of the center */
+  .rightImage {
+    transform: translateX(105%); /* Move it to the right */
+    opacity: 1;
+    z-index: 1;
+    filter: brightness(0.6);
+  }
+
+  /* Hidden Image: Fully hides images not in the visible set */
+  .hiddenImage {
+    display: none;
+  }
+
   .navigationDots {
     position: absolute;
     display: flex;
@@ -146,10 +195,12 @@
     top: 94%;
     gap: 8px;
   }
+
   .dot {
     width: 10px;
     height: 10px;
   }
+
   .arrowButtonLeft, .arrowButtonRight {
     top: 40%;
     padding: 8px 16px;
