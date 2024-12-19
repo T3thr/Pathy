@@ -106,9 +106,10 @@ export default function NovelMakerLayout() {
     }, []);
 
     return (
-        <TopToolbar/>
+        
 
         <div className="flex flex-col min-h-screen bg-gray-900">
+            <TopToolbar/>
             {/* Main Content Layout */}
             <div className="flex flex-col lg:flex-row gap-4 p-4 flex-grow">
                 {/* Left Panel */}
