@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import LeftPanel from './LeftPanel';
 import RightPanel from './RightPanel';
 import Canvas from './Canvas';
+import TopToolbar from './TopToolbar';
 
 export default function NovelMakerLayout() {
     // States for managing images and properties
@@ -105,6 +106,8 @@ export default function NovelMakerLayout() {
     }, []);
 
     return (
+        <TopToolbar/>
+
         <div className="flex flex-col min-h-screen bg-gray-900">
             {/* Main Content Layout */}
             <div className="flex flex-col lg:flex-row gap-4 p-4 flex-grow">
