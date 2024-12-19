@@ -57,7 +57,7 @@ export default function ImageSlider() {
       if (index === currentIndex) {
         wrapper.style.transform = `translateX(${progress * -100}%)`;
       } else if (index === currentIndex - 1 || (currentIndex === 0 && index === images.length - 1)) {
-        wrapper.style.transform = `translateX(${-100 + progress * 100}%)`;
+        wrapper.style.transform = `translateX(${-100 + progress * -100}%)`;
       } else if (index === currentIndex + 1 || (currentIndex === images.length - 1 && index === 0)) {
         wrapper.style.transform = `translateX(${100 + progress * -100}%)`;
       }
