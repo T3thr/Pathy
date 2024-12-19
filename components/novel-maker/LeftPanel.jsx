@@ -1,150 +1,162 @@
-// LeftPanel.jsx
 'use client';
 import { useRef, useState, useCallback } from 'react';
-import { Upload, Image, X } from 'lucide-react';
+import { FolderUp, Upload, Image, Film, Library } from 'lucide-react';
 
 export default function LeftPanel({ onImageUpload, imageType, setImageType }) {
     const fileInputRef = useRef(null);
-    const [activeTab, setActiveTab] = useState('gallery');
-    const [activeUploadTab, setActiveUploadTab] = useState('background');
-    const [dragOver, setDragOver] = useState(false);
+    const [activeTab, setActiveTab] = useState('platform');
+    const [activeAssetType, setActiveAssetType] = useState('background');
+    const [selectedCategory, setSelectedCategory] = useState('backgrounds');
 
-    // Preset images configuration
-    const presetImages = {
-        background: [
-            { src: '/images/background/1.png', alt: 'School' },
-            { src: '/images/background/2.png', alt: 'City' },
-            { src: '/images/background/3.png', alt: 'Park' },
+    // Simulated platform assets (replace with your actual assets)
+    const platformAssets = {
+        backgrounds: [
+            { id: 1, src: '/images/background/1.png', title: 'School' },
+
         ],
-        character: [
-            { src: '/images/character/doraemon.png', alt: 'Doraemon' },
-            { src: '/images/character/char1.png', alt: 'Character 1' },
-            { src: '/images/character/char2.png', alt: 'Character 2' },
+        characters: [
+            { id: 1, src: '/images/character/doraemon.png', title: 'Doraemon' },
+
         ]
     };
 
     const handleFileChange = useCallback((event) => {
-        const files = event.target.files || (event.dataTransfer?.files ?? null);
-        if (!files) return;
+        const file = event.target.files[0];
+        if (!file) return;
 
-        Array.from(files).forEach(file => {
-            if (file.type.startsWith('image/')) {
-                onImageUpload(file, activeUploadTab);
-            } else {
-                alert('Please upload a valid image file.');
-            }
-        });
-    }, [activeUploadTab, onImageUpload]);
+        const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        const validVideoTypes = ['video/mp4', 'video/webm'];
 
-    const handleDrop = useCallback((e) => {
-        e.preventDefault();
-        setDragOver(false);
-        handleFileChange(e);
-    }, [handleFileChange]);
+        if (validImageTypes.includes(file.type) || validVideoTypes.includes(file.type)) {
+            onImageUpload(file, activeAssetType);
+        } else {
+            alert('Please upload a valid image or video file.');
+        }
+    }, [activeAssetType, onImageUpload]);
 
-    const handlePresetImageClick = useCallback((imageSrc, type) => {
-        fetch(imageSrc)
+    const handleAssetSelect = useCallback((asset) => {
+        fetch(asset.src)
             .then(response => response.blob())
             .then(blob => {
-                const file = new File([blob], imageSrc.split('/').pop(), { type: 'image/png' });
-                onImageUpload(file, type);
+                const file = new File([blob], asset.src.split('/').pop(), { 
+                    type: asset.src.endsWith('.mp4') ? 'video/mp4' : 'image/png' 
+                });
+                onImageUpload(file, activeAssetType);
             })
             .catch(error => {
-                console.error("Error loading preset image:", error);
+                console.error("Error loading asset:", error);
+                alert('Failed to load the selected asset. Please try again.');
             });
-    }, [onImageUpload]);
+    }, [activeAssetType, onImageUpload]);
+
+    const renderAssetGrid = () => {
+        const assets = selectedCategory === 'backgrounds' 
+            ? platformAssets.backgrounds 
+            : platformAssets.characters;
+
+        return (
+            <div className="grid grid-cols-2 gap-4 mt-4">
+                {assets.map((asset) => (
+                    <div
+                        key={asset.id}
+                        className="relative group cursor-pointer"
+                        onClick={() => handleAssetSelect(asset)}
+                    >
+                        <img
+                            src={asset.src}
+                            alt={asset.title}
+                            className="w-full h-32 object-cover rounded-lg transition-transform transform group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                            <p className="text-white text-sm font-medium">{asset.title}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    };
 
     return (
-        <div className="flex flex-col items-center justify-start p-4 bg-gray-100 rounded-lg shadow-md max-w-[300px] mx-auto w-full h-full">
+        <div className="flex flex-col bg-gray-800 rounded-lg shadow-md p-5 text-white w-full max-w-md">
             <h3 className="text-lg font-bold mb-4">Assets Manager</h3>
             
-            {/* Main Tabs */}
-            <div className="flex justify-around w-full border-b-2 border-gray-300 mb-4">
-                {['gallery', 'upload'].map((tab) => (
-                    <button
-                        key={tab}
-                        className={`flex-1 py-2 text-white rounded-t-md transition-all duration-200
-                            ${activeTab === tab ? 'bg-blue-700 transform scale-105' : 'bg-blue-500 hover:bg-blue-600'}`}
-                        onClick={() => setActiveTab(tab)}
-                    >
-                        {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                    </button>
-                ))}
+            {/* Main Tab Selection */}
+            <div className="flex gap-2 mb-4">
+                <button
+                    className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg transition ${
+                        activeTab === 'platform' ? 'bg-blue-700' : 'bg-gray-600 hover:bg-gray-500'
+                    }`}
+                    onClick={() => setActiveTab('platform')}
+                >
+                    <Library size={16} /> Platform Assets
+                </button>
+                <button
+                    className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg transition ${
+                        activeTab === 'upload' ? 'bg-blue-700' : 'bg-gray-600 hover:bg-gray-500'
+                    }`}
+                    onClick={() => setActiveTab('upload')}
+                >
+                    <Upload size={16} /> Upload
+                </button>
             </div>
 
             {/* Asset Type Selection */}
-            <div className="flex gap-4 w-full mb-4">
-                {['background', 'character'].map((type) => (
-                    <button
-                        key={type}
-                        className={`flex-1 py-2 px-4 rounded-md transition-all duration-200
-                            ${activeUploadTab === type ? 'bg-green-600 text-white transform scale-105' : 'bg-gray-200 hover:bg-gray-300'}`}
-                        onClick={() => {
-                            setActiveUploadTab(type);
-                            setImageType(type);
-                        }}
-                    >
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </button>
-                ))}
+            <div className="flex gap-2 mb-4">
+                <button
+                    className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg transition ${
+                        activeAssetType === 'background' ? 'bg-green-600' : 'bg-gray-600 hover:bg-gray-500'
+                    }`}
+                    onClick={() => {
+                        setActiveAssetType('background');
+                        setImageType('background');
+                        setSelectedCategory('backgrounds');
+                    }}
+                >
+                    <Image size={16} /> Background
+                </button>
+                <button
+                    className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg transition ${
+                        activeAssetType === 'character' ? 'bg-green-600' : 'bg-gray-600 hover:bg-gray-500'
+                    }`}
+                    onClick={() => {
+                        setActiveAssetType('character');
+                        setImageType('character');
+                        setSelectedCategory('characters');
+                    }}
+                >
+                    <Film size={16} /> Character
+                </button>
             </div>
 
-            {/* Gallery View */}
-            {activeTab === 'gallery' && (
-                <div className="grid grid-cols-2 gap-4 w-full mt-4 p-2 max-h-[500px] overflow-y-auto">
-                    {presetImages[activeUploadTab].map((image, index) => (
-                        <div
-                            key={index}
-                            className="relative group cursor-pointer"
-                            onClick={() => handlePresetImageClick(image.src, activeUploadTab)}
-                        >
-                            <img
-                                src={image.src}
-                                alt={image.alt}
-                                className="w-full h-32 object-cover rounded-md transition-transform duration-200 group-hover:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-md">
-                                <div className="absolute bottom-2 left-2 text-white text-sm opacity-0 group-hover:opacity-100">
-                                    {image.alt}
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+            {/* Content Area */}
+            {activeTab === 'platform' ? (
+                <div className="flex-1 overflow-y-auto">
+                    {renderAssetGrid()}
                 </div>
-            )}
-
-            {/* Upload Section */}
-            {activeTab === 'upload' && (
-                <div
-                    className={`w-full mt-4 p-8 border-2 border-dashed rounded-lg transition-colors duration-200
-                        ${dragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400'}`}
-                    onDragOver={(e) => {
-                        e.preventDefault();
-                        setDragOver(true);
-                    }}
-                    onDragLeave={() => setDragOver(false)}
-                    onDrop={handleDrop}
-                >
-                    <div className="flex flex-col items-center gap-4">
-                        <Upload size={48} className="text-gray-400" />
-                        <p className="text-center text-gray-600">
-                            Drag and drop your {activeUploadTab} image here, or
-                            <button
-                                onClick={() => fileInputRef.current?.click()}
-                                className="text-blue-500 hover:text-blue-600 ml-1"
-                            >
-                                browse
-                            </button>
+            ) : (
+                <div className="flex flex-col gap-4">
+                    <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center">
+                        <FolderUp className="mx-auto mb-4" size={32} />
+                        <p className="text-gray-300 mb-4">
+                            Drag and drop your files here, or click to select files
                         </p>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
-                            className="hidden"
-                            accept="image/*"
-                            multiple
-                        />
+                        <button
+                            onClick={() => fileInputRef.current?.click()}
+                            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
+                        >
+                            Choose File
+                        </button>
                     </div>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        accept="image/*,video/mp4,video/webm"
+                        style={{ display: 'none' }}
+                    />
+                    <p className="text-sm text-gray-400 text-center">
+                        Supported formats: PNG, JPEG, GIF, WEBP, MP4, WEBM
+                    </p>
                 </div>
             )}
         </div>
