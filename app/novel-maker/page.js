@@ -11,12 +11,7 @@ export default function NovelMakerPage() {
         return <Loading/>
     }
 
-    if (!session || session.user.role !== 'admin') {
-        return (
-        <div className='flex justify-center items-center min-h-screen'>
-            <div className='text-xl text-red-600'>Access Denied, Admin Only!!</div>
-        </div>
-    )}
+
     return (
         <div>
             {/* Render the NovelMakerLayout component to display the UI */}

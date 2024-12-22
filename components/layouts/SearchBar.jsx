@@ -102,7 +102,7 @@ export default function SearchBar() {
         <div className="relative">
             {/* Search icon to toggle search bar */}
             <div className="flex justify-center w-full text-blue-800">
-                <div onClick={toggleSearch} className="cursor-pointer p-2 rounded-full border bg-indigo-200 hover:bg-indigo-300 transition-colors">
+                <div onClick={toggleSearch} className="cursor-pointer p-2 rounded-full bg-indigo-200 hover:bg-indigo-300 transition-colors">
                     <FaSearch size={24} />
                 </div>
             </div>

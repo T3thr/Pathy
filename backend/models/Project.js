@@ -1,19 +1,97 @@
-// backend/models/Project.js
+import mongoose from 'mongoose';
 
-import mongoose, { Schema } from "mongoose";
-
-const projectSchema = new Schema({
-  title: { type: String, required: true },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  canvasData: {
-    background: { type: Object, default: {} },
-    characters: { type: Array, default: [] },
-    dialogues: { type: Array, default: [] },
-    paths: { type: Array, default: [] },
+const projectSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    required: true,
   },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
+  title: {
+    type: String,
+    default: 'Untitled Project'
+  },
+  scenes: [{
+    id: String,
+    background: String,
+    character: String,
+    dialogue: String,
+    characterName: String,
+    effects: [String],
+    audio: String
+  }],
+  assets: {
+    backgrounds: [{
+      id: String,
+      url: String,
+      name: String,
+      type: String
+    }],
+    characters: [{
+      id: String,
+      url: String,
+      name: String,
+      type: String
+    }],
+    music: [{
+      id: String,
+      url: String,
+      name: String,
+      type: String
+    }],
+    sfx: [{
+      id: String,
+      url: String,
+      name: String,
+      type: String
+    }],
+    effects: [{
+      id: String,
+      url: String,
+      name: String,
+      type: String
+    }]
+  },
+  editorState: {
+    background: {
+      posX: Number,
+      posY: Number,
+      width: Number,
+      height: Number,
+      rotation: Number,
+      opacity: Number,
+      scale: Number
+    },
+    character: {
+      posX: Number,
+      posY: Number,
+      width: Number,
+      height: Number,
+      rotation: Number,
+      opacity: Number,
+      scale: Number,
+      emotion: String
+    },
+    text: {
+      frameSize: Number,
+      fontSize: Number,
+      opacity: Number,
+      color: String,
+      position: String
+    }
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
-const Project = mongoose.models?.Project || mongoose.model("Project", projectSchema);
-export default Project;
+// Update the updatedAt timestamp before saving
+projectSchema.pre('save', function(next) {
+  this.updatedAt = new Date();
+  next();
+});
+
+export default mongoose.models.Project || mongoose.model('Project', projectSchema);
