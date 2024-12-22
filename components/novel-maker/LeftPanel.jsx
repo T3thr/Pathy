@@ -135,7 +135,7 @@ const LeftPanel = ({
                   )}
                   {scene.dialogue && (
                     <div className="mt-1 text-gray-300">
-                      "{scene.dialogue.substring(0, 50)}..."
+                      &quot;{scene.dialogue.substring(0, 50)}...&quot;
                     </div>
                   )}
                 </div>
