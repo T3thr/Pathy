@@ -1,148 +1,319 @@
-// LeftPanel.jsx
 import { useRef, useState, useCallback } from 'react';
 import { 
-  FolderUp, Upload, Image, Film, Library, 
-  Music, VolumeX, Users, Palette, Save, Plus,
-  Folder, ChevronRight, ChevronDown, Trash2
+  FolderUp, Image, Film, Library, 
+  Music, VolumeX, Users, Plus, Save,
+  Folder, ChevronRight, ChevronDown, 
+  Trash2, Edit2, MoreVertical
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card } from '@/components/ui/card';
+import { toast } from 'react-hot-toast';
 
-const ACCEPTED_TYPES = {
-  backgrounds: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-  characters: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-  music: ['audio/mpeg', 'audio/wav', 'audio/ogg'],
-  sfx: ['audio/mpeg', 'audio/wav', 'audio/ogg'],
-  videos: ['video/mp4', 'video/webm']
+const ASSET_CATEGORIES = {
+  backgrounds: {
+    id: 'backgrounds',
+    icon: Image,
+    title: 'Backgrounds',
+    accept: ['image/jpeg', 'image/png', 'image/webp'],
+    platformAssets: [
+      '/images/background/1.png',
+      '/images/backgrounds/cafe.jpg',
+      '/images/backgrounds/park.jpg'
+    ]
+  },
+  characters: {
+    id: 'characters',
+    icon: Users,
+    title: 'Characters',
+    accept: ['image/jpeg', 'image/png', 'image/webp'],
+    platformAssets: [
+      '/images/characters/student.png',
+      '/images/characters/teacher.png'
+    ]
+  },
+  music: {
+    id: 'music',
+    icon: Music,
+    title: 'BGM',
+    accept: ['audio/mpeg', 'audio/wav'],
+    platformAssets: [
+      '/audio/bgm/happy.mp3',
+      '/audio/bgm/sad.mp3'
+    ]
+  },
+  sfx: {
+    id: 'sfx',
+    icon: VolumeX,
+    title: 'SFX',
+    accept: ['audio/mpeg', 'audio/wav'],
+    platformAssets: [
+      '/audio/sfx/click.mp3',
+      '/audio/sfx/door.mp3'
+    ]
+  }
 };
 
-const CATEGORY_CONFIG = [
-  { id: 'backgrounds', icon: Image, title: 'Backgrounds' },
-  { id: 'characters', icon: Users, title: 'Characters' },
-  { id: 'music', icon: Music, title: 'BGM' },
-  { id: 'sfx', icon: VolumeX, title: 'SFX' },
-  { id: 'effects', icon: Palette, title: 'Effects' }
-];
-
-const LeftPanel = ({ 
-  onAssetUpload, 
-  platformAssets = {}, 
-  scenes = [], 
+const LeftPanel = ({
+  scenes = [],
   currentScene,
   onSceneAdd,
   onSceneSelect,
   onSceneDelete,
-  onSceneDuplicate 
+  onSceneDuplicate,
+  onSceneUpdate,
+  onAssetUpload
 }) => {
   const fileInputRef = useRef(null);
-  const [activeTab, setActiveTab] = useState('scenes'); // New default tab
+  const [activeTab, setActiveTab] = useState('scenes');
   const [selectedCategory, setSelectedCategory] = useState('backgrounds');
-  const [isDragging, setIsDragging] = useState(false);
   const [expandedScenes, setExpandedScenes] = useState([]);
+  const [editingScene, setEditingScene] = useState(null);
+  const [sceneNameInput, setSceneNameInput] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
 
-  const toggleSceneExpand = (sceneId) => {
+  const toggleSceneExpand = useCallback((sceneId) => {
     setExpandedScenes(prev => 
       prev.includes(sceneId) 
         ? prev.filter(id => id !== sceneId)
         : [...prev, sceneId]
     );
-  };
+  }, []);
 
-  const handleFileChange = useCallback((event) => {
+  const handleSceneNameEdit = useCallback((scene) => {
+    setEditingScene(scene.id);
+    setSceneNameInput(scene.name);
+  }, []);
+
+  const handleSceneNameSave = useCallback((scene) => {
+    if (sceneNameInput.trim()) {
+      onSceneUpdate(scene.id, { name: sceneNameInput.trim() });
+    }
+    setEditingScene(null);
+  }, [sceneNameInput, onSceneUpdate]);
+
+  const handleFileUpload = useCallback((event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const validTypes = ACCEPTED_TYPES[selectedCategory];
-    if (!validTypes?.includes(file.type)) {
-      alert(`Please upload a valid ${selectedCategory} file.`);
+    const category = ASSET_CATEGORIES[selectedCategory];
+    if (!category.accept.includes(file.type)) {
+      toast.error(`Please upload a valid ${category.title} file`);
       return;
     }
 
     onAssetUpload?.(file, selectedCategory);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
   }, [selectedCategory, onAssetUpload]);
 
-  // Scene Management UI
   const renderSceneManager = () => (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-white">Scenes</h3>
-        <button
-          onClick={() => onSceneAdd()}
-          className="p-2 bg-blue-600 rounded-lg hover:bg-blue-700 text-white"
-        >
-          <Plus size={16} />
-        </button>
+        <Button onClick={onSceneAdd} size="sm" variant="secondary">
+          <Plus className="w-4 h-4 mr-1" /> Add Scene
+        </Button>
       </div>
-      
-      <div className="space-y-2">
+
+      <ScrollArea className="h-[calc(100vh-12rem)]">
         {scenes.map((scene) => (
-          <div 
+          <Card
             key={scene.id}
-            className={`
-              rounded-lg overflow-hidden border border-gray-700
-              ${currentScene?.id === scene.id ? 'bg-blue-600' : 'bg-gray-700'}
-            `}
+            className={`mb-2 ${
+              currentScene?.id === scene.id ? 'border-blue-500' : 'border-gray-700'
+            }`}
           >
-            <div className="flex items-center p-3">
-              <button
-                onClick={() => toggleSceneExpand(scene.id)}
-                className="mr-2 text-gray-400 hover:text-white"
-              >
-                {expandedScenes.includes(scene.id) ? (
-                  <ChevronDown size={16} />
+            <div className="p-3">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => toggleSceneExpand(scene.id)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  {expandedScenes.includes(scene.id) ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </button>
+
+                {editingScene === scene.id ? (
+                  <form 
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSceneNameSave(scene);
+                    }}
+                    className="flex-1"
+                  >
+                    <Input
+                      value={sceneNameInput}
+                      onChange={(e) => setSceneNameInput(e.target.value)}
+                      onBlur={() => handleSceneNameSave(scene)}
+                      autoFocus
+                      className="h-7"
+                    />
+                  </form>
                 ) : (
-                  <ChevronRight size={16} />
+                  <button
+                    onClick={() => onSceneSelect(scene)}
+                    className="flex-1 text-left font-medium"
+                  >
+                    {scene.name || `Scene ${scene.id}`}
+                  </button>
                 )}
-              </button>
-              
-              <button
-                onClick={() => onSceneSelect(scene)}
-                className="flex-1 text-left text-sm font-medium text-white"
-              >
-                {scene.name || `Scene ${scene.id}`}
-              </button>
-              
-              <button
-                onClick={() => onSceneDuplicate(scene)}
-                className="p-1 text-gray-400 hover:text-white"
-              >
-                <Save size={14} />
-              </button>
-              
-              <button
-                onClick={() => onSceneDelete(scene.id)}
-                className="p-1 text-gray-400 hover:text-white"
-              >
-                <Trash2 size={14} />
-              </button>
-            </div>
-            
-            {expandedScenes.includes(scene.id) && (
-              <div className="px-4 py-2 bg-gray-800">
-                <div className="text-sm text-gray-400">
-                  {scene.background && (
-                    <div className="flex items-center gap-2">
-                      <Image size={14} />
-                      <span>Background: {scene.background}</span>
-                    </div>
-                  )}
-                  {scene.character && (
-                    <div className="flex items-center gap-2">
-                      <Users size={14} />
-                      <span>Character: {scene.character}</span>
-                    </div>
-                  )}
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => handleSceneNameEdit(scene)}>
+                      <Edit2 className="w-4 h-4 mr-2" /> Rename
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onSceneDuplicate(scene)}>
+                      <Save className="w-4 h-4 mr-2" /> Duplicate
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => onSceneDelete(scene.id)}
+                      className="text-red-500"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" /> Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+
+              {expandedScenes.includes(scene.id) && (
+                <div className="mt-3 pl-6 space-y-2 text-sm text-gray-400">
+                  <div className="flex items-center gap-2">
+                    <Image className="w-4 h-4" />
+                    {scene.background ? (
+                      <span>Background: {scene.background.split('/').pop()}</span>
+                    ) : (
+                      <span className="italic">No background set</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    {scene.character ? (
+                      <span>Character: {scene.character.split('/').pop()}</span>
+                    ) : (
+                      <span className="italic">No character set</span>
+                    )}
+                  </div>
                   {scene.dialogue && (
-                    <div className="mt-1 text-gray-300">
-                      &quot;{scene.dialogue.substring(0, 50)}...&quot;
+                    <div className="flex items-center gap-2">
+                      <div className="line-clamp-2">
+                        "{scene.dialogue}"
+                      </div>
                     </div>
                   )}
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          </Card>
         ))}
+      </ScrollArea>
+    </div>
+  );
+
+  const renderAssetManager = () => (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-2">
+        {Object.values(ASSET_CATEGORIES).map(({ id, icon: Icon, title }) => (
+          <Button
+            key={id}
+            variant={selectedCategory === id ? "default" : "secondary"}
+            onClick={() => setSelectedCategory(id)}
+            className="justify-start"
+          >
+            <Icon className="w-4 h-4 mr-2" />
+            {title}
+          </Button>
+        ))}
+      </div>
+
+      <div
+        className={`
+          border-2 border-dashed rounded-lg p-6 text-center
+          ${isDragging ? 'border-blue-500 bg-blue-500/10' : 'border-gray-600'}
+        `}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setIsDragging(false);
+          const file = e.dataTransfer?.files[0];
+          if (!file) return;
+
+          const category = ASSET_CATEGORIES[selectedCategory];
+          if (category.accept.includes(file.type)) {
+            onAssetUpload?.(file, selectedCategory);
+          } else {
+            toast.error(`Please upload a valid ${category.title} file`);
+          }
+        }}
+      >
+        <FolderUp className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+        <Button
+          variant="secondary"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          Choose File
+        </Button>
+        <p className="mt-2 text-sm text-gray-400">
+          or drag and drop your files here
+        </p>
+        <input
+          ref={fileInputRef}
+          type="file"
+          onChange={handleFileUpload}
+          accept={ASSET_CATEGORIES[selectedCategory].accept.join(',')}
+          className="hidden"
+        />
+      </div>
+
+      <div className="mt-6">
+        <h4 className="text-sm font-medium mb-3">Platform Assets</h4>
+        <ScrollArea className="h-[calc(100vh-26rem)]">
+          <div className="grid grid-cols-2 gap-3">
+            {ASSET_CATEGORIES[selectedCategory].platformAssets.map((asset, index) => (
+              <Card
+                key={index}
+                className="group cursor-pointer hover:border-blue-500"
+                onClick={() => onAssetUpload(asset, selectedCategory)}
+              >
+                {selectedCategory === 'music' || selectedCategory === 'sfx' ? (
+                  <div className="aspect-square flex items-center justify-center bg-gray-800">
+                    <Music className="w-8 h-8 text-gray-400" />
+                  </div>
+                ) : (
+                  <div className="aspect-video relative overflow-hidden rounded-t-lg">
+                    <img
+                      src={asset}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="p-2 text-sm truncate">
+                  {asset.split('/').pop()}
+                </div>
+              </Card>
+            ))}
+          </div>
+        </ScrollArea>
       </div>
     </div>
   );
@@ -154,123 +325,26 @@ const LeftPanel = ({
       </div>
 
       <div className="flex gap-2 p-4 border-b border-gray-700">
-        <button
+        <Button
+          variant={activeTab === 'scenes' ? "default" : "secondary"}
           onClick={() => setActiveTab('scenes')}
-          className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg transition-all
-            ${activeTab === 'scenes' 
-              ? 'bg-blue-600 text-white' 
-              : 'bg-gray-700 hover:bg-gray-600 text-gray-200'}`}
+          className="flex-1"
         >
-          <Folder size={18} />
-          <span className="text-sm font-medium">Scenes</span>
-        </button>
-        <button
+          <Folder className="w-4 h-4 mr-2" />
+          Scenes
+        </Button>
+        <Button
+          variant={activeTab === 'assets' ? "default" : "secondary"}
           onClick={() => setActiveTab('assets')}
-          className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg transition-all
-            ${activeTab === 'assets' 
-              ? 'bg-blue-600 text-white' 
-              : 'bg-gray-700 hover:bg-gray-600 text-gray-200'}`}
+          className="flex-1"
         >
-          <Library size={18} />
-          <span className="text-sm font-medium">Assets</span>
-        </button>
+          <Library className="w-4 h-4 mr-2" />
+          Assets
+        </Button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
-        {activeTab === 'scenes' ? (
-          renderSceneManager()
-        ) : (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              {CATEGORY_CONFIG.map(({ id, icon: Icon, title }) => (
-                <button
-                  key={id}
-                  onClick={() => setSelectedCategory(id)}
-                  className={`
-                    flex items-center gap-2 w-full p-3 rounded-lg transition-all
-                    ${selectedCategory === id 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-gray-700 hover:bg-gray-600 text-gray-200'}
-                  `}
-                >
-                  <Icon size={18} />
-                  <span className="text-sm font-medium">{title}</span>
-                </button>
-              ))}
-            </div>
-            
-            <div className="mt-4">
-              <div 
-                className={`
-                  border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-                  ${isDragging 
-                    ? 'border-blue-500 bg-blue-500/10' 
-                    : 'border-gray-600 hover:border-blue-500'}
-                `}
-                onClick={() => fileInputRef.current?.click()}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setIsDragging(true);
-                }}
-                onDragLeave={() => setIsDragging(false)}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  setIsDragging(false);
-                  const file = e.dataTransfer?.files[0];
-                  if (file) {
-                    const validTypes = ACCEPTED_TYPES[selectedCategory];
-                    if (validTypes?.includes(file.type)) {
-                      onAssetUpload?.(file, selectedCategory);
-                    } else {
-                      alert(`Please upload a valid ${selectedCategory} file.`);
-                    }
-                  }
-                }}
-              >
-                <FolderUp className="mx-auto mb-4 text-gray-400" size={32} />
-                <p className="text-gray-300 mb-4">
-                  Drag and drop your files here, or click to select files
-                </p>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  accept={ACCEPTED_TYPES[selectedCategory]?.join(',')}
-                  className="hidden"
-                />
-              </div>
-              
-              {platformAssets[selectedCategory]?.length > 0 && (
-                <div className="grid grid-cols-2 gap-4 mt-6">
-                  {platformAssets[selectedCategory].map((asset) => (
-                    <div
-                      key={asset.id}
-                      className="group relative cursor-pointer rounded-lg overflow-hidden"
-                      onClick={() => onAssetUpload(asset, selectedCategory)}
-                    >
-                      {selectedCategory === 'music' || selectedCategory === 'sfx' ? (
-                        <div className="aspect-square bg-gray-700 flex items-center justify-center">
-                          <Music size={32} className="text-gray-400" />
-                        </div>
-                      ) : (
-                        <img
-                          src={asset.src}
-                          alt={asset.title}
-                          className="w-full aspect-video object-cover"
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <span className="text-white text-sm font-medium">
-                          {asset.title}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+      <div className="flex-1 overflow-hidden p-4">
+        {activeTab === 'scenes' ? renderSceneManager() : renderAssetManager()}
       </div>
     </div>
   );

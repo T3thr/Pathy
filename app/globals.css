@@ -3,6 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom CSS Variables for Root */
 :root {
   --background: #ffffff;
   --foreground: #1a1a1a;
@@ -10,8 +11,21 @@
   --divider: #d0d7de;
   --muted: #6b7280;
   --shadow-light: rgba(0, 0, 0, 0.1);
+  --primary: 245, 58%, 47%; /* Example: Define colors if needed */
+  --primary-foreground: 0, 0%, 100%; /* Example: Set foreground color */
+  --secondary: 210, 50%, 50%; /* Example */
+  --secondary-foreground: 0, 0%, 100%; /* Example */
+  --destructive: 0, 100%, 50%; /* Example */
+  --destructive-foreground: 0, 0%, 100%; /* Example */
+  --accent: 340, 70%, 60%; /* Example */
+  --accent-foreground: 0, 0%, 100%; /* Example */
+  --popover: 210, 50%, 95%; /* Example */
+  --popover-foreground: 0, 0%, 20%; /* Example */
+  --card: 250, 90%, 98%; /* Example */
+  --card-foreground: 0, 0%, 20%; /* Example */
 }
 
+/* Dark Mode (tailwind's dark class will be toggled for dark mode) */
 :root.dark {
   --background: #1a1a1a;
   --foreground: #f9f9f9;
@@ -29,8 +43,7 @@ body {
   transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-
-/* Utility classes */
+/* Utility Classes for Text and Background Colors */
 .text-var-foreground {
   color: var(--foreground);
 }
@@ -47,7 +60,7 @@ body {
   box-shadow: 0 2px 6px var(--shadow-light);
 }
 
-/* Scrollbar styling */
+/* Custom Scrollbar Styles */
 .scrollbar-thin {
   scrollbar-width: thin;
 }
@@ -59,3 +72,10 @@ body {
 .scrollbar-thumb-rounded-lg:hover {
   scrollbar-color: var(--foreground) transparent;
 }
+
+/* Tailwind Dark Mode Support */
+body.dark {
+  color: var(--foreground);
+  background: var(--background);
+}
+

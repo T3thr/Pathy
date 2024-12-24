@@ -129,6 +129,34 @@ export default function Novel() {
     }
   };
 
+  // New function to update novel data in MongoDB
+  const updateNovelsInDatabase = async () => {
+    try {
+      const response = await fetch("/api/novels/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(novels), // Send the novels array to MongoDB
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update novels in database");
+      }
+
+      const data = await response.json();
+      console.log("Novels updated successfully:", data.message);
+    } catch (error) {
+      console.error("Error updating novels:", error);
+    }
+  };
+
+  // Optionally, you can call this function when the page loads
+  useEffect(() => {
+    // Update the novels in the database when the page loads
+    updateNovelsInDatabase();
+  }, []);
+
   if (error) {
     return (
       <div className="text-red-500 text-center p-6">

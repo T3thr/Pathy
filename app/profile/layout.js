@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
 
       {/* Main Content */}
       <section className="py-4 sm:py-16">
-        <div className="container max-w-screen mx-auto h-auto ">
+        <div className="container max-w-screen mx-auto h-auto">
           <div className="flex flex-col md:flex-row gap-2">
             
             {/* Sidebar */}
@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
  
 
             {/* Main Content Area */}
-            <main className="w-screen ">
+            <main className="lg:w-screen w-full">
               <article className="border w-full border-gray-200 bg-white dark:border-gray-900 dark:bg-slate-900 shadow-lg dark:shadow-xl rounded-xl transition-all">
                 {children}
               </article>
