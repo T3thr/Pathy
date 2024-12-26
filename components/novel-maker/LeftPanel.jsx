@@ -83,32 +83,6 @@ export default function LeftPanel({
   const [sceneNameInput, setSceneNameInput] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   
-    // Handle asset selection and upload
-    const handleAssetSelect = useCallback((asset, category) => {
-      const assetType = ASSET_CATEGORIES[category].id === 'backgrounds' ? 'background' : 
-                       ASSET_CATEGORIES[category].id === 'characters' ? 'character' : category;
-      
-      onAssetSelect?.({
-        type: assetType,
-        path: asset.path,
-        id: asset.id
-      });
-  
-      // Update current scene with the new asset
-      if (currentScene) {
-        const updatedScene = {
-          ...currentScene,
-          [assetType]: asset.path,
-          [`${assetType}Props`]: {
-            ...currentScene[`${assetType}Props`],
-            visible: true,
-            transform: { x: 0, y: 0, scale: 1, rotation: 0 }
-          }
-        };
-        onSceneUpdate(currentScene.id, updatedScene);
-      }
-    }, [currentScene, onAssetSelect, onSceneUpdate]);
-
   // Handle scene expansion toggle
   const handleSceneExpand = useCallback((sceneId) => {
     setExpandedScenes(prev => 
@@ -144,6 +118,32 @@ export default function LeftPanel({
     
     return true;
   }, []);
+
+      // Handle asset selection and upload
+    const handleAssetSelect = useCallback((asset, category) => {
+      const assetType = ASSET_CATEGORIES[category].id === 'backgrounds' ? 'background' : 
+                       ASSET_CATEGORIES[category].id === 'characters' ? 'character' : category;
+      
+      onAssetSelect?.({
+        type: assetType,
+        path: asset.path,
+        id: asset.id
+      });
+  
+      // Update current scene with the new asset
+      if (currentScene) {
+        const updatedScene = {
+          ...currentScene,
+          [assetType]: asset.path,
+          [`${assetType}Props`]: {
+            ...currentScene[`${assetType}Props`],
+            visible: true,
+            transform: { x: 0, y: 0, scale: 1, rotation: 0 }
+          }
+        };
+        onSceneUpdate(currentScene.id, updatedScene);
+      }
+    }, [currentScene, onAssetSelect, onSceneUpdate]);
 
   // Enhanced file upload handler
   const handleFileUpload = useCallback(async (event) => {
@@ -386,7 +386,7 @@ return (
                           </div>
                           {scene.dialogue && (
                             <div className="text-sm text-[var(--muted)] line-clamp-2 italic">
-                              "{scene.dialogue}"
+                              &quot;{scene.dialogue}&quot;
                             </div>
                           )}
                         </motion.div>
