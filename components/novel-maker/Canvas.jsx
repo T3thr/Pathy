@@ -4,22 +4,22 @@ import { useGesture } from '@use-gesture/react';
 import { create } from 'zustand';
 import { cn } from "@/lib/utils";
 
-// Enhanced canvas store with improved state management
-const useCanvasStore = create((set, get) => ({
+// Enhanced canvas store with better state management
+const useCanvasStore = create((set) => ({
   zoom: 100,
   grid: { show: false, size: 20 },
   isPlaying: false,
   isPreviewMode: false,
   viewportDimensions: { width: 1280, height: 720 },
   activeAsset: null,
-  dragState: null,
+  selectedElement: null,
   
   setZoom: (zoom) => set({ zoom }),
   setGrid: (grid) => set({ grid }),
   setIsPlaying: (isPlaying) => set({ isPlaying }),
   setIsPreviewMode: (isPreviewMode) => set({ isPreviewMode }),
   setActiveAsset: (asset) => set({ activeAsset: asset }),
-  setDragState: (state) => set({ dragState: state }),
+  setSelectedElement: (element) => set({ selectedElement: element }),
   setViewportDimensions: (dimensions) => set({ viewportDimensions: dimensions })
 }));
 
@@ -27,6 +27,7 @@ const Canvas = forwardRef(({
   scene,
   onSceneUpdate,
   onAssetSelect,
+  onElementSelect,
   className,
   style,
   isPreviewMode,
@@ -43,36 +44,46 @@ const Canvas = forwardRef(({
     setActiveAsset,
   } = useCanvasStore();
 
-  // Enhanced asset state management
+  // Asset state management
   const [assets, setAssets] = useState({
-    background: { transform: { x: 0, y: 0, scale: 1, rotation: 0 }, filters: {} },
-    character: { transform: { x: 0, y: 0, scale: 1, rotation: 0 }, filters: {} }
+    background: { 
+      transform: { x: 0, y: 0, scale: 1, rotation: 0 }, 
+      filters: {},
+      visible: true
+    },
+    character: { 
+      transform: { x: 0, y: 0, scale: 1, rotation: 0 }, 
+      filters: {},
+      visible: true
+    }
   });
 
-  // Animation states for transitions
+  // Animation states
   const [animations, setAnimations] = useState({
     background: { isAnimating: false, type: null },
     character: { isAnimating: false, type: null },
     dialogue: { isTyping: false, progress: 0 }
   });
 
-  // Initialize assets from scene
+  // Initialize scene assets
   useEffect(() => {
     if (scene) {
       setAssets({
         background: {
           transform: scene.backgroundProps || { x: 0, y: 0, scale: 1, rotation: 0 },
-          filters: scene.backgroundFilters || {}
+          filters: scene.backgroundFilters || {},
+          visible: scene.backgroundProps?.visible ?? true
         },
         character: {
           transform: scene.characterProps || { x: 0, y: 0, scale: 1, rotation: 0 },
-          filters: scene.characterFilters || {}
+          filters: scene.characterFilters || {},
+          visible: scene.characterProps?.visible ?? true
         }
       });
     }
   }, [scene]);
 
-  // Gesture handlers for asset manipulation
+  // Enhanced gesture handling
   const bindGestures = useGesture({
     onDrag: ({ movement: [mx, my], first, last, dragging, target }) => {
       if (isPreviewMode) return;
@@ -82,17 +93,20 @@ const Canvas = forwardRef(({
 
       if (first) {
         setActiveAsset(assetType);
+        onAssetSelect?.(assetType);
       }
+
+      const updatedTransform = {
+        ...assets[assetType].transform,
+        x: assets[assetType].transform.x + mx,
+        y: assets[assetType].transform.y + my
+      };
 
       setAssets(prev => ({
         ...prev,
         [assetType]: {
           ...prev[assetType],
-          transform: {
-            ...prev[assetType].transform,
-            x: prev[assetType].transform.x + mx,
-            y: prev[assetType].transform.y + my
-          }
+          transform: updatedTransform
         }
       }));
 
@@ -101,8 +115,7 @@ const Canvas = forwardRef(({
           ...scene,
           [`${assetType}Props`]: {
             ...scene[`${assetType}Props`],
-            x: assets[assetType].transform.x + mx,
-            y: assets[assetType].transform.y + my
+            ...updatedTransform
           }
         });
       }
@@ -114,14 +127,16 @@ const Canvas = forwardRef(({
       const assetType = target.getAttribute('data-asset-type');
       if (!assetType) return;
 
+      const updatedTransform = {
+        ...assets[assetType].transform,
+        scale
+      };
+
       setAssets(prev => ({
         ...prev,
         [assetType]: {
           ...prev[assetType],
-          transform: {
-            ...prev[assetType].transform,
-            scale: scale
-          }
+          transform: updatedTransform
         }
       }));
 
@@ -130,24 +145,20 @@ const Canvas = forwardRef(({
           ...scene,
           [`${assetType}Props`]: {
             ...scene[`${assetType}Props`],
-            scale
+            ...updatedTransform
           }
         });
       }
     }
   });
 
-  // Typewriter effect for dialogue
+  // Enhanced typewriter effect
   const TypewriterText = useCallback(({ text, speed = 50, onComplete }) => {
     const [displayText, setDisplayText] = useState('');
     
     useEffect(() => {
       let index = 0;
       setDisplayText('');
-      setAnimations(prev => ({
-        ...prev,
-        dialogue: { isTyping: true, progress: 0 }
-      }));
       
       const interval = setInterval(() => {
         if (index < text.length) {
@@ -176,14 +187,14 @@ const Canvas = forwardRef(({
     return displayText;
   }, []);
 
-  // Render dialogue box with enhanced styling
+  // Render dialogue box
   const renderDialogue = useCallback(() => {
     if (!scene?.dialogue && !scene?.characterName) return null;
 
     const dialogueStyle = {
       background: scene.dialogueStyle?.background || 'rgba(0, 0, 0, 0.8)',
-      textAlign: scene.dialogueStyle?.align || 'left',
-      fontSize: scene.dialogueStyle?.size || '1rem'
+      textAlign: scene.textProps?.alignment || 'left',
+      fontSize: scene.textProps?.size || '1rem'
     };
 
     return (
@@ -198,6 +209,7 @@ const Canvas = forwardRef(({
           "backdrop-blur-sm z-30"
         )}
         style={dialogueStyle}
+        onClick={() => onElementSelect?.('dialogue')}
       >
         {scene.characterName && (
           <motion.div 
@@ -212,14 +224,15 @@ const Canvas = forwardRef(({
         <motion.div 
           className="text-lg leading-relaxed text-white"
           style={{
-            fontWeight: scene.dialogueStyle?.bold ? 'bold' : 'normal',
-            fontStyle: scene.dialogueStyle?.italic ? 'italic' : 'normal'
+            fontWeight: scene.textProps?.bold ? 'bold' : 'normal',
+            fontStyle: scene.textProps?.italic ? 'italic' : 'normal',
+            textDecoration: scene.textProps?.underline ? 'underline' : 'none'
           }}
         >
           {isPlaying ? (
             <TypewriterText 
               text={scene.dialogue}
-              speed={scene.dialogueStyle?.typeSpeed || 50}
+              speed={scene.textProps?.typewriterSpeed || 50}
               onComplete={() => {
                 setAnimations(prev => ({
                   ...prev,
@@ -233,18 +246,30 @@ const Canvas = forwardRef(({
         </motion.div>
       </motion.div>
     );
-  }, [scene, isPlaying, TypewriterText]);
+  }, [scene, isPlaying, TypewriterText, onElementSelect]);
 
-  // Render asset with enhanced transformations and filters
+  // Render asset with transformations
   const renderAsset = useCallback((type) => {
     const asset = scene?.[type];
-    if (!asset) return null;
+    if (!asset || !assets[type].visible) return null;
 
     const { transform, filters } = assets[type];
     const animation = animations[type];
 
     const filterString = Object.entries(filters)
-      .map(([key, value]) => `${key}(${value}%)`)
+      .map(([key, value]) => {
+        switch (key) {
+          case 'brightness':
+          case 'contrast':
+          case 'saturate':
+            return `${key}(${value}%)`;
+          case 'blur':
+            return `${key}(${value}px)`;
+          default:
+            return '';
+        }
+      })
+      .filter(Boolean)
       .join(' ');
 
     return (
@@ -260,12 +285,18 @@ const Canvas = forwardRef(({
             rotate(${transform.rotation}deg)
             scale(${transform.scale})
           `,
-          filter: filterString,
-          zIndex: type === 'character' ? 2 : 1
+          filter: filterString || 'none',
+          zIndex: type === 'character' ? 2 : 1,
+          opacity: scene[`${type}Props`]?.opacity ?? 1
         }}
         data-asset-type={type}
         {...bindGestures()}
-        onClick={() => !isPreviewMode && onAssetSelect?.(type)}
+        onClick={() => {
+          if (!isPreviewMode) {
+            onAssetSelect?.(type);
+            onElementSelect?.(type);
+          }
+        }}
         initial={animation.isAnimating ? { opacity: 0, scale: 0.9 } : false}
         animate={animation.isAnimating ? { opacity: 1, scale: 1 } : false}
       >
@@ -280,19 +311,30 @@ const Canvas = forwardRef(({
         />
       </motion.div>
     );
-  }, [scene, assets, animations, isPreviewMode, bindGestures, onAssetSelect]);
+  }, [scene, assets, animations, isPreviewMode, bindGestures, onAssetSelect, onElementSelect]);
 
-  // Canvas methods exposed to parent
+  // Expose canvas methods to parent
   useImperativeHandle(ref, () => ({
-    captureScreenshot: () => {
+    captureScreenshot: async () => {
       const canvas = canvasRef.current;
+      if (!canvas) return null;
+
       // Implementation for canvas capture
-      return canvas.toDataURL('image/png');
+      const dataUrl = await html2canvas(canvas).then(canvas => canvas.toDataURL('image/png'));
+      return dataUrl;
     },
     resetView: () => {
       setAssets({
-        background: { transform: { x: 0, y: 0, scale: 1, rotation: 0 }, filters: {} },
-        character: { transform: { x: 0, y: 0, scale: 1, rotation: 0 }, filters: {} }
+        background: { 
+          transform: { x: 0, y: 0, scale: 1, rotation: 0 }, 
+          filters: {},
+          visible: true
+        },
+        character: { 
+          transform: { x: 0, y: 0, scale: 1, rotation: 0 }, 
+          filters: {},
+          visible: true
+        }
       });
     },
     playAnimation: (type, params) => {
@@ -307,6 +349,15 @@ const Canvas = forwardRef(({
           [type]: { isAnimating: false, type: null }
         }));
       }, params?.duration || 1000);
+    },
+    updateAsset: (type, props) => {
+      setAssets(prev => ({
+        ...prev,
+        [type]: {
+          ...prev[type],
+          ...props
+        }
+      }));
     }
   }));
 

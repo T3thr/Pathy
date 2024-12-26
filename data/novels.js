@@ -4,6 +4,7 @@ export const recommendationText = "เลือกนิยายของคุ
 export const novels = [
     { title: "ดอกส้มสีทอง", genre: "รักหวานแหวว",author: "Author 1",imageUrl: "/images/romance/novel1.jpg", description: "Description of ดอกส้มสีทอง" },
     { title: "Bound to me สยบรักคุณมาเฟีย", genre: "รักหวานแหวว",author: "Author 2",imageUrl: "/images/romance/novel2.jpg", description: "Description of โดราเอมอน" },
+    {/*
     { title: "ดอกส้มสีทอรักในสายลม", genre: "รักหวานแหวว",author: "Author 3",imageUrl: "/images/romance/novel3.jpeg", description: "Description of ดอกส้มสีทอรักในสายลม" },
     { title: "ดอกไม้ในหัวใจ", genre: "รักหวานแหวว",author: "Author 4",imageUrl: "/images/romance/novel4.jpeg", description: "Description of ดอกไม้ในหัวใจ" },
     { title: "เมื่อดอกไม้บาน", genre: "รักหวานแหวว",author: "Author 5",imageUrl: "/images/romance/novel5.jpeg", description: "Description of เมื่อดอกไม้บาน" },
@@ -15,5 +16,6 @@ export const novels = [
     { title: "บันทึกเลือด", genre: "สยองขวัญ",author: "Author 11",imageUrl: "/images/thriller/thriller2.jpg", description: "Description of ครูบาหมูเด้ง" },
     { title: "The Legend of Risenmour มหาศึกไรเซนมัวร์", genre: "แฟนตาซี",author: "Author 12",imageUrl: "/images/fantasy/fantasy1.jpg", description: "Description of ฟหกด" },
     { title: "The Dead of Nashly เมื่อโลกหลังความตายของแนชลีย์มาเยือน", genre: "แฟนตาซี",author: "Author 13",imageUrl: "/images/fantasy/fantasy2.jpg", description: "Description of สวัสดี" },
+  */}
   ];
   

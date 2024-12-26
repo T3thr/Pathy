@@ -243,27 +243,6 @@ const useHistory = (initialState) => {
 };
 
 export default function NovelMakerLayout() {
-     // Responsive Layout State
-     const [layoutMode, setLayoutMode] = useState('desktop'); // 'desktop', 'tablet', 'mobile'
-     const [activePanel, setActivePanel] = useState('canvas'); // 'left', 'canvas', 'right'
-   
-     // Handle Responsive Layout
-     useEffect(() => {
-       const handleResize = () => {
-         if (window.innerWidth >= 1280) {
-           setLayoutMode('desktop');
-         } else if (window.innerWidth >= 768) {
-           setLayoutMode('tablet');
-         } else {
-           setLayoutMode('mobile');
-         }
-       };
-   
-       window.addEventListener('resize', handleResize);
-       handleResize();
-   
-       return () => window.removeEventListener('resize', handleResize);
-     }, []);
   // Refs
   const canvasRef = useRef(null);
   
@@ -416,161 +395,159 @@ export default function NovelMakerLayout() {
     }
   }, [scenes]);
 
+  return (
+    <div className="flex flex-col h-screen bg-gray-900 overflow-hidden">
+      <TopToolbar 
+        onUndo={canUndo ? undo : undefined}
+        onRedo={canRedo ? redo : undefined}
+        isPreviewMode={isPreviewMode}
+        onPreviewToggle={() => setIsPreviewMode(prev => !prev)}
+        isPlaying={isPlaying}
+        onPlayToggle={() => setIsPlaying(prev => !prev)}
+        zoom={zoom}
+        onZoomChange={setZoom}
+        showGrid={showGrid}
+        onToggleGrid={() => setShowGrid(prev => !prev)}
+        onExport={handleExport}
+        onToggleLeftPanel={() => setUiState(prev => ({ 
+          ...prev, 
+          showLeftPanel: !prev.showLeftPanel 
+        }))}
+        onToggleRightPanel={() => setUiState(prev => ({ 
+          ...prev, 
+          showRightPanel: !prev.showRightPanel 
+        }))}
+        className="shrink-0"
+      />
+      <div className="w-full max-h-screen overflow-y-auto">
+      <div className="flex flex-col lg:flex-row gap-4 p-4 flex-grow">
+      
+        {/* Left Panel - Assets & Scenes */}
+        <AnimatePresence mode="wait">
+          {uiState.showLeftPanel && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: "320px", opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="h-full border-r border-gray-700 bg-gray-800"
+            >
+              <LeftPanel
+                scenes={scenes}
+                currentScene={scenes[currentScene]}
+                onSceneAdd={addScene}
+                onSceneSelect={setCurrentScene}
+                onSceneDelete={deleteScene}
+                onSceneDuplicate={duplicateScene}
+                onSceneUpdate={updateScene}
+                onAssetUpload={handleAssetUpload}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+  
+        {/* Main Canvas Area */}
+        <div className="relative flex-1 overflow-hidden">
+        <div >
+          <div 
+            className={`
+              absolute inset-0 top-24 w-[100%] h-[50%] max-h-xl mx-auto flex items-center justify-center
+              transition-all duration-200 ease-in-out
+              ${isPreviewMode ? 'bg-black' : 'bg-gray-900'}
+            `}
+          >
+            <Canvas
+              ref={canvasRef}
+              scene={scenes[currentScene]}
+              isPreviewMode={isPreviewMode}
+              isPlaying={isPlaying}
+              zoom={zoom}
+              showGrid={showGrid}
+              selectedAsset={selectedAsset}
+              onSceneUpdate={handleSceneUpdate}
+              onAssetSelect={setSelectedAsset}
+              onAssetTransform={handleAssetTransform}
+              className={`
+                transition-transform duration-200
+                ${isPreviewMode ? 'scale-100' : 'scale-90'}
+              `}
+            />
+            </div>
+          </div>
+        </div>
+  
+        {/* Right Panel - Asset Controls */}
+        <div>
+        <AnimatePresence mode="wait">
+          {uiState.showRightPanel && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: "320px", opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="h-full border-l border-gray-700 bg-gray-800"
+            >
+              <RightPanel
+                scene={scenes[currentScene]}
+                selectedAsset={selectedAsset}
+                onSceneUpdate={handleSceneUpdate}
+                onAssetTransform={handleAssetTransform}
+                onHistoryUndo={undo}
+                onHistoryRedo={redo}
+                canUndo={canUndo}
+                canRedo={canRedo}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        </div>
+        </div>
+      </div>
+  
+      {/* Upload Progress Dialog */}
+      <Dialog 
+        open={uiState.showUploadDialog}
+        onOpenChange={(open) => setUiState(prev => ({ ...prev, showUploadDialog: open }))}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Uploading Asset</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Progress value={uiState.uploadProgress} className="w-full" />
+            <p className="text-center text-sm text-gray-400">
+              {uiState.uploadProgress}% complete
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+  
+      {/* Export Dialog */}
+      <Dialog
+        open={uiState.showExportDialog}
+        onOpenChange={(open) => setUiState(prev => ({ ...prev, showExportDialog: open }))}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Export Project</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => setUiState(prev => ({ ...prev, showExportDialog: false }))}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleExport}>
+                Export
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+  
 
- 
-   return (
-     <div className="flex flex-col h-screen bg-gray-900">
-       <TopToolbar 
-         className="z-50 shrink-0 sticky top-0"
-         {...topToolbarProps} 
-       />
- 
-       {/* Mobile Navigation */}
-       {layoutMode === 'mobile' && (
-         <div className="flex justify-around p-2 bg-gray-800 border-b border-gray-700">
-           <Button
-             variant={activePanel === 'left' ? 'default' : 'ghost'}
-             onClick={() => setActivePanel('left')}
-             className="flex-1"
-           >
-             Assets
-           </Button>
-           <Button
-             variant={activePanel === 'canvas' ? 'default' : 'ghost'}
-             onClick={() => setActivePanel('canvas')}
-             className="flex-1"
-           >
-             Canvas
-           </Button>
-           <Button
-             variant={activePanel === 'right' ? 'default' : 'ghost'}
-             onClick={() => setActivePanel('right')}
-             className="flex-1"
-           >
-             Edit
-           </Button>
-         </div>
-       )}
- 
-       {/* Main Content Area */}
-       <div className="flex-1 overflow-hidden">
-         <div className={cn(
-           "flex h-full transition-all duration-300 ease-in-out",
-           layoutMode === 'mobile' && 'flex-col'
-         )}>
-           {/* Left Panel */}
-           <AnimatePresence mode="wait">
-             {(layoutMode !== 'mobile' || activePanel === 'left') && (
-               <motion.div
-                 initial={{ opacity: 0, x: -20 }}
-                 animate={{ opacity: 1, x: 0 }}
-                 exit={{ opacity: 0, x: -20 }}
-                 className={cn(
-                   "bg-gray-800 border-r border-gray-700",
-                   layoutMode === 'desktop' ? 'w-80' : 'w-full'
-                 )}
-               >
-                 <div className="h-full overflow-hidden">
-                   <LeftPanel 
-                     scenes={scenes}
-                     currentScene={scenes[currentScene]}
-                     onSceneAdd={addScene}
-                     onSceneSelect={setCurrentScene}
-                     onSceneDelete={deleteScene}
-                     onSceneDuplicate={duplicateScene}
-                     onSceneUpdate={updateScene}
-                     onAssetUpload={handleAssetUpload}
-                   />
-                 </div>
-               </motion.div>
-             )}
-           </AnimatePresence>
- 
-           {/* Canvas Area */}
-           <AnimatePresence mode="wait">
-             {(layoutMode !== 'mobile' || activePanel === 'canvas') && (
-               <motion.div
-                 initial={{ opacity: 0, scale: 0.95 }}
-                 animate={{ opacity: 1, scale: 1 }}
-                 exit={{ opacity: 0, scale: 0.95 }}
-                 className={cn(
-                   "relative flex-1 overflow-hidden",
-                   layoutMode === 'mobile' ? 'h-[70vh]' : 'h-full'
-                 )}
-               >
-                 <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
-                   <Canvas
-                     ref={canvasRef}
-                     scene={scenes[currentScene]}
-                     isPreviewMode={isPreviewMode}
-                     isPlaying={isPlaying}
-                     zoom={zoom}
-                     showGrid={showGrid}
-                     selectedAsset={selectedAsset}
-                     onSceneUpdate={handleSceneUpdate}
-                     onAssetSelect={setSelectedAsset}
-                     onAssetTransform={handleAssetTransform}
-                     className={cn(
-                       "transition-all duration-300 ease-in-out",
-                       isPreviewMode ? 'scale-100' : 'scale-90',
-                       layoutMode === 'mobile' && 'max-h-full w-auto'
-                     )}
-                   />
-                 </div>
-               </motion.div>
-             )}
-           </AnimatePresence>
- 
-           {/* Right Panel */}
-           <AnimatePresence mode="wait">
-             {(layoutMode !== 'mobile' || activePanel === 'right') && (
-               <motion.div
-                 initial={{ opacity: 0, x: 20 }}
-                 animate={{ opacity: 1, x: 0 }}
-                 exit={{ opacity: 0, x: 20 }}
-                 className={cn(
-                   "bg-gray-800 border-l border-gray-700",
-                   layoutMode === 'desktop' ? 'w-80' : 'w-full'
-                 )}
-               >
-                 <div className="h-full overflow-hidden">
-                   <RightPanel
-                     scene={scenes[currentScene]}
-                     selectedAsset={selectedAsset}
-                     onSceneUpdate={handleSceneUpdate}
-                     onAssetTransform={handleAssetTransform}
-                     onHistoryUndo={undo}
-                     onHistoryRedo={redo}
-                     canUndo={canUndo}
-                     canRedo={canRedo}
-                   />
-                 </div>
-               </motion.div>
-             )}
-           </AnimatePresence>
-         </div>
-       </div>
- 
-       {/* Status Bar */}
-       <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-t border-gray-700">
-         <div className="text-sm text-gray-400">
-           Scene {currentScene + 1} of {scenes.length}
-         </div>
-         <div className="flex items-center gap-4">
-           <Button
-             variant="ghost"
-             size="sm"
-             onClick={() => setShowGrid(!showGrid)}
-           >
-             Grid: {showGrid ? 'On' : 'Off'}
-           </Button>
-           <div className="text-sm text-gray-400">
-             Zoom: {zoom}%
-           </div>
-         </div>
-       </div>
- 
-       {/* Dialogs remain the same... */}
-     </div>
-   );
- }
+    </div>
+  );
+}
