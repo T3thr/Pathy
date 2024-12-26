@@ -22,8 +22,8 @@ const ASSET_CATEGORIES = {
     description: 'Upload background images (JPG, PNG, WebP)',
     platformAssets: [
       '/images/background/1.png',
-      '/images/backgrounds/cafe.jpg',
-      '/images/backgrounds/park.jpg'
+      '/images/background/2.jpg',
+      '/images/background/3.jpg'
     ]
   },
   characters: {
@@ -34,8 +34,9 @@ const ASSET_CATEGORIES = {
     maxSize: 5 * 1024 * 1024,
     description: 'Upload character sprites (PNG with transparency)',
     platformAssets: [
-      '/images/characters/student.png',
-      '/images/characters/teacher.png'
+      '/images/character/doraemon.png',
+      '/images/character/nobita.png',
+      '/images/character/teacher.png'
     ]
   },
   bgm: {
