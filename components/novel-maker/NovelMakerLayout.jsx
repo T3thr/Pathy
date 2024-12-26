@@ -448,7 +448,7 @@ export default function NovelMakerLayout() {
   
         {/* Main Canvas Area */}
         <div className="relative flex-1 overflow-hidden">
-        <div >
+        <div  className="flex flex-col h-full lg:flex-row gap-4 p-4">
           <div 
             className={`
               absolute inset-0 top-24 w-[100%] h-[50%] max-h-xl mx-auto flex items-center justify-center
@@ -547,7 +547,6 @@ export default function NovelMakerLayout() {
         </DialogContent>
       </Dialog>
   
-
     </div>
   );
 }
