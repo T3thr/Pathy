@@ -4,7 +4,6 @@ import { useGesture } from '@use-gesture/react';
 import { create } from 'zustand';
 import { cn } from "@/lib/utils";
 
-// Enhanced canvas store with better state management
 const useCanvasStore = create((set) => ({
   zoom: 100,
   grid: { show: false, size: 20 },
@@ -22,6 +21,41 @@ const useCanvasStore = create((set) => ({
   setSelectedElement: (element) => set({ selectedElement: element }),
   setViewportDimensions: (dimensions) => set({ viewportDimensions: dimensions })
 }));
+
+// Extracted TypewriterText as a separate component
+const TypewriterText = ({ text, speed = 50, onComplete, setAnimations }) => {
+  const [displayText, setDisplayText] = useState('');
+  
+  useEffect(() => {
+    let index = 0;
+    setDisplayText('');
+    
+    const interval = setInterval(() => {
+      if (index < text.length) {
+        setDisplayText(prev => prev + text[index]);
+        setAnimations(prev => ({
+          ...prev,
+          dialogue: {
+            isTyping: true,
+            progress: (index + 1) / text.length * 100
+          }
+        }));
+        index++;
+      } else {
+        clearInterval(interval);
+        setAnimations(prev => ({
+          ...prev,
+          dialogue: { isTyping: false, progress: 100 }
+        }));
+        onComplete?.();
+      }
+    }, speed);
+
+    return () => clearInterval(interval);
+  }, [text, speed, onComplete, setAnimations]);
+
+  return displayText;
+};
 
 const Canvas = forwardRef(({ 
   scene,
@@ -44,7 +78,6 @@ const Canvas = forwardRef(({
     setActiveAsset,
   } = useCanvasStore();
 
-  // Asset state management
   const [assets, setAssets] = useState({
     background: { 
       transform: { x: 0, y: 0, scale: 1, rotation: 0 }, 
@@ -58,14 +91,12 @@ const Canvas = forwardRef(({
     }
   });
 
-  // Animation states
   const [animations, setAnimations] = useState({
     background: { isAnimating: false, type: null },
     character: { isAnimating: false, type: null },
     dialogue: { isTyping: false, progress: 0 }
   });
 
-  // Initialize scene assets
   useEffect(() => {
     if (scene) {
       setAssets({
@@ -83,7 +114,6 @@ const Canvas = forwardRef(({
     }
   }, [scene]);
 
-  // Enhanced gesture handling
   const bindGestures = useGesture({
     onDrag: ({ movement: [mx, my], first, last, dragging, target }) => {
       if (isPreviewMode) return;
@@ -152,42 +182,7 @@ const Canvas = forwardRef(({
     }
   });
 
-  // Enhanced typewriter effect
-  const TypewriterText = useCallback(({ text, speed = 50, onComplete }) => {
-    const [displayText, setDisplayText] = useState('');
-    
-    useEffect(() => {
-      let index = 0;
-      setDisplayText('');
-      
-      const interval = setInterval(() => {
-        if (index < text.length) {
-          setDisplayText(prev => prev + text[index]);
-          setAnimations(prev => ({
-            ...prev,
-            dialogue: {
-              isTyping: true,
-              progress: (index + 1) / text.length * 100
-            }
-          }));
-          index++;
-        } else {
-          clearInterval(interval);
-          setAnimations(prev => ({
-            ...prev,
-            dialogue: { isTyping: false, progress: 100 }
-          }));
-          onComplete?.();
-        }
-      }, speed);
 
-      return () => clearInterval(interval);
-    }, [text, speed, onComplete]);
-
-    return displayText;
-  }, []);
-
-  // Render dialogue box
   const renderDialogue = useCallback(() => {
     if (!scene?.dialogue && !scene?.characterName) return null;
 
