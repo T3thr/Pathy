@@ -83,14 +83,12 @@ export default function LeftPanel({
   const [sceneNameInput, setSceneNameInput] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   
-  // Handle scene expansion toggle
   const handleSceneExpand = useCallback((sceneId) => {
     setExpandedScenes(prev => 
       prev.includes(sceneId) ? prev.filter(id => id !== sceneId) : [...prev, sceneId]
     );
   }, []);
 
-  // Handle scene name editing
   const handleSceneNameEdit = useCallback((scene) => {
     setEditingSceneId(scene.id);
     setSceneNameInput(scene.name);
@@ -102,7 +100,6 @@ export default function LeftPanel({
     setEditingSceneId(null);
   }, [sceneNameInput, onSceneUpdate]);
 
-  // Enhanced file validation and upload
   const validateFile = useCallback((file, category) => {
     const config = ASSET_CATEGORIES[category];
     
@@ -119,33 +116,30 @@ export default function LeftPanel({
     return true;
   }, []);
 
-      // Handle asset selection and upload
-    const handleAssetSelect = useCallback((asset, category) => {
-      const assetType = ASSET_CATEGORIES[category].id === 'backgrounds' ? 'background' : 
-                       ASSET_CATEGORIES[category].id === 'characters' ? 'character' : category;
-      
-      onAssetSelect?.({
-        type: assetType,
-        path: asset.path,
-        id: asset.id
-      });
-  
-      // Update current scene with the new asset
-      if (currentScene) {
-        const updatedScene = {
-          ...currentScene,
-          [assetType]: asset.path,
-          [`${assetType}Props`]: {
-            ...currentScene[`${assetType}Props`],
-            visible: true,
-            transform: { x: 0, y: 0, scale: 1, rotation: 0 }
-          }
-        };
-        onSceneUpdate(currentScene.id, updatedScene);
-      }
-    }, [currentScene, onAssetSelect, onSceneUpdate]);
+  const handleAssetSelect = useCallback((asset, category) => {
+    const assetType = ASSET_CATEGORIES[category].id === 'backgrounds' ? 'background' : 
+                     ASSET_CATEGORIES[category].id === 'characters' ? 'character' : category;
+    
+    onAssetSelect?.({
+      type: assetType,
+      path: asset.path,
+      id: asset.id
+    });
 
-  // Enhanced file upload handler
+    if (currentScene) {
+      const updatedScene = {
+        ...currentScene,
+        [assetType]: asset.path,
+        [`${assetType}Props`]: {
+          ...currentScene[`${assetType}Props`],
+          visible: true,
+          transform: { x: 0, y: 0, scale: 1, rotation: 0 }
+        }
+      };
+      onSceneUpdate(currentScene.id, updatedScene);
+    }
+  }, [currentScene, onAssetSelect, onSceneUpdate]);
+
   const handleFileUpload = useCallback(async (event) => {
     const files = Array.from(event.target.files || []);
     
@@ -157,10 +151,8 @@ export default function LeftPanel({
                          ASSET_CATEGORIES[selectedCategory].id === 'characters' ? 'character' : 
                          selectedCategory;
 
-        // Create a URL for the uploaded file
         const fileUrl = URL.createObjectURL(file);
         
-        // Create asset object
         const newAsset = {
           id: `uploaded-${Date.now()}`,
           path: fileUrl,
@@ -168,10 +160,8 @@ export default function LeftPanel({
           name: file.name
         };
 
-        // Handle the upload
         await onAssetUpload(newAsset, selectedCategory);
         
-        // Update current scene if exists
         if (currentScene) {
           const updatedScene = {
             ...currentScene,
@@ -195,7 +185,17 @@ export default function LeftPanel({
     if (fileInputRef.current) fileInputRef.current.value = '';
   }, [selectedCategory, onAssetUpload, currentScene, onSceneUpdate, validateFile]);
 
-  const renderPlatformAssets = () => (
+  const handleDrop = useCallback((event) => {
+    event.preventDefault();
+    setIsDragging(false);
+    
+    const files = Array.from(event.dataTransfer.files);
+    if (!files.length) return;
+    
+    handleFileUpload({ target: { files } });
+  }, [handleFileUpload]);
+
+  const renderPlatformAssets = useCallback(() => (
     <div className="mt-6">
       <h4 className="text-sm font-medium mb-3">Platform Assets</h4>
       <ScrollArea className="h-[calc(100vh-26rem)]">
@@ -227,18 +227,7 @@ export default function LeftPanel({
         </div>
       </ScrollArea>
     </div>
-  );
-
-// Add handleDrop function before return statement
-const handleDrop = useCallback((event) => {
-  event.preventDefault();
-  setIsDragging(false);
-  
-  const files = Array.from(event.dataTransfer.files);
-  if (!files.length) return;
-  
-  handleFileUpload({ target: { files } });
-}, [handleFileUpload]);
+  ), [selectedCategory, handleAssetSelect]);
 
 return (
   <div className="h-full flex flex-col bg-var-container border-r border-[var(--divider)]">
