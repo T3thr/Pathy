@@ -9,7 +9,7 @@ const useCanvasStore = create((set) => ({
   grid: { show: false, size: 20 },
   isPlaying: false,
   isPreviewMode: false,
-  viewportDimensions: { width: 1280, height: 720 },
+  viewportDimensions: { width: 960, height: 540 },
   activeAsset: null,
   selectedElement: null,
   
@@ -271,7 +271,7 @@ const Canvas = forwardRef(({
       <motion.div
         className={cn(
           "absolute",
-          type === 'character' ? 'left-1/2 bottom-[20%]' : 'inset-0',
+          type === 'character' ? 'left-1/2 bottom-[0%]' : 'inset-0',
           !isPreviewMode && 'cursor-move'
         )}
         style={{
@@ -299,7 +299,7 @@ const Canvas = forwardRef(({
           src={asset}
           alt={type}
           className={cn(
-            type === 'character' ? 'max-h-[80vh] object-contain' : 'w-full h-full object-cover',
+            type === 'character' ? 'max-h-[30vh] object-contain' : 'w-full h-full object-cover',
             scene[`${type}Props`]?.flip && 'scale-x-[-1]'
           )}
           draggable={false}

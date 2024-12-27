@@ -419,10 +419,11 @@ export default function NovelMakerLayout() {
         }))}
         className="shrink-0"
       />
-      <div className="w-full max-h-screen overflow-y-auto">
-      <div className="flex flex-col lg:flex-row gap-4 p-4 flex-grow">
+      <div className="w-full max-h-screen  overflow-y-auto bg-[var(--background)]">
+      <div className="flex flex-col lg:flex-row w-screen items-center gap-4 p-4 flex-grow">
       
         {/* Left Panel - Assets & Scenes */}
+        <div className="h-screen">
         <AnimatePresence mode="wait">
           {uiState.showLeftPanel && (
             <motion.div
@@ -445,13 +446,14 @@ export default function NovelMakerLayout() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
   
         {/* Main Canvas Area */}
         <div className="relative flex-1 overflow-hidden">
         <div  className="flex flex-col h-full lg:flex-row gap-4 p-4">
           <div 
             className={`
-              absolute inset-0 top-24 w-[100%] h-[50%] max-h-xl mx-auto flex items-center justify-center
+              inset-0 top-24 w-[100%] h-[50%] max-h-xl mx-auto flex items-center justify-center
               transition-all duration-200 ease-in-out
               ${isPreviewMode ? 'bg-black' : 'bg-gray-900'}
             `}
@@ -477,7 +479,7 @@ export default function NovelMakerLayout() {
         </div>
   
         {/* Right Panel - Asset Controls */}
-        <div>
+        <div className="h-screen">
         <AnimatePresence mode="wait">
           {uiState.showRightPanel && (
             <motion.div

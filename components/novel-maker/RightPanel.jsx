@@ -214,8 +214,8 @@ const RightPanel = ({
         </AccordionItem>
       </Accordion>
 
-      <Card className="p-4 space-y-2">
-        <div className="flex justify-between">
+      <Card className="p-4 space-y-2 bg-var-foreground">
+        <div className="flex justify-between text-var-foreground">
           <Button
             variant="outline"
             size="sm"
@@ -270,7 +270,7 @@ const RightPanel = ({
       </div>
 
       <textarea
-        className="w-full h-32 p-2 bg-gray-800 rounded-lg resize-none"
+        className="w-full h-32 p-2 bg-var-container rounded-lg resize-none"
         placeholder="Enter dialogue..."
         value={dialogueInput}
         onChange={(e) => setDialogueInput(e.target.value)}
@@ -317,7 +317,7 @@ const RightPanel = ({
   );
 
   return (
-    <div className="flex flex-col h-full bg-gray-800 rounded-lg shadow-xl">
+    <div className="flex flex-col h-full w-full bg-var-container rounded-lg shadow-xl">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="p-4 border-b border-gray-700">
           <TabsList className="w-full">

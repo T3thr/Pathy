@@ -41,7 +41,7 @@ const ASSET_CATEGORIES = {
   },
   bgm: {
     id: 'bgm',
-    title: 'Background Music',
+    title: 'BGM',
     icon: Music,
     accept: 'audio/*',
     maxSize: 10 * 1024 * 1024, // 10MB
@@ -231,7 +231,7 @@ export default function LeftPanel({
   ), [selectedCategory, handleAssetSelect]);
 
 return (
-  <div className="h-full flex flex-col bg-var-container border-r border-[var(--divider)]">
+  <div className="h-full w-full flex flex-col bg-var-container border-r border-[var(--divider)]">
     <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
       <TabsList className="w-full grid grid-cols-2">
         <TabsTrigger 
@@ -263,7 +263,7 @@ return (
             </Button>
           </div>
 
-          <ScrollArea className="h-[calc(100vh-12rem)] scrollbar-thin scrollbar-thumb-rounded-lg">
+          <ScrollArea className="h-[calc(100vh-12rem)] w-max scrollbar-thin scrollbar-thumb-rounded-lg ">
             <div className="space-y-2 pr-4">
               {scenes.map((scene) => (
                 <motion.div
@@ -275,8 +275,8 @@ return (
                 >
                   <Card
                     className={`
-                      border transition-colors duration-200 
-                      hover:bg-[var(--container)] 
+                      border transition-colors duration-200 bg-[var(--container)] 
+                      hover:bg-[var(--background)] 
                       ${currentScene?.id === scene.id 
                         ? 'border-[hsl(var(--primary))] bg-[var(--container)]' 
                         : 'border-[var(--divider)]'}
@@ -307,20 +307,20 @@ return (
                               value={sceneNameInput}
                               onChange={(e) => setSceneNameInput(e.target.value)}
                               onBlur={() => handleSceneNameSave(scene)}
-                              className="h-8 bg-[var(--container)]"
+                              className="h-8 w-28 bg-[var(--container)]"
                               autoFocus
                             />
                           </form>
                         ) : (
                           <button
                             onClick={() => onSceneSelect(scene.id)}
-                            className="flex-1 text-left font-medium truncate text-[var(--foreground)]"
+                            className="flex-1 text-left w-28 font-medium truncate text-[var(--foreground)]"
                           >
                             {scene.name}
                           </button>
                         )}
 
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 bg-[var(--container)] text-[var(--foreground)]">
                           <Button
                             size="sm"
                             variant="ghost"
