@@ -231,7 +231,7 @@ export default function LeftPanel({
   ), [selectedCategory, handleAssetSelect]);
 
 return (
-  <div className="h-full w-full flex flex-col bg-var-container border-r border-[var(--divider)]">
+  <div className="fixed h-screen w-full flex flex-col bg-var-container border-r border-[var(--divider)]">
     <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
       <TabsList className="w-full grid grid-cols-2">
         <TabsTrigger 
@@ -251,11 +251,11 @@ return (
       <TabsContent value="scenes" className="flex-1 p-0">
         <div className="p-4 space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-[var(--foreground)]">Scenes</h3>
+            <h3 className="flex-1 text-lg font-semibold text-[var(--foreground)]">Scenes</h3>
             <Button 
               size="sm" 
               onClick={onSceneAdd}
-              className="flex items-center gap-2 bg-[hsl(var(--primary))]
+              className="flex-2 mr-2 items-center gap-2 bg-[hsl(var(--primary))]
                         hover:bg-[hsl(var(--primary))]"
             >
               <Plus className="w-4 h-4" />
@@ -307,7 +307,7 @@ return (
                               value={sceneNameInput}
                               onChange={(e) => setSceneNameInput(e.target.value)}
                               onBlur={() => handleSceneNameSave(scene)}
-                              className="h-8 w-28 bg-[var(--container)]"
+                              className="h-8 w-28 bg-[var(--container)] text-var-foreground"
                               autoFocus
                             />
                           </form>

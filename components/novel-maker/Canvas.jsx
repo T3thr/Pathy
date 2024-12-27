@@ -22,8 +22,7 @@ const useCanvasStore = create((set) => ({
   setViewportDimensions: (dimensions) => set({ viewportDimensions: dimensions })
 }));
 
-// Extracted TypewriterText as a separate component
-const TypewriterText = ({ text, speed = 50, onComplete, setAnimations }) => {
+const TypewriterText = ({ text, speed = 50, styles = {}, onComplete, setAnimations }) => {
   const [displayText, setDisplayText] = useState('');
   
   useEffect(() => {
@@ -54,7 +53,11 @@ const TypewriterText = ({ text, speed = 50, onComplete, setAnimations }) => {
     return () => clearInterval(interval);
   }, [text, speed, onComplete, setAnimations]);
 
-  return displayText;
+  return (
+    <span style={styles}>
+      {displayText}
+    </span>
+  );
 };
 
 const Canvas = forwardRef(({ 
@@ -82,40 +85,99 @@ const Canvas = forwardRef(({
     background: { 
       transform: { x: 0, y: 0, scale: 1, rotation: 0 }, 
       filters: {},
-      visible: true
+      visible: true,
+      flip: false
     },
     character: { 
       transform: { x: 0, y: 0, scale: 1, rotation: 0 }, 
       filters: {},
-      visible: true
+      visible: true,
+      flip: false
     }
   });
 
   const [animations, setAnimations] = useState({
-    background: { isAnimating: false, type: null },
-    character: { isAnimating: false, type: null },
+    background: { isAnimating: false, type: null, duration: 1000, delay: 0 },
+    character: { isAnimating: false, type: null, duration: 1000, delay: 0 },
     dialogue: { isTyping: false, progress: 0 }
   });
 
+  // Sync with scene data from RightPanel
   useEffect(() => {
     if (scene) {
       setAssets({
         background: {
-          transform: scene.backgroundProps || { x: 0, y: 0, scale: 1, rotation: 0 },
+          transform: {
+            x: scene.backgroundProps?.x || 0,
+            y: scene.backgroundProps?.y || 0,
+            scale: scene.backgroundProps?.scale || 1,
+            rotation: scene.backgroundProps?.rotation || 0
+          },
           filters: scene.backgroundFilters || {},
-          visible: scene.backgroundProps?.visible ?? true
+          visible: scene.backgroundProps?.visible ?? true,
+          flip: scene.backgroundProps?.flip || false,
+          opacity: scene.backgroundProps?.opacity || 1
         },
         character: {
-          transform: scene.characterProps || { x: 0, y: 0, scale: 1, rotation: 0 },
+          transform: {
+            x: scene.characterProps?.x || 0,
+            y: scene.characterProps?.y || 0,
+            scale: scene.characterProps?.scale || 1,
+            rotation: scene.characterProps?.rotation || 0
+          },
           filters: scene.characterFilters || {},
-          visible: scene.characterProps?.visible ?? true
+          visible: scene.characterProps?.visible ?? true,
+          flip: scene.characterProps?.flip || false,
+          opacity: scene.characterProps?.opacity || 1
         }
       });
     }
   }, [scene]);
 
+  const getFilterString = useCallback((filters) => {
+    return Object.entries(filters)
+      .map(([key, value]) => {
+        switch (key) {
+          case 'brightness':
+          case 'contrast':
+          case 'saturation':
+            return `${key}(${value}%)`;
+          case 'blur':
+            return `${key}(${value}px)`;
+          case 'sepia':
+          case 'grayscale':
+            return `${key}(${value}%)`;
+          default:
+            return '';
+        }
+      })
+      .filter(Boolean)
+      .join(' ');
+  }, []);
+
+  const handleAssetTransform = useCallback((assetType, transform) => {
+    setAssets(prev => ({
+      ...prev,
+      [assetType]: {
+        ...prev[assetType],
+        transform: {
+          ...prev[assetType].transform,
+          ...transform
+        }
+      }
+    }));
+
+    onSceneUpdate({
+      ...scene,
+      [`${assetType}Props`]: {
+        ...scene[`${assetType}Props`],
+        ...transform
+      }
+    });
+  }, [scene, onSceneUpdate]);
+
   const bindGestures = useGesture({
-    onDrag: ({ movement: [mx, my], first, last, dragging, target }) => {
+    onDrag: ({ movement: [mx, my], first, last, target }) => {
       if (isPreviewMode) return;
       
       const assetType = target.getAttribute('data-asset-type');
@@ -126,70 +188,23 @@ const Canvas = forwardRef(({
         onAssetSelect?.(assetType);
       }
 
-      const updatedTransform = {
-        ...assets[assetType].transform,
+      handleAssetTransform(assetType, {
         x: assets[assetType].transform.x + mx,
         y: assets[assetType].transform.y + my
-      };
-
-      setAssets(prev => ({
-        ...prev,
-        [assetType]: {
-          ...prev[assetType],
-          transform: updatedTransform
-        }
-      }));
-
-      if (last) {
-        onSceneUpdate({
-          ...scene,
-          [`${assetType}Props`]: {
-            ...scene[`${assetType}Props`],
-            ...updatedTransform
-          }
-        });
-      }
-    },
-
-    onPinch: ({ offset: [scale], first, last, target }) => {
-      if (isPreviewMode) return;
-      
-      const assetType = target.getAttribute('data-asset-type');
-      if (!assetType) return;
-
-      const updatedTransform = {
-        ...assets[assetType].transform,
-        scale
-      };
-
-      setAssets(prev => ({
-        ...prev,
-        [assetType]: {
-          ...prev[assetType],
-          transform: updatedTransform
-        }
-      }));
-
-      if (last) {
-        onSceneUpdate({
-          ...scene,
-          [`${assetType}Props`]: {
-            ...scene[`${assetType}Props`],
-            ...updatedTransform
-          }
-        });
-      }
+      });
     }
   });
-
 
   const renderDialogue = useCallback(() => {
     if (!scene?.dialogue && !scene?.characterName) return null;
 
-    const dialogueStyle = {
-      background: scene.dialogueStyle?.background || 'rgba(0, 0, 0, 0.8)',
-      textAlign: scene.textProps?.alignment || 'left',
-      fontSize: scene.textProps?.size || '1rem'
+    const textStyles = {
+      fontWeight: scene.textStyles?.bold ? 'bold' : 'normal',
+      fontStyle: scene.textStyles?.italic ? 'italic' : 'normal',
+      textDecoration: scene.textStyles?.underline ? 'underline' : 'none',
+      fontSize: `${scene.textStyles?.fontSize || 16}px`,
+      color: scene.textStyles?.color || '#ffffff',
+      textAlign: scene.textStyles?.alignment || 'left'
     };
 
     return (
@@ -198,12 +213,7 @@ const Canvas = forwardRef(({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
-        className={cn(
-          "absolute bottom-0 left-0 right-0",
-          "mx-auto max-w-4xl p-6 rounded-t-lg",
-          "backdrop-blur-sm z-30"
-        )}
-        style={dialogueStyle}
+        className="absolute bottom-0 left-0 right-0 mx-auto max-w-4xl p-6 rounded-t-lg backdrop-blur-sm z-30 bg-black/80"
         onClick={() => onElementSelect?.('dialogue')}
       >
         {scene.characterName && (
@@ -216,56 +226,52 @@ const Canvas = forwardRef(({
           </motion.div>
         )}
         
-        <motion.div 
-          className="text-lg leading-relaxed text-white"
-          style={{
-            fontWeight: scene.textProps?.bold ? 'bold' : 'normal',
-            fontStyle: scene.textProps?.italic ? 'italic' : 'normal',
-            textDecoration: scene.textProps?.underline ? 'underline' : 'none'
-          }}
-        >
+        <motion.div className="text-lg leading-relaxed">
           {isPlaying ? (
             <TypewriterText 
               text={scene.dialogue}
-              speed={scene.textProps?.typewriterSpeed || 50}
+              speed={scene.typewriterSpeed || 50}
+              styles={textStyles}
               onComplete={() => {
                 setAnimations(prev => ({
                   ...prev,
                   dialogue: { isTyping: false, progress: 100 }
                 }));
               }}
+              setAnimations={setAnimations}
             />
           ) : (
-            scene.dialogue
+            <span style={textStyles}>{scene.dialogue}</span>
           )}
         </motion.div>
       </motion.div>
     );
-  }, [scene, isPlaying, TypewriterText, onElementSelect]);
+  }, [scene, isPlaying, onElementSelect]);
 
-  // Render asset with transformations
   const renderAsset = useCallback((type) => {
     const asset = scene?.[type];
     if (!asset || !assets[type].visible) return null;
 
-    const { transform, filters } = assets[type];
+    const { transform, filters, opacity, flip } = assets[type];
     const animation = animations[type];
 
-    const filterString = Object.entries(filters)
-      .map(([key, value]) => {
-        switch (key) {
-          case 'brightness':
-          case 'contrast':
-          case 'saturate':
-            return `${key}(${value}%)`;
-          case 'blur':
-            return `${key}(${value}px)`;
-          default:
-            return '';
-        }
-      })
-      .filter(Boolean)
-      .join(' ');
+    const variants = {
+      fade: {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0 }
+      },
+      slide: {
+        initial: { x: type === 'character' ? -100 : 0, opacity: 0 },
+        animate: { x: 0, opacity: 1 },
+        exit: { x: type === 'character' ? 100 : 0, opacity: 0 }
+      },
+      zoom: {
+        initial: { scale: 0.5, opacity: 0 },
+        animate: { scale: 1, opacity: 1 },
+        exit: { scale: 1.5, opacity: 0 }
+      }
+    };
 
     return (
       <motion.div
@@ -280,9 +286,9 @@ const Canvas = forwardRef(({
             rotate(${transform.rotation}deg)
             scale(${transform.scale})
           `,
-          filter: filterString || 'none',
-          zIndex: type === 'character' ? 2 : 1,
-          opacity: scene[`${type}Props`]?.opacity ?? 1
+          filter: getFilterString(filters),
+          opacity,
+          zIndex: type === 'character' ? 2 : 1
         }}
         data-asset-type={type}
         {...bindGestures()}
@@ -292,59 +298,29 @@ const Canvas = forwardRef(({
             onElementSelect?.(type);
           }
         }}
-        initial={animation.isAnimating ? { opacity: 0, scale: 0.9 } : false}
-        animate={animation.isAnimating ? { opacity: 1, scale: 1 } : false}
+        variants={variants[animation.type]}
+        initial={animation.isAnimating ? 'initial' : false}
+        animate={animation.isAnimating ? 'animate' : false}
+        exit={animation.isAnimating ? 'exit' : false}
+        transition={{
+          duration: animation.duration / 1000,
+          delay: animation.delay / 1000
+        }}
       >
         <img 
           src={asset}
           alt={type}
           className={cn(
             type === 'character' ? 'max-h-[30vh] object-contain' : 'w-full h-full object-cover',
-            scene[`${type}Props`]?.flip && 'scale-x-[-1]'
+            flip && 'scale-x-[-1]'
           )}
           draggable={false}
         />
       </motion.div>
     );
-  }, [scene, assets, animations, isPreviewMode, bindGestures, onAssetSelect, onElementSelect]);
+  }, [scene, assets, animations, isPreviewMode, bindGestures, onAssetSelect, onElementSelect, getFilterString]);
 
-  // Expose canvas methods to parent
   useImperativeHandle(ref, () => ({
-    captureScreenshot: async () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return null;
-
-      // Implementation for canvas capture
-      const dataUrl = await html2canvas(canvas).then(canvas => canvas.toDataURL('image/png'));
-      return dataUrl;
-    },
-    resetView: () => {
-      setAssets({
-        background: { 
-          transform: { x: 0, y: 0, scale: 1, rotation: 0 }, 
-          filters: {},
-          visible: true
-        },
-        character: { 
-          transform: { x: 0, y: 0, scale: 1, rotation: 0 }, 
-          filters: {},
-          visible: true
-        }
-      });
-    },
-    playAnimation: (type, params) => {
-      setAnimations(prev => ({
-        ...prev,
-        [type]: { isAnimating: true, type: params?.type }
-      }));
-
-      setTimeout(() => {
-        setAnimations(prev => ({
-          ...prev,
-          [type]: { isAnimating: false, type: null }
-        }));
-      }, params?.duration || 1000);
-    },
     updateAsset: (type, props) => {
       setAssets(prev => ({
         ...prev,
@@ -353,6 +329,29 @@ const Canvas = forwardRef(({
           ...props
         }
       }));
+    },
+    playAnimation: (type, params) => {
+      setAnimations(prev => ({
+        ...prev,
+        [type]: { 
+          isAnimating: true, 
+          type: params.type,
+          duration: params.duration,
+          delay: params.delay
+        }
+      }));
+
+      setTimeout(() => {
+        setAnimations(prev => ({
+          ...prev,
+          [type]: { 
+            isAnimating: false, 
+            type: null,
+            duration: 1000,
+            delay: 0
+          }
+        }));
+      }, (params.duration + params.delay));
     }
   }));
 

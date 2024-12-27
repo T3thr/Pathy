@@ -395,146 +395,296 @@ export default function NovelMakerLayout() {
     }
   }, [scenes]);
 
-  return (
-    <div className="flex flex-col h-screen bg-gray-900 overflow-hidden">
-      <TopToolbar 
-        onUndo={canUndo ? undo : undefined}
-        onRedo={canRedo ? redo : undefined}
-        isPreviewMode={isPreviewMode}
-        onPreviewToggle={() => setIsPreviewMode(prev => !prev)}
-        isPlaying={isPlaying}
-        onPlayToggle={() => setIsPlaying(prev => !prev)}
-        zoom={zoom}
-        onZoomChange={setZoom}
-        showGrid={showGrid}
-        onToggleGrid={() => setShowGrid(prev => !prev)}
-        onExport={handleExport}
-        onToggleLeftPanel={() => setUiState(prev => ({ 
-          ...prev, 
-          showLeftPanel: !prev.showLeftPanel 
-        }))}
-        onToggleRightPanel={() => setUiState(prev => ({ 
-          ...prev, 
-          showRightPanel: !prev.showRightPanel 
-        }))}
-        className="shrink-0"
-      />
-      <div className="w-full max-h-screen  overflow-y-auto bg-[var(--background)]">
-      <div className="flex flex-col lg:flex-row w-screen items-center gap-4 p-4 flex-grow">
-      
-        {/* Left Panel - Assets & Scenes */}
-        <div className="h-screen">
-        <AnimatePresence mode="wait">
-          {uiState.showLeftPanel && (
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: "320px", opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="h-full border-r border-gray-700 bg-gray-800"
-            >
-              <LeftPanel
-                scenes={scenes}
-                currentScene={scenes[currentScene]}
-                onSceneAdd={addScene}
-                onSceneSelect={setCurrentScene}
-                onSceneDelete={deleteScene}
-                onSceneDuplicate={duplicateScene}
-                onSceneUpdate={updateScene}
-                onAssetUpload={handleAssetUpload}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-        </div>
+    // Add RightPanel specific states
+    const [activeTab, setActiveTab] = useState("asset");
+    const [activeAsset, setActiveAsset] = useState("background");
+    const [dialogueState, setDialogueState] = useState({
+      text: "",
+      characterName: "",
+      typewriterSpeed: 50,
+      alignment: "left",
+      styles: {
+        bold: false,
+        italic: false,
+        underline: false,
+        fontSize: 16,
+        color: "#ffffff"
+      }
+    });
+    
+    const [transformState, setTransformState] = useState({
+      position: { x: 0, y: 0 },
+      scale: 1,
+      rotation: 0,
+      opacity: 1,
+      visible: true,
+      flip: false
+    });
   
-        {/* Main Canvas Area */}
-        <div className="relative flex-1 overflow-hidden">
-        <div  className="flex flex-col h-full lg:flex-row gap-4 p-4">
-          <div 
-            className={`
+    const [effectsState, setEffectsState] = useState({
+      filters: {
+        brightness: 100,
+        contrast: 100,
+        saturation: 100,
+        blur: 0,
+        sepia: 0,
+        grayscale: 0
+      },
+      animation: {
+        entrance: "none",
+        duration: 1000,
+        delay: 0,
+        easing: "easeOut"
+      }
+    });
+  
+    // Add effect to sync with current scene
+    useEffect(() => {
+      if (scenes[currentScene]) {
+        const assetProps = scenes[currentScene][`${activeAsset}Props`] || {};
+        const filters = scenes[currentScene][`${activeAsset}Filters`] || {};
+        
+        setTransformState({
+          position: { 
+            x: assetProps.x || 0, 
+            y: assetProps.y || 0 
+          },
+          scale: assetProps.scale || 1,
+          rotation: assetProps.rotation || 0,
+          opacity: assetProps.opacity || 1,
+          visible: assetProps.visible !== false,
+          flip: assetProps.flip || false
+        });
+  
+        setEffectsState(prev => ({
+          ...prev,
+          filters: {
+            ...prev.filters,
+            ...filters
+          }
+        }));
+  
+        setDialogueState({
+          text: scenes[currentScene].dialogue || "",
+          characterName: scenes[currentScene].characterName || "",
+          typewriterSpeed: scenes[currentScene].typewriterSpeed || 50,
+          alignment: scenes[currentScene].textStyles?.alignment || "left",
+          styles: {
+            ...scenes[currentScene].textStyles,
+            fontSize: scenes[currentScene].textStyles?.fontSize || 16,
+            color: scenes[currentScene].textStyles?.color || "#ffffff"
+          }
+        });
+      }
+    }, [currentScene, scenes, activeAsset]);
+  
+    // Add handlers for RightPanel
+    const handleTransformUpdate = useCallback((property, value) => {
+      setTransformState(prev => {
+        const newState = {
+          ...prev,
+          [property]: value
+        };
+        
+        handleAssetTransform(activeAsset, newState);
+        return newState;
+      });
+    }, [activeAsset, handleAssetTransform]);
+  
+    const handleEffectUpdate = useCallback((type, property, value) => {
+      setEffectsState(prev => {
+        const newState = {
+          ...prev,
+          [type]: {
+            ...prev[type],
+            [property]: value
+          }
+        };
+  
+        if (type === 'filters') {
+          handleSceneUpdate({
+            ...scenes[currentScene],
+            [`${activeAsset}Filters`]: newState.filters
+          });
+        }
+  
+        return newState;
+      });
+    }, [activeAsset, currentScene, scenes, handleSceneUpdate]);
+  
+    const handleDialogueUpdate = useCallback((property, value) => {
+      setDialogueState(prev => {
+        const newState = {
+          ...prev,
+          [property]: value
+        };
+  
+        handleSceneUpdate({
+          ...scenes[currentScene],
+          dialogue: newState.text,
+          characterName: newState.characterName,
+          typewriterSpeed: newState.typewriterSpeed,
+          textStyles: {
+            alignment: newState.alignment,
+            ...newState.styles
+          }
+        });
+  
+        return newState;
+      });
+    }, [currentScene, scenes, handleSceneUpdate]);
+
+    return (
+      <div className="h-screen overflow-hidden bg-gray-900 flex flex-col">
+        {/* Top Toolbar */}
+        <TopToolbar 
+          onUndo={canUndo ? undo : undefined}
+          onRedo={canRedo ? redo : undefined}
+          isPreviewMode={isPreviewMode}
+          onPreviewToggle={() => setIsPreviewMode(prev => !prev)}
+          isPlaying={isPlaying}
+          onPlayToggle={() => setIsPlaying(prev => !prev)}
+          zoom={zoom}
+          onZoomChange={setZoom}
+          showGrid={showGrid}
+          onToggleGrid={() => setShowGrid(prev => !prev)}
+          onExport={handleExport}
+          onToggleLeftPanel={() => setUiState(prev => ({ ...prev, showLeftPanel: !prev.showLeftPanel }))}
+          onToggleRightPanel={() => setUiState(prev => ({ ...prev, showRightPanel: !prev.showRightPanel }))}
+          className="border-b border-gray-800"
+        />
+    
+        {/* Main Content Area */}
+        <div className="w-screen max-h-screen  overflow-y-auto bg-[var(--background)]">
+        <div className="flex flex-col lg:flex-row w-screen items-center gap-4 p-4 flex-grow">
+
+          {/* Left Panel */}
+          <div className="h-screen">
+          <AnimatePresence mode="wait">
+            {uiState.showLeftPanel && (
+              <motion.div
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: "320px", opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="h-full border-r backdrop-blur-sm"
+              >
+                <ScrollArea className="h-screen overflow-visible">
+                  <LeftPanel
+                    scenes={scenes}
+                    currentScene={scenes[currentScene]}
+                    onSceneAdd={addScene}
+                    onSceneSelect={setCurrentScene}
+                    onSceneDelete={deleteScene}
+                    onSceneDuplicate={duplicateScene}
+                    onSceneUpdate={updateScene}
+                    onAssetUpload={handleAssetUpload}
+                  />
+                </ScrollArea>
+              </motion.div>
+            )}
+          </AnimatePresence></div>
+    
+          {/* Canvas Area */}
+          <div className="flex-1 items-center overflow-hidden">
+          <div  className="relative items-center flex-col h-full lg:flex-row gap-4 p-4">
+
+              <div 
+                className={`
               inset-0 top-24 w-[100%] h-[50%] max-h-xl mx-auto flex items-center justify-center
               transition-all duration-200 ease-in-out
               ${isPreviewMode ? 'bg-black' : 'bg-gray-900'}
-            `}
-          >
-            <Canvas
-              ref={canvasRef}
-              scene={scenes[currentScene]}
-              isPreviewMode={isPreviewMode}
-              isPlaying={isPlaying}
-              zoom={zoom}
-              showGrid={showGrid}
-              selectedAsset={selectedAsset}
-              onSceneUpdate={handleSceneUpdate}
-              onAssetSelect={setSelectedAsset}
-              onAssetTransform={handleAssetTransform}
-              className={`
-                transition-transform duration-200
-                ${isPreviewMode ? 'scale-100' : 'scale-90'}
-              `}
-            />
+                  ${isPreviewMode ? 'scale-100' : 'scale-95'}
+                `}
+              >
+                <Canvas
+                  ref={canvasRef}
+                  scene={scenes[currentScene]}
+                  isPreviewMode={isPreviewMode}
+                  isPlaying={isPlaying}
+                  zoom={zoom}
+                  showGrid={showGrid}
+                  selectedAsset={selectedAsset}
+                  onSceneUpdate={handleSceneUpdate}
+                  onAssetSelect={setSelectedAsset}
+                  onAssetTransform={handleAssetTransform}
+                  className="w-full h-full"
+                />
+              </div>
+
+          </div>
+          </div>
+    
+          {/* Right Panel */}
+          <div className="h-screen">
+          <AnimatePresence mode="wait">
+            {uiState.showRightPanel && (
+              <motion.div
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: "320px", opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="h-full backdrop-blur-sm"
+              >
+                <ScrollArea className="h-full">
+                  <RightPanel
+                    scene={scenes[currentScene]}
+                    selectedAsset={selectedAsset}
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    activeAsset={activeAsset}
+                    setActiveAsset={setActiveAsset}
+                    transformState={transformState}
+                    effectsState={effectsState}
+                    dialogueState={dialogueState}
+                    onTransformUpdate={handleTransformUpdate}
+                    onEffectUpdate={handleEffectUpdate}
+                    onDialogueUpdate={handleDialogueUpdate}
+                    onSceneUpdate={handleSceneUpdate}
+                    onAssetTransform={handleAssetTransform}
+                    onHistoryUndo={undo}
+                    onHistoryRedo={redo}
+                    canUndo={canUndo}
+                    canRedo={canRedo}
+                  />
+                </ScrollArea>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          </div>
+        </div>
+    
+        {/* Dialogs */}
+        <Dialog 
+          open={uiState.showUploadDialog} 
+          onOpenChange={(open) => setUiState(prev => ({ ...prev, showUploadDialog: open }))}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Uploading Asset</DialogTitle>
+              <DialogDescription>Please wait while your asset is being uploaded...</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 p-4">
+              <Progress value={uiState.uploadProgress} className="w-full" />
+              <p className="text-center text-sm text-gray-400">
+                {uiState.uploadProgress}% complete
+              </p>
             </div>
-          </div>
-        </div>
-  
-        {/* Right Panel - Asset Controls */}
-        <div className="h-screen">
-        <AnimatePresence mode="wait">
-          {uiState.showRightPanel && (
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: "320px", opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="h-full border-l border-gray-700 bg-gray-800"
-            >
-              <RightPanel
-                scene={scenes[currentScene]}
-                selectedAsset={selectedAsset}
-                onSceneUpdate={handleSceneUpdate}
-                onAssetTransform={handleAssetTransform}
-                onHistoryUndo={undo}
-                onHistoryRedo={redo}
-                canUndo={canUndo}
-                canRedo={canRedo}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-        </div>
-        </div>
-      </div>
-  
-      {/* Upload Progress Dialog */}
-      <Dialog 
-        open={uiState.showUploadDialog}
-        onOpenChange={(open) => setUiState(prev => ({ ...prev, showUploadDialog: open }))}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Uploading Asset</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Progress value={uiState.uploadProgress} className="w-full" />
-            <p className="text-center text-sm text-gray-400">
-              {uiState.uploadProgress}% complete
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
-  
-      {/* Export Dialog */}
-      <Dialog
-        open={uiState.showExportDialog}
-        onOpenChange={(open) => setUiState(prev => ({ ...prev, showExportDialog: open }))}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Export Project</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex justify-end space-x-2">
+          </DialogContent>
+        </Dialog>
+    
+        <Dialog
+          open={uiState.showExportDialog}
+          onOpenChange={(open) => setUiState(prev => ({ ...prev, showExportDialog: open }))}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Export Project</DialogTitle>
+              <DialogDescription>
+                Your project will be exported as a JSON file.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end space-x-2 pt-4">
               <Button
                 variant="outline"
                 onClick={() => setUiState(prev => ({ ...prev, showExportDialog: false }))}
@@ -545,10 +695,9 @@ export default function NovelMakerLayout() {
                 Export
               </Button>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-  
-    </div>
-  );
+          </DialogContent>
+        </Dialog>
+      </div>
+      </div>
+    );
 }
