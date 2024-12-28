@@ -538,6 +538,7 @@ export default function NovelMakerLayout() {
       <div className="h-screen overflow-hidden bg-gray-900 flex flex-col">
         {/* Top Toolbar */}
         <TopToolbar 
+        
           onUndo={canUndo ? undo : undefined}
           onRedo={canRedo ? redo : undefined}
           isPreviewMode={isPreviewMode}
@@ -555,11 +556,11 @@ export default function NovelMakerLayout() {
         />
     
         {/* Main Content Area */}
-        <div className="w-screen max-h-screen  overflow-y-auto bg-[var(--background)]">
-        <div className="flex flex-col lg:flex-row w-screen items-center gap-4 p-4 flex-grow">
+        <div className="max-w-screen max-h-screen  overflow-y-auto bg-[var(--background)]">
+        <div className="flex flex-col lg:flex-row  items-center gap-4 p-4 flex-grow">
 
           {/* Left Panel */}
-          <div className="h-screen">
+          <div className="">
           <AnimatePresence mode="wait">
             {uiState.showLeftPanel && (
               <motion.div
@@ -567,7 +568,7 @@ export default function NovelMakerLayout() {
                 animate={{ width: "320px", opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="h-full border-r backdrop-blur-sm"
+                className="h-full backdrop-blur-sm"
               >
                 <ScrollArea className="h-screen overflow-visible">
                   <LeftPanel
@@ -587,7 +588,7 @@ export default function NovelMakerLayout() {
     
           {/* Canvas Area */}
           <div className="flex-1 items-center overflow-hidden">
-          <div  className="relative items-center flex-col h-full lg:flex-row gap-4 p-4">
+          <div  className="relative items-center flex-col h-full lg:flex-row">
 
               <div 
                 className={`

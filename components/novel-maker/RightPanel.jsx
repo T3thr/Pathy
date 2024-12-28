@@ -397,7 +397,7 @@ const RightPanel = ({
 
   // Render dialogue controls
   const renderDialogueControls = () => (
-    <div className="space-y-4">
+    <div className="fixed space-y-4">
       <div className="space-y-2">
         <Input
           placeholder="Character Name"
@@ -540,7 +540,7 @@ const RightPanel = ({
     );
       // Render settings controls
       const renderSettingsControls = () => (
-        <div className="space-y-4 ">
+        <div className="fixed space-y-4 max-w-64">
           <Card className="p-4 bg-var-background text-var-foreground">
             <h3 className="text-sm font-medium mb-3">Scene Settings</h3>
             <div className="space-y-4">
@@ -669,8 +669,9 @@ const RightPanel = ({
       );
 
       return (
-        <div className="fixed flex justify-center h-screen bg-var-container border-l border-[var(--divider)]">
+        <div className="fixed flex justify-center h-screen w-full bg-var-container border-l border-[var(--divider)]">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <div className="w-full">
             <TabsList className="w-full">
               <TabsTrigger value="asset" className="flex-1">
                 <Layers className="w-4 h-4 mr-2" />
@@ -684,7 +685,7 @@ const RightPanel = ({
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
               </TabsTrigger>
-            </TabsList>
+            </TabsList></div>
 
             <div className="p-4">
               <TabsContent value="asset">
