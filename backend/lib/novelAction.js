@@ -10,7 +10,7 @@ export function useNovelViewCounts() {
   const { data, error } = useSWR('/api/novels/${encodeURIComponent(novel.title)}/viewCount', fetcher, { refreshInterval: 5000 });
 
   return {
-    data: data ,  // Default to an empty object if no data
+    data: data || {},  // Default to an empty object if no data
     isLoading: !data && !error,
     error
   };
@@ -21,7 +21,7 @@ export function useNovelDetails(title) {
   const { data, error } = useSWR(title ? `/api/novels/${encodeURIComponent(title)}` : null, fetcher);
 
   return {
-    data: data ,  // Default to an empty object if no data
+    data: data || {},  // Default to an empty object if no data
     isLoading: !data && !error,
     error
   };
