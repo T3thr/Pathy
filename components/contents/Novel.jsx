@@ -123,7 +123,7 @@ export default function Novel() {
 
       const success = await addNovelEpisodes(novelTitle, episodes);
       if (success) {
-        console.success(`Finished to add episodes for ${novelTitle}:`, error);
+        console.success(`Finished to add episodes for ${novelTitle}:`, success);
       }
     } catch (error) {
       console.error(`Failed to add episodes for ${novelTitle}:`, error);
