@@ -1,26 +1,17 @@
+// backend/lib/novelAction.js
 import useSWR from 'swr';
 import axios from 'axios';
 
-// Optimize fetcher with caching headers and timeout
-const fetcher = url => axios.get(url, {
-  timeout: 5000,
-  headers: {
-    'Cache-Control': 'max-age=3600'
-  }
-}).then(res => res.data);
+// Fetcher function
+const fetcher = url => axios.get(url).then(res => res.data);
 
-// Add cache configuration and optimizations
 export function useNovelViewCounts() {
-  const { data, error } = useSWR(
-    '/api/novels/${encodeURIComponent(novel.title)}/viewCount', 
-    fetcher, 
-    {
-      refreshInterval: 5000,
-      revalidateOnFocus: false,
-      dedupingInterval: 2000,
-      keepPreviousData: true
-    }
-  );
+  const { data, error } = useSWR('/api/novels/${encodeURIComponent(novel.title)}/viewCount', fetcher, {
+    revalidateOnMount: false,  // Don't fetch on mount
+    revalidateOnFocus: false,  // Don't fetch on window focus
+    refreshInterval: 5000,     // Keep the 5s refresh interval
+    fallbackData: {},          // Provide initial data immediately
+  });
 
   return {
     data: data || {},
@@ -29,15 +20,14 @@ export function useNovelViewCounts() {
   };
 }
 
-// Optimize novel details fetching
 export function useNovelDetails(title) {
   const { data, error } = useSWR(
-    title ? `/api/novels/${encodeURIComponent(title)}` : null,
+    title ? `/api/novels/${encodeURIComponent(title)}` : null, 
     fetcher,
     {
+      revalidateOnMount: false,
       revalidateOnFocus: false,
-      dedupingInterval: 3600000, // Cache for 1 hour
-      keepPreviousData: true
+      fallbackData: {},        // Provide initial data immediately
     }
   );
 
