@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useNovelViewCounts, addNovelEpisodes } from "@/backend/lib/novelAction";
 import { useTheme } from "@/context/Theme";
 import Image from "next/image";
+import LoadingSkeleton from "@/app/loadingskeleton";
 
 export const genreGradients = {
   รักหวานแหวว: "bg-gradient-to-r from-pink-500 via-pink-400 to-pink-300 shadow-pink-400",
@@ -66,6 +67,7 @@ const GenreSection = ({ genre, novels, viewCounts, onAddEpisodes }) => (
   </div>
 );
 
+{/*
 // Loading Skeleton Component
 const LoadingSkeleton = () => (
   <div className="animate-pulse max-w-7xl mx-auto p-6">
@@ -83,11 +85,12 @@ const LoadingSkeleton = () => (
     ))}
   </div>
 );
+*/}
 
 export default function Novel() {
   const router = useRouter();
   const { theme } = useTheme();
-  const { data: viewCounts, error, isLoading } = useNovelViewCounts();
+  const { data: viewCounts, error, isLoading, mutate } = useNovelViewCounts();
 
   const [categorizedNovels, setCategorizedNovels] = useState({
     รักหวานแหวว: [],
@@ -113,23 +116,29 @@ export default function Novel() {
     setCategorizedNovels(categories);
   }, []);
 
+  // Optimized episode handling
   const handleAddEpisodes = async (novelTitle) => {
+    // Update view count optimistically
+    mutate(
+      {
+        ...viewCounts,
+        [novelTitle]: (viewCounts[novelTitle] || 0) + 1
+      },
+      false
+    );
+
     router.push(`/novel/${encodeURIComponent(novelTitle)}`);
+    
     try {
       const episodes = stories[novelTitle];
-      if (!episodes) {
-        throw new Error(`No episodes found for novel: ${novelTitle}`);
-      }
+      if (!episodes) return;
 
-      const success = await addNovelEpisodes(novelTitle, episodes);
-      if (success) {
-        console.success(`Finished to add episodes for ${novelTitle}:`, success);
-      }
+      // Background sync episodes
+      addNovelEpisodes(novelTitle, episodes).catch(console.error);
     } catch (error) {
-      console.error(`Failed to add episodes for ${novelTitle}:`, error);
+      console.error(`Failed to handle episodes for ${novelTitle}:`, error);
     }
   };
-
 
 
   if (error) {

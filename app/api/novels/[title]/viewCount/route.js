@@ -3,30 +3,29 @@ import { NextResponse } from 'next/server';
 import mongodbConnect from '@/backend/lib/mongodb';
 import Novel from '@/backend/models/Novel';
 
-// Initialize cache
-let viewCountCache = null;
-let lastCacheUpdate = 0;
-const CACHE_DURATION = 30000; // 30 seconds
-
-async function updateCache() {
-  await mongodbConnect();
-  const novels = await Novel.find({}, 'title viewCount');
-  viewCountCache = novels.reduce((acc, novel) => {
-    acc[novel.title] = novel.viewCount;
-    return acc;
-  }, {});
-  lastCacheUpdate = Date.now();
-}
+// Add response caching
+const CACHE_CONTROL = 'public, s-maxage=10, stale-while-revalidate=59';
 
 export async function GET() {
   try {
-    // Return cached data if available and fresh
-    if (viewCountCache && Date.now() - lastCacheUpdate < CACHE_DURATION) {
-      return NextResponse.json(viewCountCache);
-    }
+    await mongodbConnect();
 
-    await updateCache();
-    return NextResponse.json(viewCountCache);
+    // Optimize query by selecting only needed fields
+    const novels = await Novel.find({}, 'title viewCount')
+      .lean()
+      .select('-_id');
+    
+    const viewCounts = novels.reduce((acc, novel) => {
+      acc[novel.title] = novel.viewCount;
+      return acc;
+    }, {});
+
+    return new NextResponse(JSON.stringify(viewCounts), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': CACHE_CONTROL
+      }
+    });
   } catch (error) {
     console.error('Error fetching view counts:', error);
     return NextResponse.json(
@@ -39,23 +38,27 @@ export async function GET() {
 export async function POST(request) {
   try {
     await mongodbConnect();
+    
     const { title } = await request.json();
     
-    // Update cache optimistically
-    if (viewCountCache) {
-      viewCountCache[title] = (viewCountCache[title] || 0) + 1;
-    }
-    
-    // Update database
     const novel = await Novel.findOneAndUpdate(
       { title },
       { $inc: { viewCount: 1 } },
-      { new: true, upsert: true }
+      { 
+        new: true,
+        upsert: true,
+        select: 'title viewCount -_id'
+      }
     );
 
-    return NextResponse.json({ 
-      title: novel.title, 
-      viewCount: novel.viewCount 
+    return new NextResponse(JSON.stringify({
+      title: novel.title,
+      viewCount: novel.viewCount
+    }), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      }
     });
   } catch (error) {
     console.error('Error updating view count:', error);

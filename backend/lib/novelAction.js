@@ -2,7 +2,7 @@
 import useSWR from 'swr';
 import axios from 'axios';
 
-// Cached fetcher with deduplication
+// Optimized fetcher with caching
 const fetcher = async (url) => {
   const response = await axios.get(url, {
     headers: {
@@ -13,71 +13,59 @@ const fetcher = async (url) => {
   return response.data;
 };
 
-// Optimized cache configuration
-const cacheConfig = {
+// Global SWR configuration for view counts
+const viewCountConfig = {
   revalidateOnFocus: false,
   revalidateOnReconnect: false,
-  dedupingInterval: 2000, // Dedupe requests within 2s window
+  refreshInterval: 10000, // Increased to reduce server load
+  dedupingInterval: 5000,
   errorRetryCount: 2
 };
 
-// Batch fetch view counts for all novels
+// Optimized view count fetching
 export function useNovelViewCounts() {
-  const { data, error, mutate } = useSWR(
-    '/api/novels/${encodeURIComponent(novel.title)}/viewCount',
-    fetcher,
-    {
-      ...cacheConfig,
-      refreshInterval: 1000, // Reduced polling interval
-      fallbackData: {}, // Immediate render with empty data
-      suspense: false // Disable suspense for faster initial load
-    }
-  );
-
+  const { data, error, mutate } = useSWR('/api/novels/${encodeURIComponent(novel.title)}/viewCount', fetcher, viewCountConfig);
+  
   return {
     data: data || {},
     isLoading: !data && !error,
     error,
-    mutate // Expose mutate function for manual updates
+    mutate // Expose mutate for manual updates
   };
 }
 
-// Optimized novel details fetch with caching
+// Optimized novel details fetching with caching
 export function useNovelDetails(title) {
-  const { data, error, mutate } = useSWR(
+  const { data, error } = useSWR(
     title ? `/api/novels/${encodeURIComponent(title)}` : null,
     fetcher,
     {
-      ...cacheConfig,
+      revalidateOnFocus: false,
       revalidateIfStale: false,
-      fallbackData: {} // Enable immediate render
+      dedupingInterval: 60000 // Cache for 1 minute
     }
   );
 
   return {
     data: data || {},
     isLoading: !data && !error,
-    error,
-    mutate
+    error
   };
 }
 
-// Optimized episode addition with background sync
+// Optimized episode adding with background sync
 export async function addNovelEpisodes(novelTitle, episodes) {
-  const endpoint = `/api/novels/${encodeURIComponent(novelTitle)}/episodes`;
-  
   try {
-    const response = await axios.post(endpoint, 
+    const response = await axios.post(
+      `/api/novels/${encodeURIComponent(novelTitle)}/episodes`,
       { episodes },
-      { 
+      {
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Content-Type': 'application/json'
         },
         timeout: 5000 // Add timeout
       }
     );
-    
     return response.status === 201;
   } catch (error) {
     console.error(`Error adding episodes for ${novelTitle}:`, error);
