@@ -1,27 +1,48 @@
-// backend/lib/novelAction.js
 import useSWR from 'swr';
 import axios from 'axios';
 
-// Fetcher function
-const fetcher = url => axios.get(url).then(res => res.data);
+// Optimize fetcher with caching headers and timeout
+const fetcher = url => axios.get(url, {
+  timeout: 5000,
+  headers: {
+    'Cache-Control': 'max-age=3600'
+  }
+}).then(res => res.data);
 
-// Fetch view counts for all novels
+// Add cache configuration and optimizations
 export function useNovelViewCounts() {
-  const { data, error } = useSWR('/api/novels/${encodeURIComponent(novel.title)}/viewCount', fetcher, { refreshInterval: 5000 });
+  const { data, error } = useSWR(
+    '/api/novels/${encodeURIComponent(novel.title)}/viewCount', 
+    fetcher, 
+    {
+      refreshInterval: 5000,
+      revalidateOnFocus: false,
+      dedupingInterval: 2000,
+      keepPreviousData: true
+    }
+  );
 
   return {
-    data: data || {},  // Default to an empty object if no data
+    data: data || {},
     isLoading: !data && !error,
     error
   };
 }
 
-// Fetch individual novel details (You can extend this as needed)
+// Optimize novel details fetching
 export function useNovelDetails(title) {
-  const { data, error } = useSWR(title ? `/api/novels/${encodeURIComponent(title)}` : null, fetcher);
+  const { data, error } = useSWR(
+    title ? `/api/novels/${encodeURIComponent(title)}` : null,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 3600000, // Cache for 1 hour
+      keepPreviousData: true
+    }
+  );
 
   return {
-    data: data || {},  // Default to an empty object if no data
+    data: data || {},
     isLoading: !data && !error,
     error
   };

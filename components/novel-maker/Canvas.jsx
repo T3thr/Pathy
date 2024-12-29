@@ -396,4 +396,3 @@ const Canvas = forwardRef(({
 Canvas.displayName = 'Canvas';
 
 export default Canvas;
-export { useCanvasStore };

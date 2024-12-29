@@ -114,6 +114,7 @@ export default function Novel() {
   }, []);
 
   const handleAddEpisodes = async (novelTitle) => {
+    router.push(`/novel/${encodeURIComponent(novelTitle)}`);
     try {
       const episodes = stories[novelTitle];
       if (!episodes) {
@@ -122,7 +123,7 @@ export default function Novel() {
 
       const success = await addNovelEpisodes(novelTitle, episodes);
       if (success) {
-        router.push(`/novel/${encodeURIComponent(novelTitle)}`);
+
       }
     } catch (error) {
       console.error(`Failed to add episodes for ${novelTitle}:`, error);

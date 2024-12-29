@@ -49,18 +49,18 @@ export default function NovelDetail({ novelDetails }) {
     if (resetProgress) {
       localStorage.removeItem(`progress-${novelDetails.title}`);
     }
-
-    await updateViewCount();
     router.push(`/novel/${encodeURIComponent(novelDetails.title)}/read`);
+    await updateViewCount();
+    
   }, [novelDetails, router, updateViewCount]);
 
   const handleReadVisualNovel = useCallback(async (resetProgress = false) => {
     if (resetProgress) {
       localStorage.removeItem(`visual-progress-${novelDetails.title}`);
     }
-
-    await updateViewCount();
     router.push(`/novel/${encodeURIComponent(novelDetails.title)}/readvisual`);
+    await updateViewCount();
+    
   }, [novelDetails, router, updateViewCount]);
 
   const handleEpisodeRead = useCallback(async (episodeIndex) => {
