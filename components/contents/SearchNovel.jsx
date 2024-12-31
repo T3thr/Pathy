@@ -1,4 +1,3 @@
-// components/contents/SearchNovel.jsx
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
@@ -6,29 +5,46 @@ import { novels } from '@/data/novels';
 import { useNovelViewCounts } from '@/backend/lib/novelAction';
 import { genreGradients } from './Novel'; 
 import { useTheme } from '@/context/Theme'; // Accessing Theme Context.
+import Loading from '@/app/loading';
 
 export default function SearchNovel() {
   const { keyword } = useParams();
   const [filteredNovels, setFilteredNovels] = useState({});
-  const { data: viewCounts, error } = useNovelViewCounts();
+  const { data: viewCounts, error, isLoading } = useNovelViewCounts();
   const { theme } = useTheme(); // Accessing the current theme (light/dark).
 
   useEffect(() => {
     if (keyword) {
-      // Filter novels that include the keyword in the title or genre and categorize them
-      const newFilteredNovels = novels.reduce((acc, novel) => {
-        if (novel.title.includes(decodeURIComponent(keyword)) || novel.genre.includes(decodeURIComponent(keyword))) {
+      const decodedKeyword = decodeURIComponent(keyword).toLowerCase();
+
+      // Filter novels that include the keyword in the title or genre
+      const categorizedNovels = novels.reduce((acc, novel) => {
+        const title = novel?.title?.toLowerCase() || "";
+        const genre = novel?.genre?.toLowerCase() || "";
+
+        if (title.includes(decodedKeyword) || genre.includes(decodedKeyword)) {
           if (!acc[novel.genre]) acc[novel.genre] = [];
           acc[novel.genre].push(novel);
         }
         return acc;
       }, {});
-      setFilteredNovels(newFilteredNovels);
+
+      setFilteredNovels(categorizedNovels);
     }
   }, [keyword]);
 
-  if (error) return <p className="text-red-500 text-center">404 - Not Found</p>;
-  if (!viewCounts) return null;
+  if (error) {
+    return (
+      <div className="text-red-500 text-center p-6">
+        <h2 className="text-xl font-bold mb-2">Error Loading Novels</h2>
+        <p>Please try refreshing the page</p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div

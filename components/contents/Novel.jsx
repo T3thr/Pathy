@@ -122,7 +122,7 @@ export default function Novel() {
     mutate(
       {
         ...viewCounts,
-        [novelTitle]: (viewCounts[novelTitle] || 0) + 1
+        [novelTitle]: (viewCounts[novelTitle] )
       },
       false
     );
