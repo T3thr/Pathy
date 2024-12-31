@@ -75,17 +75,52 @@ export const visualStories = {
         options: [
           { 
             text: "ตั้งใจฟัง", 
-            nextSceneId: 5,
+            nextSceneId: 4,
             impact: { knowledge: 1, mood: 'positive' }
           },
           { 
             text: "มองออกนอกหน้าต่าง", 
-            nextSceneId: 6,
+            nextSceneId: 5,
             impact: { knowledge: 0, mood: 'neutral' }
           }
         ]
       }
-    }
+    },
+    {
+      id: 4,
+      type: 'dialogue',
+      title: "Chapter 2: แผนการยึดโรงเรียน",
+      backgroundImage: "/images/background/1.png",
+      characterImage: "/images/character/doraemon.png",
+      characterName: "โนบิตะ",
+      dialogue: "สวัสดี วันนี้เป็นวันแรกของฉันที่โรงเรียนแห่งใหม่",
+      mood: "neutral",
+      nextScene: { 
+        type: 'choice',
+        options: [
+          { 
+            text: "ยิ้มทัก", 
+            nextSceneId: 7,
+            impact: {
+  
+              knowledge: 0,
+              trust: 0,
+              romance: 0
+            }
+          },
+          { 
+            text: "มองตรงไปข้างหน้า", 
+            nextSceneId: 8,
+            impact: {
+              happiness: 0,
+              knowledge: 0,
+              trust: 0,
+              romance: 0
+            }
+          }
+        ]
+      }
+    },
     // More scenes can be added...
   ],
 

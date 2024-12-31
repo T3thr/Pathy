@@ -13,7 +13,7 @@ export default function NovelDetail({ novelDetails }) {
   const [story, setStory] = useState([]);
   const [visualStory, setVisualStory] = useState([]);
   const [lastReadChapter, setLastReadChapter] = useState(null);
-  const [lastReadVisualChapter, setLastReadVisualChapter] = useState(null);
+  const [lastReadVisualProgress, setLastReadVisualProgress] = useState(null);
 
   // Fetch stories for both text and visual versions
   useEffect(() => {
@@ -27,10 +27,13 @@ export default function NovelDetail({ novelDetails }) {
   // Track progress for both text and visual novels
   useEffect(() => {
     const textProgress = localStorage.getItem(`progress-${novelDetails.title}`);
-    const visualProgress = localStorage.getItem(`visual-progress-${novelDetails.title}`);
+    
+    // Get visual novel progress
+    const visualProgressString = localStorage.getItem(`visual-progress-${novelDetails.title}`);
+    const visualProgress = visualProgressString ? JSON.parse(visualProgressString) : null;
     
     setLastReadChapter(textProgress ? parseInt(textProgress, 10) : null);
-    setLastReadVisualChapter(visualProgress ? parseInt(visualProgress, 10) : null);
+    setLastReadVisualProgress(visualProgress);
   }, [novelDetails.title]);
 
   const updateViewCount = useCallback(async () => {
@@ -51,28 +54,56 @@ export default function NovelDetail({ novelDetails }) {
     }
     router.push(`/novel/${encodeURIComponent(novelDetails.title)}/read`);
     await updateViewCount();
-    
   }, [novelDetails, router, updateViewCount]);
 
   const handleReadVisualNovel = useCallback(async (resetProgress = false) => {
+    const visualStoryData = visualStories[novelDetails.title] || [];
+    
     if (resetProgress) {
       localStorage.removeItem(`visual-progress-${novelDetails.title}`);
+      localStorage.removeItem(`visual-state-${novelDetails.title}`);
+      setLastReadVisualProgress(null);
     }
+  
+    if (!visualStoryData.length) {
+      console.error('No visual story data available');
+      return;
+    }
+  
+    let progressData;
+    
+    if (!resetProgress && lastReadVisualProgress) {
+      // Continue from last saved progress
+      progressData = lastReadVisualProgress;
+    } else {
+      // Start from the beginning
+      const firstScene = visualStoryData[0];
+      progressData = {
+        sceneId: firstScene.id,
+        chapter: firstScene.title.split(':')[0].trim() // Extract just the chapter part
+      };
+    }
+  
+    // Save the current progress
+    localStorage.setItem(
+      `visual-progress-${novelDetails.title}`, 
+      JSON.stringify(progressData)
+    );
+    
     router.push(`/novel/${encodeURIComponent(novelDetails.title)}/readvisual`);
     await updateViewCount();
-    
-  }, [novelDetails, router, updateViewCount]);
-
-  const handleEpisodeRead = useCallback(async (episodeIndex) => {
-    const currentEpisode = story[episodeIndex];
-    if (currentEpisode && currentEpisode.choices) {
-      localStorage.setItem(`progress-${novelDetails.title}`, episodeIndex.toString());
+  }, [novelDetails, router, updateViewCount, lastReadVisualProgress]);
   
-      await updateViewCount();
-  
-      router.push(`/novel/${encodeURIComponent(novelDetails.title)}/read`);
+  // Update the getVisualNovelProgress function as well
+  const getVisualNovelProgress = useCallback(() => {
+    // If no progress saved or on first scene (sceneId = 0), show "Start Visual Novel"
+    if (!lastReadVisualProgress || lastReadVisualProgress.sceneId === 0) {
+      return 'Start Visual Novel';
     }
-  }, [story, novelDetails, router, updateViewCount]);
+    
+    // Otherwise show continue message with chapter
+    return `Continue from: ${lastReadVisualProgress.chapter}`;
+  }, [lastReadVisualProgress]);
 
   return (
     <motion.div 
@@ -157,32 +188,32 @@ export default function NovelDetail({ novelDetails }) {
               </div>
             </motion.div>
 
-            {/* Visual Novel Reading Buttons */}
             <motion.div 
-              initial={{ x: 50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-              className="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl"
-            >
-              <h3 className="text-xl font-semibold mb-3 text-purple-600">Visual Novel Mode</h3>
-              <div className="flex space-x-4">
-                <button 
-                  className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-                  onClick={() => handleReadVisualNovel()}
-                >
-                  {lastReadVisualChapter !== null ? 'Continue Visual Novel' : 'Start Visual Novel'}
-                </button>
+  initial={{ x: 50, opacity: 0 }}
+  animate={{ x: 0, opacity: 1 }}
+  transition={{ delay: 0.6, duration: 0.5 }}
+  className="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl"
+>
+  <h3 className="text-xl font-semibold mb-3 text-purple-600">Visual Novel Mode</h3>
+  <div className="flex space-x-4">
+    <button 
+      className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+      onClick={() => handleReadVisualNovel()}
+      disabled={!visualStory.length}
+    >
+      {getVisualNovelProgress()}
+    </button>
 
-                {lastReadVisualChapter !== null && (
-                  <button 
-                    className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-                    onClick={() => handleReadVisualNovel(true)}
-                  >
-                    Reset Visual Novel
-                  </button>
-                )}
-              </div>
-            </motion.div>
+    {lastReadVisualProgress && lastReadVisualProgress.sceneId !== 0 && (
+      <button 
+        className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+        onClick={() => handleReadVisualNovel(true)}
+      >
+        Reset Visual Novel
+      </button>
+    )}
+  </div>
+</motion.div>
           </div>
         </div>
       </div>

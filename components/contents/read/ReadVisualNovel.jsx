@@ -20,6 +20,7 @@ export default function ReadVisualNovel({ params }) {
   const router = useRouter();
   const [story, setStory] = useState(null);
   const [currentScene, setCurrentScene] = useState(null);
+  const [currentChapter, setCurrentChapter] = useState(null);
   const [gameStatus, setGameStatus] = useState({
     mood: 'neutral',
     relationships: {},
@@ -51,6 +52,11 @@ export default function ReadVisualNovel({ params }) {
     return relationships;
   };
 
+  const extractChapter = (title) => {
+    const chapterMatch = title.match(/Chapter (\d+):/);
+    return chapterMatch ? `Chapter ${chapterMatch[1]}` : 'Chapter 1';
+  };
+
   const loadStory = useCallback(() => {
     const title = decodeURIComponent(params.title);
     const selectedStory = visualStories[title];
@@ -58,22 +64,37 @@ export default function ReadVisualNovel({ params }) {
     if (selectedStory) {
       setStory(selectedStory);
       
-      const savedProgress = localStorage.getItem(`visual-progress-${title}`);
-      const startSceneId = savedProgress ? Number(savedProgress) : 0;
-      const startScene = selectedStory.find(scene => scene.id === startSceneId);
+      // Load saved progress
+      const savedProgressString = localStorage.getItem(`visual-progress-${title}`);
+      let savedProgress;
+      try {
+        savedProgress = savedProgressString ? JSON.parse(savedProgressString) : null;
+      } catch (e) {
+        console.error('Error parsing saved progress:', e);
+        savedProgress = null;
+      }
+
+      // Find starting scene
+      let startScene;
+      if (savedProgress && savedProgress.sceneId) {
+        startScene = selectedStory.find(scene => scene.id === savedProgress.sceneId);
+      }
+      
+      if (!startScene) {
+        startScene = selectedStory[0];
+      }
+
+      setCurrentScene(startScene);
+      setCurrentChapter(extractChapter(startScene.title));
       
       // Initialize relationships based on story characters
       const initialRelationships = initializeRelationships(selectedStory);
       
-      setCurrentScene(startScene);
-      setGameStatus({
-        mood: 'neutral',
-        relationships: initialRelationships,
-        stats: {
-          happiness: 50,
-          knowledge: 0
-        }
-      });
+      setGameStatus(prev => ({
+        ...prev,
+        relationships: initialRelationships
+      }));
+
       setProgressHistory([startScene]);
     }
   }, [params.title]);
@@ -93,7 +114,12 @@ export default function ReadVisualNovel({ params }) {
   const saveProgress = useCallback(() => {
     if (currentScene) {
       const title = decodeURIComponent(params.title);
-      localStorage.setItem(`visual-progress-${title}`, currentScene.id.toString());
+      const progressData = {
+        sceneId: currentScene.id,
+        chapter: extractChapter(currentScene.title)
+      };
+      
+      localStorage.setItem(`visual-progress-${title}`, JSON.stringify(progressData));
       
       const saveNotification = document.createElement('div');
       saveNotification.className = 'fixed top-36 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg z-50 transition-all duration-300';
@@ -110,19 +136,18 @@ export default function ReadVisualNovel({ params }) {
   const handleChoice = useCallback((choice) => {
     if (!story || !currentScene) return;
 
+    // Update game status
     setGameStatus(prev => {
       const newStats = { ...prev.stats };
       const newRelationships = { ...prev.relationships };
       
       if (choice.impact) {
-        // Update general stats
         Object.entries(choice.impact).forEach(([key, value]) => {
           if (key in newStats) {
             newStats[key] = Math.max(0, Math.min(100, newStats[key] + value));
           }
         });
 
-        // Update relationship stats for current character
         if (currentScene.characterName in newRelationships) {
           const relationship = newRelationships[currentScene.characterName];
           if (choice.impact.trust) {
@@ -142,12 +167,22 @@ export default function ReadVisualNovel({ params }) {
       };
     });
 
+    // Find and set next scene
     const nextScene = story.find(scene => scene.id === choice.nextSceneId);
     if (nextScene) {
       setCurrentScene(nextScene);
+      setCurrentChapter(extractChapter(nextScene.title));
       setProgressHistory(prev => [...prev, nextScene]);
+      
+      // Auto-save progress when changing scenes
+      const title = decodeURIComponent(params.title);
+      const progressData = {
+        sceneId: nextScene.id,
+        chapter: extractChapter(nextScene.title)
+      };
+      localStorage.setItem(`visual-progress-${title}`, JSON.stringify(progressData));
     }
-  }, [story, currentScene]);
+  }, [story, currentScene, params.title]);
 
   const determineMood = useCallback((stats) => {
     const avgStat = Object.values(stats).reduce((a, b) => a + b, 0) / Object.keys(stats).length;
