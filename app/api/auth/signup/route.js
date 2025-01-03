@@ -1,13 +1,13 @@
-// api/auth/signup/route.js
-
 import User from "@/backend/models/User";
 import mongodbConnect from "@/backend/lib/mongodb";
 import { NextResponse } from "next/server";
+import crypto from 'crypto';
+import { sendVerificationEmail } from '@/backend/utils/sendemail';
 
 export async function POST(req) {
   await mongodbConnect();
 
-  const { name,username , email, password } = await req.json();
+  const { name, username, email, password } = await req.json();
 
   // Check if user already exists
   const existingUser = await User.findOne({ email });
@@ -28,9 +28,23 @@ export async function POST(req) {
   }
 
   try {
-    // Create new user (password will be hashed by the model's pre-save hook)
-    const user = await User.create({ name, username, email, password });
-    
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    // Create new user with verification token
+    const user = await User.create({ 
+      name, 
+      username, 
+      email, 
+      password,
+      verificationToken,
+      verificationTokenExpiry,
+      isVerified: false
+    });
+
+    // Send verification email
+    await sendVerificationEmail(email, verificationToken);
 
     return NextResponse.json({
       user: {
@@ -38,13 +52,14 @@ export async function POST(req) {
         name: user.name,
         username: user.username,
         email: user.email,
-        password: user.password,
         role: 'user',
+        isVerified: false
       },
+      message: "Registration successful. Please check your email to verify your account."
     }, { status: 201 });
-    
 
   } catch (error) {
+    console.error('Signup error:', error);
     return NextResponse.json(
       { message: "Error creating user" },
       { status: 500 }
