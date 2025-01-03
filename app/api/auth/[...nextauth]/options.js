@@ -24,6 +24,10 @@ export const options = {
                     const user = await User.findOne({ email: credentials.email }).select("+password");
                     if (!user) throw new Error("No user found with this email");
 
+                    if (!user.isVerified) {
+                        throw new Error("Please verify your email before signing in");
+                    }
+
                     const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
                     if (!isPasswordValid) throw new Error("Incorrect password");
 
@@ -47,6 +51,9 @@ export const options = {
                 // Check for username sign-in
                 const user = await User.findOne({ username: credentials.username }).select("+password");
                 if (user) {
+                    if (!user.isVerified) {
+                        throw new Error("Please verify your email before signing in");
+                    }
                     const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
                     if (!isPasswordValid) throw new Error("Incorrect password");
 

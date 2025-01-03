@@ -32,6 +32,12 @@ const userSchema = new Schema({
     type: String,
     default: "user",
   },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  verificationToken: String,
+  verificationTokenExpiry: Date,
   lastLogin: { type: Date },
   createdAt: { type: Date, default: Date.now },
   },
