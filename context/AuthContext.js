@@ -72,6 +72,9 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
 
       if (res.error) {
+        if (res.error.includes("verify your email")) {
+          router.push("/resend-verification");
+        }
         toast.error(res.error);
         return { success: false, message: res.error };
       } else if (res.ok) {
