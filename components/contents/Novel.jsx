@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { novels, recommendationText } from "@/data/novels";
+import { novels, Title, recommendationText } from "@/data/novels";
 import { stories } from "@/data/stories";
 import { useRouter } from "next/navigation";
 import { useNovelViewCounts, addNovelEpisodes } from "@/backend/lib/novelAction";
@@ -46,7 +46,7 @@ const NovelCard = ({ novel, viewCount, onAddEpisodes }) => (
 const GenreSection = ({ genre, novels, viewCounts, onAddEpisodes }) => (
   <div className="mb-12">
     <div
-      className={`text-white text-xl font-semibold p-4 rounded-md mb-6 shadow-lg transform transition-transform ${genreGradients[genre]}`}
+      className={`text-white text-3xl font-semibold h-20 p-4 pb-10 rounded-md mb-6 shadow-lg transform transition-transform ${genreGradients[genre]}`}
     >
       {genre}
     </div>
@@ -156,12 +156,12 @@ export default function Novel() {
 
   return (
     <div
-      className={`max-w-7xl mx-auto p-6 bg-var-container rounded-lg shadow-lg transition-all ${
+      className={`max-w-screen-2xl mx-auto p-6 bg-var-container rounded-lg shadow-lg transition-all ${
         theme === "dark" ? "shadow-black" : "shadow-gray-300"
       }`}
     >
       <h1 className="text-center text-4xl font-bold text-var-foreground mb-8 drop-shadow-xl">
-        ยินดีต้อนรับ
+        {Title}
       </h1>
       <p className="text-center text-lg text-var-muted mb-10">
         {recommendationText}

@@ -592,8 +592,8 @@ export default function NovelMakerLayout() {
 
               <div 
                 className={`
-              inset-0 top-24 w-[100%] h-[50%] max-h-xl mx-auto flex items-center justify-center
-              transition-all duration-200 ease-in-out
+              inset-0 top-24 lg:w-[100%] lg:h-[100%] h-[50%] max-h-xl mx-auto flex items-center justify-center
+              transition-all duration-200 ease-in-out lg:scale-100 scale-10 w-screen
               ${isPreviewMode ? 'bg-black' : 'bg-gray-900'}
                   ${isPreviewMode ? 'scale-100' : 'scale-95'}
                 `}

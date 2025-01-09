@@ -1,4 +1,5 @@
 // data/novels.js
+export const Title = "ยินดีต้อนรับ";
 export const recommendationText = "เลือกนิยายของคุณ";
 
 export const novels = [

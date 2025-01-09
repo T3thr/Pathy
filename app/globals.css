@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom CSS Variables for Root */
+/* Custom CSS Variables for Root (Light Theme) */
 :root {
   --background: #ffffff;
   --foreground: #1a1a1a;
@@ -11,18 +11,18 @@
   --divider: #d0d7de;
   --muted: #6b7280;
   --shadow-light: rgba(0, 0, 0, 0.1);
-  --primary: 245, 58%, 47%; /* Example: Define colors if needed */
-  --primary-foreground: 0, 0%, 100%; /* Example: Set foreground color */
-  --secondary: 210, 50%, 50%; /* Example */
-  --secondary-foreground: 0, 0%, 100%; /* Example */
-  --destructive: 0, 100%, 50%; /* Example */
-  --destructive-foreground: 0, 0%, 100%; /* Example */
-  --accent: 340, 70%, 60%; /* Example */
-  --accent-foreground: 0, 0%, 100%; /* Example */
-  --popover: 210, 50%, 95%; /* Example */
-  --popover-foreground: 0, 0%, 20%; /* Example */
-  --card: 250, 90%, 98%; /* Example */
-  --card-foreground: 0, 0%, 20%; /* Example */
+  --primary: 245, 58%, 47%; 
+  --primary-foreground: 0, 0%, 100%; 
+  --secondary: 210, 50%, 50%; 
+  --secondary-foreground: 0, 0%, 100%; 
+  --destructive: 0, 100%, 50%; 
+  --destructive-foreground: 0, 0%, 100%; 
+  --accent: 340, 70%, 60%; 
+  --accent-foreground: 0, 0%, 100%; 
+  --popover: 210, 50%, 95%; 
+  --popover-foreground: 0, 0%, 20%; 
+  --card: 250, 90%, 98%; 
+  --card-foreground: 0, 0%, 20%; 
 }
 
 /* Dark Mode (tailwind's dark class will be toggled for dark mode) */
@@ -33,14 +33,29 @@
   --divider: #3d3d3d;
   --muted: #9ca3af;
   --shadow-light: rgba(255, 255, 255, 0.051);
+  --primary: 215, 70%, 50%; 
+  --primary-foreground: 0, 0%, 100%;
+  --secondary: 210, 50%, 50%; 
+  --secondary-foreground: 0, 0%, 100%;
+  --accent: 340, 70%, 60%;
+  --accent-foreground: 0, 0%, 100%;
+  --popover: 220, 20%, 35%;
+  --popover-foreground: 0, 0%, 100%;
+  --card: 230, 20%, 20%;
+  --card-foreground: 0, 0%, 90%;
 }
 
+/* Global Styles */
 body {
   color: var(--foreground);
   background: var(--background);
-  container: var(--container);
   font-family: 'Roboto', Arial, sans-serif;
-  transition: background-color 0.5s ease, color 0.5s ease;
+  transition: background-color 0.5s ease, color 0.5s ease, box-shadow 0.5s ease;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
 /* Utility Classes for Text and Background Colors */
@@ -73,9 +88,37 @@ body {
   scrollbar-color: var(--foreground) transparent;
 }
 
-/* Tailwind Dark Mode Support */
-body.dark {
-  color: var(--foreground);
-  background: var(--background);
+/* Customizing Scrollbar for Webkit Browsers (Chrome, Safari, etc.) */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
+::-webkit-scrollbar-thumb {
+  background-color: var(--divider);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--foreground);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Styling for links */
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+/* Optional: Responsive Design for Body and Containers */
+@media (max-width: 768px) {
+  body {
+    font-size: 0.875rem; /* smaller text on smaller screens */
+  }
+}

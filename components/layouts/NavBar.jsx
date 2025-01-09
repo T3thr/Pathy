@@ -2,18 +2,19 @@
 import Link from 'next/link';
 import { options } from '@/app/api/auth/[...nextauth]/options'
 import { getServerSession } from 'next-auth/next'
-import { FaHome } from 'react-icons/fa'
-import { FaShoppingCart } from "react-icons/fa";
-import { VscAccount } from "react-icons/vsc";
 import { IoIosLogIn } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
-import SearchBar from './SearchBar';
 
-function Wrapper({ children }) {
+function NavLink({ href, children }) {
   return (
-    <div className='hover:ring-1 hover:ring-blue-400 text-blue-600 rounded-sm py-2 px-3 m-2 text-center'>
-      {children}
-    </div>
+    <Link href={href}>
+      <div className="relative group px-4 py-2 -top-3">
+        <span className="relative z-10 text-[hsl(var(--primary))] group-hover:text-[hsl(var(--secondary))] transition-all duration-300">
+          {children}
+        </span>
+        <div className="absolute inset-0 h-1 bg-[hsl(var(--accent))] transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300 bottom-0 rounded-full shadow-lg opacity-75"></div>
+      </div>
+    </Link>
   );
 }
 
@@ -21,37 +22,45 @@ export default async function NavBar() {
   const session = await getServerSession(options)
 
   return (
-    <nav className="fixed top-0 w-full flex flex-row bg-gray-200 p-0 shadow-gray-200 shadow-sm">
-      <div className="container mx-auto flex flex-row items-center justify-center lg:justify-between">
-        {/* logo */}
-        <div className="top-0 flex items-center">
+    <nav className="w-full bg-[var(--divider)] border-b border-[var(--divider)] backdrop-blur-sm bg-opacity-90">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16 z-50">
+          {/* Left side (logo) */}
+          <div className="flex-1 lg:flex-none flex justify-center lg:justify-start z-50">
             <Link href='/'>
-                <h1 className="text-3xl font-bold text-blue-800">PATHY</h1>
+              <h1 className="text-7xl md:text-3xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))] bg-clip-text text-transparent hover:scale-105 transition-transform duration-300 z-50">
+                PATHY
+              </h1>
             </Link>
-        </div>
+          </div>
 
-        
-        {/* main */}
-
-          <div className=" hidden lg:flex space-x-4">
-          <div className="top-0 md:flex lg:flex lg:space-x-4 lg:w-full md:w-auto align-middle ">
-
-          <Wrapper><Link href='/' className={` hidden lg:block`}>Home</Link></Wrapper>
-          
-          {/* แสดงเมนู Sign Out เมื่อเข้าสู่ระบบแล้ว */}
-          {session && <Wrapper><Link href='api/auth/signout?callbackUrl=/' className={`hidden lg:flex items-center`}>
-            <IoLogOut className='mr-2'/>ออกจากระบบ
-          </Link></Wrapper>}
-
-          {/* แสดงเมนู Sign In เมื่อยังไม่ได้เข้าสู่ระบบ */}
-          {!session && <Wrapper><Link href='/signin' className={` hidden lg:flex items-center`}>
-            <IoIosLogIn className='mr-2'/>เข้าสู่ระบบ
-            </Link></Wrapper>}
-          {!session && <Wrapper><Link href='/signup' className={` hidden lg:flex items-center`}>
-            ลงทะเบียน
-            </Link></Wrapper>}
-
-        </div> 
+          {/* Right side (nav links) */}
+          <div className="hidden lg:flex items-center space-x-2">
+            <NavLink href="/">Home</NavLink>
+            {session ? (
+              <NavLink href="api/auth/signout?callbackUrl=/">
+                <span className="flex items-center space-x-2 hover:scale-105 transition-transform">
+                  <IoLogOut className="text-[hsl(var(--destructive))]" />
+                  <span>ออกจากระบบ</span>
+                </span>
+              </NavLink>
+            ) : (
+              <>
+                <NavLink href="/signin">
+                  <span className="flex items-center space-x-2 hover:scale-105 transition-transform">
+                    <IoIosLogIn className="text-[hsl(var(--primary))]" />
+                    <span>เข้าสู่ระบบ</span>
+                  </span>
+                </NavLink>
+                <NavLink href="/signup">
+                  <span className="relative inline-flex items-center px-6 py-2 overflow-hidden font-medium transition-all bg-[hsl(var(--primary))] rounded-lg hover:bg-[hsl(var(--secondary))] text-white">
+                    ลงทะเบียน
+                    <span className="absolute right-0 w-8 h-32 -mt-12 transition-all duration-1000 transform rotate-12 translate-x-1 bg-white opacity-10 group-hover:translate-x-0"></span>
+                  </span>
+                </NavLink>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </nav>

@@ -1,24 +1,20 @@
-import React from 'react';
-import { options } from '@/app/api/auth/[...nextauth]/options'
 import { getServerSession } from 'next-auth/next'
-import NavBar from './NavBar';
+import { options } from '@/app/api/auth/[...nextauth]/options'
+import NavBar from './NavBar'
 import Menu from './Menu'
-import { GlobalProvider } from "@/app/GlobalProvider";
+import { GlobalProvider } from "@/app/GlobalProvider"
 
 export default async function Header() {
   const session = await getServerSession(options)
 
   return (
     <GlobalProvider>
-    <header className='fixed top-0 w-full flex flex-col lg:flex-row p-0 bg-white py-0 border-b z-50'>
-
-    <div className='top-0 flex '>   
-    <NavBar />
-    </div>
-    <div  className="fixed w-full flex lg:flex-row lg:mt-[3.3rem]  mt-8 shadow-gray-200 shadow-sm bg-gray-200 z-50">
-    <Menu/>
-    </div>
-    </header></GlobalProvider>
-
+      <header className="fixed top-0 left-0 right-0 z-50 -space-y-5">
+        <NavBar />
+        <Menu session={session} />
+      </header>
+      {/* Spacer to prevent content from hiding under fixed header */}
+      <div className="lg:max-h-20 h-6 lg:mt-14 md:mt-[4.4rem] mt-10" />
+    </GlobalProvider>
   );
-};
+}

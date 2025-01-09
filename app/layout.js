@@ -28,11 +28,11 @@ export default async function RootLayout({ children }) {
       </head>
       <body className={inter.className}>
         <ThemeProvider initialTheme={themeCookie}>
-          <div className="xl:pt-18 md:pt-17 pt-20">
+          <div className="xl:pt-3">
             <Header />
           </div>
           <GlobalProvider>
-            <div className="xl:pt-3 md:pt-2 pt-1">{children}</div>
+            <div className="">{children}</div>
             <ChangeTheme />
           </GlobalProvider>
         </ThemeProvider>

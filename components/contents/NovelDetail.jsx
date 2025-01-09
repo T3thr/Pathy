@@ -105,6 +105,17 @@ export default function NovelDetail({ novelDetails }) {
     return `Continue from: ${lastReadVisualProgress.chapter}`;
   }, [lastReadVisualProgress]);
 
+  const handleEpisodeRead = useCallback(async (episodeIndex) => {
+    const currentEpisode = story[episodeIndex];
+    if (currentEpisode && currentEpisode.choices) {
+      localStorage.setItem(`progress-${novelDetails.title}`, episodeIndex.toString());
+  
+      await updateViewCount();
+  
+      router.push(`/novel/${encodeURIComponent(novelDetails.title)}/read`);
+    }
+  }, [story, novelDetails, router, updateViewCount]);
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}

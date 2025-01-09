@@ -213,7 +213,7 @@ const Canvas = forwardRef(({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
-        className="absolute bottom-0 left-0 right-0 mx-auto max-w-4xl p-6 rounded-t-lg backdrop-blur-sm z-30 bg-black/80"
+        className="absolute bottom-0 left-0 right-0 mx-auto max-w-screen p-6 rounded-t-lg backdrop-blur-sm z-30 bg-black/80"
         onClick={() => onElementSelect?.('dialogue')}
       >
         {scene.characterName && (
