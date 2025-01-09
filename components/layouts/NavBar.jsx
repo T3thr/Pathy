@@ -28,7 +28,7 @@ export default async function NavBar() {
           {/* Left side (logo) */}
           <div className="flex-1 lg:flex-none flex justify-center lg:justify-start z-50">
             <Link href='/'>
-              <h1 className="text-7xl md:text-3xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))] bg-clip-text text-transparent hover:scale-105 transition-transform duration-300 z-50">
+              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))] bg-clip-text text-transparent hover:scale-105 transition-transform duration-300 z-50">
                 PATHY
               </h1>
             </Link>
